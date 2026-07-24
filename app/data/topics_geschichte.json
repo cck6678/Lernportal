@@ -1,0 +1,86 @@
+[
+  {
+    "subject": "Geschichte",
+    "title": "Athenische Demokratie vs. Römische Republik",
+    "keyTerms": ["Demokratie", "Republik", "Polis", "Senat"],
+    "formulas": [],
+    "examples": ["Untersuchung einer attischen Volksversammlung (Quelle: Thukydides-Auszug)"],
+    "quiz": [
+      {
+        "question": "Nenne zwei wesentliche Unterschiede zwischen der athenischen Demokratie und der römischen Republik.",
+        "answers": ["Direkte vs. repräsentative Elemente", "Bürgerbegriff und Beteiligung"]
+      }
+    ],
+    "source": "kcgo - Geschichte (Hessen), S.22 (Themenfeld Einführungsphase)"
+  },
+  {
+    "subject": "Geschichte",
+    "title": "Feudalismus und Ständegesellschaft",
+    "keyTerms": ["Feudalismus", "Lehnswesen", "Stände", "Grundherrschaft"],
+    "formulas": [],
+    "examples": ["Auswertung eines Lehnsbriefe-Auszugs; Vergleich ländlicher und städtischer Lebensverhältnisse"],
+    "quiz": [
+      {
+        "question": "Was versteht man unter dem Lehnswesen?",
+        "answers": ["Ein System persönlicher Bindungen zwischen Lehnsherr und Vasall, verbunden mit Landnutzungspflichten"]
+      }
+    ],
+    "source": "kcgo - Geschichte (Hessen), S.22"
+  },
+  {
+    "subject": "Geschichte",
+    "title": "Revolution 1848/49 in Deutschland",
+    "keyTerms": ["Revolution", "Nationalismus", "Liberale", "Frankfurter Nationalversammlung"],
+    "formulas": [],
+    "examples": ["Analyse der Paulskirchenverfassung als Quelle"],
+    "quiz": [
+      {
+        "question": "Welche sozialen Gruppen waren 1848/49 maßgeblich an den Revolutionen beteiligt?",
+        "answers": ["Bürgertum/Liberale, Arbeiter, Studenten"]
+      }
+    ],
+    "source": "kcgo - Geschichte (Hessen), S.23 (Kurshalbjahr Q1)"
+  },
+  {
+    "subject": "Geschichte",
+    "title": "Industrialisierung und soziale Frage",
+    "keyTerms": ["Industrialisierung", "Proletariat", "Urbanisierung", "Soziale Frage"],
+    "formulas": [],
+    "examples": ["Vergleich von Lebensbedingungen in Fabrikstädten vs. ländlichen Regionen"],
+    "quiz": [
+      {
+        "question": "Nenne zwei Folgen der Industrialisierung im 19. Jahrhundert.",
+        "answers": ["Urbanisierung, Entstehung der Arbeiterklasse"]
+      }
+    ],
+    "source": "kcgo - Geschichte (Hessen), S.23"
+  },
+  {
+    "subject": "Geschichte",
+    "title": "Aufstieg und Herrschaft des Nationalsozialismus",
+    "keyTerms": ["NSDAP", "Gleichschaltung", "Propaganda", "Führerprinzip"],
+    "formulas": [],
+    "examples": ["Auswertung von Propagandaplakaten und Redetexten"],
+    "quiz": [
+      {
+        "question": "Nenne zwei Maßnahmen zur Gleichschaltung im NS-Staat.",
+        "answers": ["Auflösung politischer Parteien, Kontrolle der Presse"]
+      }
+    ],
+    "source": "kcgo - Geschichte (Hessen), S.24 (Q2 Themen)"
+  },
+  {
+    "subject": "Geschichte",
+    "title": "Wiedervereinigung und Transformation nach 1990",
+    "keyTerms": ["Wiedervereinigung", "Transformation", "Währungsunion", "Privatisierung"],
+    "formulas": [],
+    "examples": ["Vergleich ausgewählter ökonomischer Indikatoren BRD vs DDR 1989–1995"],
+    "quiz": [
+      {
+        "question": "Nenne zwei wirtschaftliche Herausforderungen der Wiedervereinigung.",
+        "answers": ["Privatisierung ostdeutscher Betriebe, Anpassung an Marktwirtschaft"]
+      }
+    ],
+    "source": "kcgo - Geschichte (Hessen), S.25-26 (Q4 Themen)"
+  }
+]
