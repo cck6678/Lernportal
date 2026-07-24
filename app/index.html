@@ -13,8 +13,16 @@
   </head>
   <body>
     <header class="header">
-      <h1>Lernportal</h1>
-      <p>Hessisches Abitur – mobil lernen</p>
+      <div class="header-row">
+        <div>
+          <h1>Lernportal</h1>
+          <p>Hessisches Abitur – mobil lernen</p>
+        </div>
+        <div class="score-box" id="score-box" aria-live="polite">
+          <span id="score-points">0</span>
+          <span class="score-label">Punkte</span>
+        </div>
+      </div>
     </header>
 
     <main class="container">
@@ -45,6 +53,7 @@
         <p id="quiz-question"></p>
         <div id="quiz-options" class="quiz-options"></div>
         <p id="quiz-feedback" class="feedback"></p>
+        <p id="score-toast" class="score-toast" hidden></p>
         <button id="next-question" class="button secondary" hidden>Nächste Frage</button>
       </section>
 

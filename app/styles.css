@@ -27,6 +27,13 @@ body {
   padding: 1rem 1rem 0.9rem;
 }
 
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
@@ -36,6 +43,49 @@ body {
   margin: 0.4rem 0 0;
   color: #cbd5e1;
   font-size: 0.95rem;
+}
+
+.score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 0.4rem 0.7rem;
+  min-width: 64px;
+  flex-shrink: 0;
+}
+
+#score-points {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ecfeff;
+}
+
+.score-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 0.1rem;
+}
+
+.score-box.bump {
+  animation: bump 0.35s ease;
+}
+
+@keyframes bump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.score-toast {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--success);
+  min-height: 1.2rem;
+  margin: 0.3rem 0 0;
 }
 
 .container {

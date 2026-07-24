@@ -3,7 +3,9 @@ import { topics } from "./data/topics.js";
 const storeKeys = {
   learned: "lernportal.learnedTopics",
   lastTopic: "lernportal.lastTopic",
-  quizIdx: "lernportal.quizIndex"
+  quizIdx: "lernportal.quizIndex",
+  points: "lernportal.points",
+  answeredQuestions: "lernportal.answeredQuestions"
 };
 
 const tabLearn = document.getElementById("tab-learn");
@@ -25,8 +27,11 @@ const quizContext = document.getElementById("quiz-context");
 const quizQuestion = document.getElementById("quiz-question");
 const quizOptions = document.getElementById("quiz-options");
 const quizFeedback = document.getElementById("quiz-feedback");
+const scoreToast = document.getElementById("score-toast");
 const nextQuestionBtn = document.getElementById("next-question");
 const offlineStateEl = document.getElementById("offline-state");
+const scorePointsEl = document.getElementById("score-points");
+const scoreBoxEl = document.getElementById("score-box");
 
 let activeTopic = null;
 let activeQuiz = [];
@@ -34,6 +39,8 @@ let activeQuestionIdx = 0;
 let viewMode = "learn";
 let selectedSubject = "";
 let selectedTopicId = "";
+let points = readJson(storeKeys.points, 0);
+const answeredQuestions = new Set(readJson(storeKeys.answeredQuestions, []));
 const learnedTopics = new Set(readJson(storeKeys.learned, []));
 let filteredTopics = topics.slice();
 
@@ -43,6 +50,7 @@ restoreLastTopic();
 bindEvents();
 setViewMode("learn");
 updateOfflineHint();
+updateScoreDisplay();
 registerServiceWorker();
 
 function bindEvents() {
@@ -244,11 +252,14 @@ function renderQuestion() {
     quizPanel.hidden = true;
     return;
   }
+  const questionKey = `${activeTopic.id}::${activeQuestionIdx}`;
   writeText(storeKeys.quizIdx, String(activeQuestionIdx));
   quizQuestion.textContent = question.question;
   quizOptions.innerHTML = "";
   quizFeedback.textContent = "";
   quizFeedback.className = "feedback";
+  scoreToast.hidden = true;
+  scoreToast.textContent = "";
   nextQuestionBtn.hidden = true;
 
   question.options.forEach((option, idx) => {
@@ -263,10 +274,32 @@ function renderQuestion() {
       Array.from(quizOptions.children).forEach((child) => {
         child.disabled = true;
       });
+      if (ok && !answeredQuestions.has(questionKey)) {
+        answeredQuestions.add(questionKey);
+        writeJson(storeKeys.answeredQuestions, Array.from(answeredQuestions));
+        awardPoints(10, "＋10 Punkte");
+      } else if (ok && answeredQuestions.has(questionKey)) {
+        awardPoints(2, "＋2 Punkte (Wiederholung)");
+      }
       nextQuestionBtn.hidden = false;
     });
     quizOptions.append(btn);
   });
+}
+
+function awardPoints(amount, label) {
+  points += amount;
+  writeJson(storeKeys.points, points);
+  updateScoreDisplay();
+  scoreToast.textContent = label;
+  scoreToast.hidden = false;
+  scoreBoxEl.classList.remove("bump");
+  void scoreBoxEl.offsetWidth;
+  scoreBoxEl.classList.add("bump");
+}
+
+function updateScoreDisplay() {
+  scorePointsEl.textContent = points;
 }
 
 function setLearnedButton(topicId) {
