@@ -31,7 +31,9 @@ const scoreToast = document.getElementById("score-toast");
 const nextQuestionBtn = document.getElementById("next-question");
 const offlineStateEl = document.getElementById("offline-state");
 const scorePointsEl = document.getElementById("score-points");
+const scoreMaxEl = document.getElementById("score-max");
 const scoreBoxEl = document.getElementById("score-box");
+const MAX_POINTS = topics.reduce((sum, t) => sum + t.quiz.length * 10, 0);
 
 let activeTopic = null;
 let activeQuiz = [];
@@ -300,6 +302,7 @@ function awardPoints(amount, label) {
 
 function updateScoreDisplay() {
   scorePointsEl.textContent = points;
+  scoreMaxEl.textContent = ` / ${MAX_POINTS}`;
 }
 
 function setLearnedButton(topicId) {
