@@ -6,8 +6,67 @@ function _earlyReadJson(key, fallback) {
   catch { return fallback; }
 }
 
+function toStringArray(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => String(item ?? "").trim())
+    .filter(Boolean);
+}
+
+function normalizeQuiz(rawQuiz) {
+  if (!Array.isArray(rawQuiz)) return [];
+
+  return rawQuiz
+    .map((q) => {
+      const question = String(q?.question ?? "").trim();
+      if (!question) return null;
+
+      if (Array.isArray(q?.options) && q.options.length >= 2) {
+        const options = toStringArray(q.options).slice(0, 4);
+        if (options.length < 2) return null;
+        const answer = Number.isInteger(q.answer) && q.answer >= 0 && q.answer < options.length ? q.answer : 0;
+        return { question, options, answer };
+      }
+
+      // Legacy-Format: { question, answers: [...] }
+      if (Array.isArray(q?.answers) && q.answers.length > 0) {
+        const correct = String(q.answers[0] ?? "").trim();
+        if (!correct) return null;
+        return {
+          question,
+          options: [correct, "Keine der anderen Antworten", "Nicht eindeutig beurteilbar", "Nur teilweise korrekt"],
+          answer: 0
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+}
+
+function normalizeTopic(topic, index) {
+  const id = String(topic?.id ?? `custom-topic-${index + 1}`).trim() || `custom-topic-${index + 1}`;
+  const subject = String(topic?.subject ?? "Allgemein").trim() || "Allgemein";
+  const title = String(topic?.title ?? `Thema ${index + 1}`).trim() || `Thema ${index + 1}`;
+
+  return {
+    id,
+    subject,
+    title,
+    keyTerms: toStringArray(topic?.keyTerms),
+    formulas: toStringArray(topic?.formulas),
+    examples: toStringArray(topic?.examples),
+    quiz: normalizeQuiz(topic?.quiz)
+  };
+}
+
+function normalizeTopics(input) {
+  if (!Array.isArray(input)) return [];
+  return input.map((topic, idx) => normalizeTopic(topic, idx));
+}
+
 const customTopics = _earlyReadJson("lernportal.customTopics", []);
-const topics = [...basTopics, ...customTopics];
+const topics = normalizeTopics([...basTopics, ...customTopics]);
 
 const storeKeys = {
   learned: "lernportal.learnedTopics",
@@ -305,7 +364,10 @@ function openTopic(topicId) {
 
   activeQuiz = topic.quiz;
   const savedQuestionIdx = Number(readText(storeKeys.quizIdx, "0"));
-  activeQuestionIdx = Number.isFinite(savedQuestionIdx) ? savedQuestionIdx % activeQuiz.length : 0;
+  activeQuestionIdx =
+    Number.isFinite(savedQuestionIdx) && activeQuiz.length > 0
+      ? savedQuestionIdx % activeQuiz.length
+      : 0;
   renderQuestion();
   renderTopicPickerList();
   applyViewMode();
@@ -346,7 +408,8 @@ function renderQuestion() {
   nextQuestionBtn.hidden = true;
   repeatWrongBtn.hidden = wrongQuestions.size === 0 && !repeatWrongMode;
 
-  question.options.forEach((option, idx) => {
+  const options = Array.isArray(question.options) ? question.options : [];
+  options.forEach((option, idx) => {
     const btn = document.createElement("button");
     btn.className = "quiz-option";
     btn.type = "button";
@@ -430,7 +493,7 @@ function updateProgress() {
 
 function fillList(el, values) {
   el.innerHTML = "";
-  values.forEach((item) => {
+  (Array.isArray(values) ? values : []).forEach((item) => {
     const li = document.createElement("li");
     li.textContent = item;
     el.append(li);
