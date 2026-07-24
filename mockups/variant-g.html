@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mockup G</title>
+    <link rel="stylesheet" href="./mockups.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="header">
+        <h1>Lernportal</h1>
+        <p>Variante G: Thema-Auswahl als Bottom-Sheet</p>
+      </header>
+      <main class="content">
+        <section class="block filter-grid">
+          <div>
+            <label class="field-label">Fach</label>
+            <select class="search">
+              <option>Alle Fächer</option>
+              <option>Mathematik</option>
+              <option selected>Geschichte</option>
+              <option>Deutsch</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Thema</label>
+            <button class="search" style="text-align: left">Weimarer Republik auswählen</button>
+          </div>
+          <input class="search" placeholder="Freitextsuche (z. B. Inflation)" />
+        </section>
+
+        <section class="sheet">
+          <div class="sheet-handle"></div>
+          <div class="picker-list">
+            <article class="picker-item active">
+              <h4>Weimarer Republik: Chancen und Krisen</h4>
+              <p class="picker-meta">Geschichte · Quiz: 2 · Letzter Zugriff: heute</p>
+            </article>
+            <article class="picker-item">
+              <h4>Kalter Krieg Überblick</h4>
+              <p class="picker-meta">Geschichte · Quiz: 1 · Status: Offen</p>
+            </article>
+            <article class="picker-item">
+              <h4>Nationalsozialismus und Folgen</h4>
+              <p class="picker-meta">Geschichte · Quiz: 3 · Status: Gelernt</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="Mobiles Lernportal für das hessische Abitur" />
+    <title>Lernportal</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-row">
+        <div>
+          <h1>Lernportal</h1>
+          <p>Hessisches Abitur – mobil lernen</p>
+        </div>
+        <div class="score-box" id="score-box" aria-live="polite">
+          <span id="score-points">0</span><span class="score-max" id="score-max"></span>
+          <span class="score-label">Punkte</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <label class="label" for="subject-filter">Fach</label>
+        <select id="subject-filter" class="input"></select>
+        <label class="label" for="topic-filter">Thema</label>
+        <select id="topic-filter" class="input"></select>
+        <div class="panel-title-row picker-title">
+          <h3>Themenauswahl</h3>
+          <span id="progress" class="badge"></span>
+        </div>
+        <div id="topic-picker-list" class="picker-list"></div>
+        <label class="label" for="search-input">Freitextsuche</label>
+        <input id="search-input" class="input" type="search" placeholder="Fach, Thema oder Begriff" />
+        <div class="tabs" role="tablist" aria-label="Ansicht wählen">
+          <button id="tab-learn" class="tab active" role="tab" aria-selected="true" type="button">Lernen</button>
+          <button id="tab-quiz" class="tab" role="tab" aria-selected="false" type="button">Quiz</button>
+          <button id="tab-profile" class="tab" role="tab" aria-selected="false" type="button">Profil</button>
+        </div>
+        <p id="offline-state" class="hint"></p>
+      </section>
+
+      <section class="panel" id="quiz-panel" hidden>
+        <div class="panel-title-row">
+          <h2>Kurzquiz</h2>
+          <span id="quiz-context" class="badge"></span>
+        </div>
+        <p id="quiz-question"></p>
+        <div id="quiz-options" class="quiz-options"></div>
+        <p id="quiz-feedback" class="feedback"></p>
+        <p id="score-toast" class="score-toast" hidden></p>
+        <button id="next-question" class="button secondary" hidden>Nächste Frage</button>
+        <button id="repeat-wrong" class="button secondary" hidden>Schwierige Fragen üben</button>
+      </section>
+
+      <section class="panel" id="profile-panel" hidden>
+        <h2>Mein Profil</h2>
+
+        <h3 class="profile-section-title">Wöchentliches Lernziel</h3>
+        <div class="goal-row">
+          <label class="goal-label" for="goal-input">Themen pro Woche:</label>
+          <input id="goal-input" class="goal-input input" type="number" min="1" max="50" value="3" />
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-track">
+            <div id="goal-bar" class="progress-bar-fill"></div>
+          </div>
+          <span id="goal-status" class="goal-status"></span>
+        </div>
+
+        <h3 class="profile-section-title">Badges</h3>
+        <div id="badge-list" class="badge-list"></div>
+
+        <a href="./admin.html" class="button secondary admin-link">Inhalte bearbeiten ✏️</a>
+      </section>
+
+      <section class="panel" id="topic-panel" hidden>
+        <h2 id="topic-title"></h2>
+        <p id="topic-subject" class="subject"></p>
+        <h3>Kernbegriffe</h3>
+        <ul id="topic-keyterms"></ul>
+        <h3>Formeln / Struktur</h3>
+        <ul id="topic-formulas"></ul>
+        <h3>Beispiele</h3>
+        <ul id="topic-examples"></ul>
+        <button id="learned-toggle" class="button"></button>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mockup D</title>
+    <link rel="stylesheet" href="./mockups.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="header">
+        <h1>Lernportal</h1>
+        <p>Variante D: Top Tabs + Fach/Thema Drop-down</p>
+      </header>
+      <main class="content">
+        <section class="block filter-grid">
+          <div>
+            <label class="field-label" for="subject-select">Fach</label>
+            <select id="subject-select" class="search">
+              <option>Alle Fächer</option>
+              <option>Mathematik</option>
+              <option>Deutsch</option>
+              <option>Geschichte</option>
+              <option>Biologie</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="topic-select">Thema</label>
+            <select id="topic-select" class="search">
+              <option>Alle Themen</option>
+              <option>Ableitungen und Änderungsraten</option>
+              <option>Lineare Erörterung</option>
+              <option>Weimarer Republik</option>
+              <option>Mendelsche Regeln</option>
+            </select>
+          </div>
+          <input class="search" placeholder="Freitextsuche (z. B. Ableitung)" />
+        </section>
+
+        <section class="tabs">
+          <button class="tab">Lernen</button>
+          <button class="tab active">Quiz</button>
+        </section>
+
+        <section class="block">
+          <h2>Quiz (oben erreichbar)</h2>
+          <div class="quiz-card">
+            <p><strong>Fach:</strong> Mathematik</p>
+            <p><strong>Frage:</strong> Wie lautet die Ableitung von x⁴?</p>
+            <div class="answers">
+              <button>4x³</button>
+              <button>x³</button>
+              <button>4x</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
