@@ -1,15 +1,30 @@
-import { topics } from "./data/topics.js";
+import { topics as basTopics } from "./data/topics.js";
+
+// readJson wird weiter unten definiert; für Top-Level-Aufruf hier inline:
+function _earlyReadJson(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  catch { return fallback; }
+}
+
+const customTopics = _earlyReadJson("lernportal.customTopics", []);
+const topics = [...basTopics, ...customTopics];
 
 const storeKeys = {
   learned: "lernportal.learnedTopics",
   lastTopic: "lernportal.lastTopic",
   quizIdx: "lernportal.quizIndex",
   points: "lernportal.points",
-  answeredQuestions: "lernportal.answeredQuestions"
+  answeredQuestions: "lernportal.answeredQuestions",
+  wrongQuestions: "lernportal.wrongQuestions",
+  earnedBadges: "lernportal.earnedBadges",
+  weeklyGoal: "lernportal.weeklyGoal",
+  weekStart: "lernportal.weekStart",
+  weekTopics: "lernportal.weekTopics"
 };
 
 const tabLearn = document.getElementById("tab-learn");
 const tabQuiz = document.getElementById("tab-quiz");
+const tabProfile = document.getElementById("tab-profile");
 const subjectFilter = document.getElementById("subject-filter");
 const topicFilter = document.getElementById("topic-filter");
 const searchInput = document.getElementById("search-input");
@@ -29,10 +44,16 @@ const quizOptions = document.getElementById("quiz-options");
 const quizFeedback = document.getElementById("quiz-feedback");
 const scoreToast = document.getElementById("score-toast");
 const nextQuestionBtn = document.getElementById("next-question");
+const repeatWrongBtn = document.getElementById("repeat-wrong");
 const offlineStateEl = document.getElementById("offline-state");
 const scorePointsEl = document.getElementById("score-points");
 const scoreMaxEl = document.getElementById("score-max");
 const scoreBoxEl = document.getElementById("score-box");
+const profilePanel = document.getElementById("profile-panel");
+const goalInput = document.getElementById("goal-input");
+const goalBar = document.getElementById("goal-bar");
+const goalStatus = document.getElementById("goal-status");
+const badgeList = document.getElementById("badge-list");
 const MAX_POINTS = topics.reduce((sum, t) => sum + t.quiz.length * 10, 0);
 
 let activeTopic = null;
@@ -43,8 +64,26 @@ let selectedSubject = "";
 let selectedTopicId = "";
 let points = readJson(storeKeys.points, 0);
 const answeredQuestions = new Set(readJson(storeKeys.answeredQuestions, []));
+const wrongQuestions = new Set(readJson(storeKeys.wrongQuestions, []));
 const learnedTopics = new Set(readJson(storeKeys.learned, []));
+const earnedBadges = new Set(readJson(storeKeys.earnedBadges, []));
 let filteredTopics = topics.slice();
+let repeatWrongMode = false;
+let wrongQueue = [];
+
+// Wöchentliches Lernziel – Woche zurücksetzen wenn nötig
+(function initWeek() {
+  const storedStart = readJson(storeKeys.weekStart, null);
+  const now = new Date();
+  const weekStartDate = new Date(now);
+  weekStartDate.setHours(0, 0, 0, 0);
+  weekStartDate.setDate(now.getDate() - now.getDay());
+  const weekKey = weekStartDate.toISOString().slice(0, 10);
+  if (storedStart !== weekKey) {
+    writeJson(storeKeys.weekStart, weekKey);
+    writeJson(storeKeys.weekTopics, []);
+  }
+})();
 
 initializeFilters();
 applyFilters();
@@ -83,6 +122,10 @@ function bindEvents() {
     setViewMode("quiz");
   });
 
+  tabProfile.addEventListener("click", () => {
+    setViewMode("profile");
+  });
+
   learnedToggle.addEventListener("click", () => {
     if (!activeTopic) {
       return;
@@ -91,16 +134,36 @@ function bindEvents() {
       learnedTopics.delete(activeTopic.id);
     } else {
       learnedTopics.add(activeTopic.id);
+      trackWeeklyTopic(activeTopic.id);
     }
     writeJson(storeKeys.learned, Array.from(learnedTopics));
     setLearnedButton(activeTopic.id);
     updateProgress();
     renderTopicPickerList();
+    checkAndAwardBadges();
   });
 
   nextQuestionBtn.addEventListener("click", () => {
-    activeQuestionIdx = (activeQuestionIdx + 1) % activeQuiz.length;
+    if (repeatWrongMode) {
+      if (wrongQueue.length > 0) {
+        activeQuestionIdx = (activeQuestionIdx + 1) % wrongQueue.length;
+      }
+    } else {
+      activeQuestionIdx = (activeQuestionIdx + 1) % activeQuiz.length;
+    }
     renderQuestion();
+  });
+
+  repeatWrongBtn.addEventListener("click", () => {
+    startRepeatWrongMode();
+  });
+
+  goalInput.addEventListener("change", () => {
+    const val = parseInt(goalInput.value, 10);
+    if (val > 0) {
+      writeJson(storeKeys.weeklyGoal, val);
+      renderGoal();
+    }
   });
 
   window.addEventListener("online", updateOfflineHint);
@@ -249,12 +312,30 @@ function openTopic(topicId) {
 }
 
 function renderQuestion() {
-  const question = activeQuiz[activeQuestionIdx];
+  let question;
+  let questionKey;
+
+  if (repeatWrongMode) {
+    if (wrongQueue.length === 0) {
+      repeatWrongMode = false;
+      quizFeedback.textContent = "Alle schwierigen Fragen beantwortet! 🎉";
+      quizFeedback.className = "feedback ok";
+      repeatWrongBtn.hidden = true;
+      return;
+    }
+    const entry = wrongQueue[activeQuestionIdx % wrongQueue.length];
+    const t = topics.find((x) => x.id === entry.topicId);
+    question = t ? t.quiz[entry.idx] : null;
+    questionKey = `${entry.topicId}::${entry.idx}`;
+  } else {
+    question = activeQuiz[activeQuestionIdx];
+    questionKey = activeTopic ? `${activeTopic.id}::${activeQuestionIdx}` : null;
+  }
+
   if (!question) {
     quizPanel.hidden = true;
     return;
   }
-  const questionKey = `${activeTopic.id}::${activeQuestionIdx}`;
   writeText(storeKeys.quizIdx, String(activeQuestionIdx));
   quizQuestion.textContent = question.question;
   quizOptions.innerHTML = "";
@@ -263,6 +344,7 @@ function renderQuestion() {
   scoreToast.hidden = true;
   scoreToast.textContent = "";
   nextQuestionBtn.hidden = true;
+  repeatWrongBtn.hidden = wrongQuestions.size === 0 && !repeatWrongMode;
 
   question.options.forEach((option, idx) => {
     const btn = document.createElement("button");
@@ -271,22 +353,54 @@ function renderQuestion() {
     btn.textContent = option;
     btn.addEventListener("click", () => {
       const ok = idx === question.answer;
-      quizFeedback.textContent = ok ? "Richtig." : "Nicht korrekt.";
+      quizFeedback.textContent = ok ? "Richtig! ✓" : "Nicht korrekt. ✗";
       quizFeedback.className = `feedback ${ok ? "ok" : "err"}`;
       Array.from(quizOptions.children).forEach((child) => {
         child.disabled = true;
       });
-      if (ok && !answeredQuestions.has(questionKey)) {
-        answeredQuestions.add(questionKey);
-        writeJson(storeKeys.answeredQuestions, Array.from(answeredQuestions));
-        awardPoints(10, "＋10 Punkte");
-      } else if (ok && answeredQuestions.has(questionKey)) {
-        awardPoints(2, "＋2 Punkte (Wiederholung)");
+      if (questionKey) {
+        if (!ok) {
+          wrongQuestions.add(questionKey);
+          writeJson(storeKeys.wrongQuestions, Array.from(wrongQuestions));
+          repeatWrongBtn.hidden = false;
+        } else {
+          wrongQuestions.delete(questionKey);
+          writeJson(storeKeys.wrongQuestions, Array.from(wrongQuestions));
+          // Remove from wrongQueue if in repeat mode
+          if (repeatWrongMode) {
+            const [tid, qidx] = questionKey.split("::");
+            wrongQueue = wrongQueue.filter((e) => !(e.topicId === tid && String(e.idx) === qidx));
+            if (activeQuestionIdx >= wrongQueue.length) activeQuestionIdx = 0;
+          }
+        }
+        if (ok && !answeredQuestions.has(questionKey)) {
+          answeredQuestions.add(questionKey);
+          writeJson(storeKeys.answeredQuestions, Array.from(answeredQuestions));
+          awardPoints(10, "＋10 Punkte");
+          checkAndAwardBadges();
+        } else if (ok && answeredQuestions.has(questionKey)) {
+          awardPoints(2, "＋2 Punkte (Wiederholung)");
+        }
       }
       nextQuestionBtn.hidden = false;
     });
     quizOptions.append(btn);
   });
+}
+
+function startRepeatWrongMode() {
+  wrongQueue = Array.from(wrongQuestions).map((key) => {
+    const [topicId, idxStr] = key.split("::");
+    return { topicId, idx: parseInt(idxStr, 10) };
+  }).filter(({ topicId, idx }) => {
+    const t = topics.find((x) => x.id === topicId);
+    return t && t.quiz[idx];
+  });
+  if (wrongQueue.length === 0) return;
+  repeatWrongMode = true;
+  activeQuestionIdx = 0;
+  quizContext.textContent = "Schwierige Fragen";
+  renderQuestion();
 }
 
 function awardPoints(amount, label) {
@@ -352,6 +466,10 @@ function setViewMode(mode) {
   if (viewMode === "quiz") {
     ensureActiveTopicForQuiz();
   }
+  if (viewMode === "profile") {
+    renderGoal();
+    renderBadges();
+  }
   applyViewMode();
 }
 
@@ -363,12 +481,17 @@ function ensureActiveTopicForQuiz() {
 
 function applyViewMode() {
   const showLearn = viewMode === "learn";
+  const showQuiz = viewMode === "quiz";
+  const showProfile = viewMode === "profile";
   tabLearn.classList.toggle("active", showLearn);
-  tabQuiz.classList.toggle("active", !showLearn);
+  tabQuiz.classList.toggle("active", showQuiz);
+  tabProfile.classList.toggle("active", showProfile);
   tabLearn.setAttribute("aria-selected", String(showLearn));
-  tabQuiz.setAttribute("aria-selected", String(!showLearn));
+  tabQuiz.setAttribute("aria-selected", String(showQuiz));
+  tabProfile.setAttribute("aria-selected", String(showProfile));
   topicPanel.hidden = !(showLearn && activeTopic);
-  quizPanel.hidden = !(!showLearn && activeTopic);
+  quizPanel.hidden = !(showQuiz && activeTopic);
+  profilePanel.hidden = !showProfile;
 }
 
 function updateOfflineHint() {
@@ -400,7 +523,8 @@ function registerServiceWorker() {
 
 function readJson(key, fallback) {
   const raw = localStorage.getItem(key);
-  return raw ? JSON.parse(raw) : fallback;
+  try { return raw ? JSON.parse(raw) : fallback; }
+  catch { return fallback; }
 }
 
 function writeJson(key, value) {
@@ -413,4 +537,135 @@ function readText(key, fallback) {
 
 function writeText(key, value) {
   localStorage.setItem(key, value);
+}
+
+// ── Wöchentliches Lernziel ─────────────────────────────────────
+function trackWeeklyTopic(topicId) {
+  const weekTopics = new Set(readJson(storeKeys.weekTopics, []));
+  weekTopics.add(topicId);
+  writeJson(storeKeys.weekTopics, Array.from(weekTopics));
+}
+
+function renderGoal() {
+  const goal = readJson(storeKeys.weeklyGoal, 3);
+  goalInput.value = goal;
+  const weekTopics = new Set(readJson(storeKeys.weekTopics, []));
+  const done = weekTopics.size;
+  const pct = Math.min(100, Math.round((done / goal) * 100));
+  goalBar.style.width = `${pct}%`;
+  goalStatus.textContent = `${done} / ${goal} Themen diese Woche`;
+}
+
+// ── Badges ─────────────────────────────────────────────────────
+const BADGE_DEFS = [
+  {
+    id: "first-correct",
+    icon: "⭐",
+    name: "Erste Schritte",
+    desc: "Erste Frage richtig beantwortet",
+    check: () => answeredQuestions.size >= 1
+  },
+  {
+    id: "five-correct",
+    icon: "🔥",
+    name: "Fleißig",
+    desc: "5 verschiedene Fragen richtig beantwortet",
+    check: () => answeredQuestions.size >= 5
+  },
+  {
+    id: "ten-correct",
+    icon: "💪",
+    name: "Auf Kurs",
+    desc: "10 verschiedene Fragen richtig beantwortet",
+    check: () => answeredQuestions.size >= 10
+  },
+  {
+    id: "halfway",
+    icon: "🏆",
+    name: "Halbzeit",
+    desc: "50% der Gesamtpunkte erreicht",
+    check: () => MAX_POINTS > 0 && points >= MAX_POINTS * 0.5
+  },
+  {
+    id: "all-questions",
+    icon: "🎓",
+    name: "Meister",
+    desc: "Alle Quizfragen mindestens einmal richtig",
+    check: () => {
+      const total = topics.reduce((s, t) => s + t.quiz.length, 0);
+      return total > 0 && answeredQuestions.size >= total;
+    }
+  },
+  {
+    id: "five-topics",
+    icon: "📚",
+    name: "Lernprofi",
+    desc: "5 Themen als gelernt markiert",
+    check: () => learnedTopics.size >= 5
+  },
+  {
+    id: "subject-complete",
+    icon: "🌟",
+    name: "Fachexperte",
+    desc: "Alle Themen eines Fachs als gelernt markiert",
+    check: () => {
+      const subjects = [...new Set(topics.map((t) => t.subject))];
+      return subjects.some((subj) => {
+        const subTopics = topics.filter((t) => t.subject === subj);
+        return subTopics.length > 0 && subTopics.every((t) => learnedTopics.has(t.id));
+      });
+    }
+  },
+  {
+    id: "weekly-goal",
+    icon: "📅",
+    name: "Wochenziel",
+    desc: "Wöchentliches Lernziel erfüllt",
+    check: () => {
+      const goal = readJson(storeKeys.weeklyGoal, 3);
+      const weekTopics = readJson(storeKeys.weekTopics, []);
+      return weekTopics.length >= goal;
+    }
+  }
+];
+
+function checkAndAwardBadges() {
+  let newBadge = false;
+  BADGE_DEFS.forEach(({ id, check, icon, name }) => {
+    if (!earnedBadges.has(id) && check()) {
+      earnedBadges.add(id);
+      newBadge = true;
+      showBadgeToast(icon, name);
+    }
+  });
+  if (newBadge) {
+    writeJson(storeKeys.earnedBadges, Array.from(earnedBadges));
+  }
+}
+
+function showBadgeToast(icon, name) {
+  const toast = document.createElement("div");
+  toast.className = "badge-toast";
+  toast.textContent = `${icon} Badge erhalten: ${name}!`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 400);
+  }, 2800);
+}
+
+function renderBadges() {
+  badgeList.innerHTML = "";
+  BADGE_DEFS.forEach(({ id, icon, name, desc }) => {
+    const earned = earnedBadges.has(id);
+    const card = document.createElement("div");
+    card.className = `badge-card ${earned ? "earned" : "locked"}`;
+    card.innerHTML = `
+      <span class="badge-icon">${icon}</span>
+      <span class="badge-name">${name}</span>
+      <span class="badge-desc">${desc}</span>
+    `;
+    badgeList.appendChild(card);
+  });
 }

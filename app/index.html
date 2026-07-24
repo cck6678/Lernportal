@@ -41,6 +41,7 @@
         <div class="tabs" role="tablist" aria-label="Ansicht wählen">
           <button id="tab-learn" class="tab active" role="tab" aria-selected="true" type="button">Lernen</button>
           <button id="tab-quiz" class="tab" role="tab" aria-selected="false" type="button">Quiz</button>
+          <button id="tab-profile" class="tab" role="tab" aria-selected="false" type="button">Profil</button>
         </div>
         <p id="offline-state" class="hint"></p>
       </section>
@@ -55,6 +56,28 @@
         <p id="quiz-feedback" class="feedback"></p>
         <p id="score-toast" class="score-toast" hidden></p>
         <button id="next-question" class="button secondary" hidden>Nächste Frage</button>
+        <button id="repeat-wrong" class="button secondary" hidden>Schwierige Fragen üben</button>
+      </section>
+
+      <section class="panel" id="profile-panel" hidden>
+        <h2>Mein Profil</h2>
+
+        <h3 class="profile-section-title">Wöchentliches Lernziel</h3>
+        <div class="goal-row">
+          <label class="goal-label" for="goal-input">Themen pro Woche:</label>
+          <input id="goal-input" class="goal-input input" type="number" min="1" max="50" value="3" />
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-track">
+            <div id="goal-bar" class="progress-bar-fill"></div>
+          </div>
+          <span id="goal-status" class="goal-status"></span>
+        </div>
+
+        <h3 class="profile-section-title">Badges</h3>
+        <div id="badge-list" class="badge-list"></div>
+
+        <a href="./admin.html" class="button secondary admin-link">Inhalte bearbeiten ✏️</a>
       </section>
 
       <section class="panel" id="topic-panel" hidden>
