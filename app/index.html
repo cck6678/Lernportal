@@ -23,11 +23,16 @@
         <select id="subject-filter" class="input"></select>
         <label class="label" for="topic-filter">Thema</label>
         <select id="topic-filter" class="input"></select>
+        <div class="panel-title-row picker-title">
+          <h3>Themenauswahl</h3>
+          <span id="progress" class="badge"></span>
+        </div>
+        <div id="topic-picker-list" class="picker-list"></div>
         <label class="label" for="search-input">Freitextsuche</label>
         <input id="search-input" class="input" type="search" placeholder="Fach, Thema oder Begriff" />
         <div class="tabs" role="tablist" aria-label="Ansicht wählen">
-          <button id="tab-learn" class="tab active" role="tab" aria-selected="true">Lernen</button>
-          <button id="tab-quiz" class="tab" role="tab" aria-selected="false">Quiz</button>
+          <button id="tab-learn" class="tab active" role="tab" aria-selected="true" type="button">Lernen</button>
+          <button id="tab-quiz" class="tab" role="tab" aria-selected="false" type="button">Quiz</button>
         </div>
         <p id="offline-state" class="hint"></p>
       </section>
@@ -41,14 +46,6 @@
         <div id="quiz-options" class="quiz-options"></div>
         <p id="quiz-feedback" class="feedback"></p>
         <button id="next-question" class="button secondary" hidden>Nächste Frage</button>
-      </section>
-
-      <section class="panel">
-        <div class="panel-title-row">
-          <h2>Themen</h2>
-          <span id="progress" class="badge"></span>
-        </div>
-        <div id="topic-list" class="topic-list"></div>
       </section>
 
       <section class="panel" id="topic-panel" hidden>

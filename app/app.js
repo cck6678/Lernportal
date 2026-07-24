@@ -11,8 +11,7 @@ const tabQuiz = document.getElementById("tab-quiz");
 const subjectFilter = document.getElementById("subject-filter");
 const topicFilter = document.getElementById("topic-filter");
 const searchInput = document.getElementById("search-input");
-const topicListEl = document.getElementById("topic-list");
-const topicListPanel = topicListEl.closest(".panel");
+const topicPickerListEl = document.getElementById("topic-picker-list");
 const progressEl = document.getElementById("progress");
 const topicPanel = document.getElementById("topic-panel");
 const topicTitle = document.getElementById("topic-title");
@@ -86,7 +85,7 @@ function bindEvents() {
     writeJson(storeKeys.learned, Array.from(learnedTopics));
     setLearnedButton(activeTopic.id);
     updateProgress();
-    renderTopicList();
+    renderTopicPickerList();
   });
 
   nextQuestionBtn.addEventListener("click", () => {
@@ -151,63 +150,67 @@ function applyFilters() {
       .toLowerCase();
     return haystack.includes(q);
   });
-  renderTopicList();
   if (activeTopic && !filteredTopics.some((topic) => topic.id === activeTopic.id)) {
     clearActiveTopic();
   }
+  renderTopicPickerList();
   applyViewMode();
 }
 
-function renderTopicList() {
-  topicListEl.innerHTML = "";
+function renderTopicPickerList() {
+  topicPickerListEl.innerHTML = "";
   if (filteredTopics.length === 0) {
     const noHit = document.createElement("p");
     noHit.className = "hint";
     noHit.textContent = "Keine Treffer gefunden.";
-    topicListEl.append(noHit);
+    topicPickerListEl.append(noHit);
     updateProgress();
     return;
   }
 
-  filteredTopics.forEach((topic) => {
-    const card = document.createElement("article");
-    card.className = "topic-card";
-    card.role = "button";
-    card.tabIndex = 0;
-    card.setAttribute("aria-label", `Thema ${topic.title} öffnen`);
+  const grouped = filteredTopics.reduce((acc, topic) => {
+    acc[topic.subject] ??= [];
+    acc[topic.subject].push(topic);
+    return acc;
+  }, {});
 
-    const title = document.createElement("h3");
-    title.textContent = topic.title;
-    const subject = document.createElement("p");
-    subject.className = "subject";
-    subject.textContent = topic.subject;
+  Object.keys(grouped)
+    .sort((a, b) => a.localeCompare(b, "de"))
+    .forEach((subjectName) => {
+      const sectionLabel = document.createElement("div");
+      sectionLabel.className = "section-label";
+      sectionLabel.textContent = subjectName;
+      topicPickerListEl.append(sectionLabel);
 
-    const chipRow = document.createElement("div");
-    chipRow.className = "chip-row";
-    const quizChip = makeChip(`${topic.quiz.length} Quizfragen`);
-    const learnedChip = makeChip(learnedTopics.has(topic.id) ? "Gelernt" : "Offen");
-    chipRow.append(quizChip, learnedChip);
+      grouped[subjectName].forEach((topic) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = `picker-item${activeTopic?.id === topic.id ? " active" : ""}`;
+        item.setAttribute("aria-label", `Thema ${topic.title} auswählen`);
+        item.addEventListener("click", () => {
+          selectedTopicId = topic.id;
+          topicFilter.value = topic.id;
+          openTopic(topic.id);
+        });
 
-    card.addEventListener("click", () => openTopic(topic.id));
-    card.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        openTopic(topic.id);
-      }
+        const title = document.createElement("h4");
+        title.textContent = topic.title;
+        const meta = document.createElement("p");
+        meta.className = "picker-meta";
+        meta.textContent = `${topic.keyTerms.length} Kernbegriffe · ${topic.quiz.length} Quizfragen · ${
+          learnedTopics.has(topic.id) ? "Gelernt" : "Offen"
+        }`;
+
+        item.append(title, meta);
+        topicPickerListEl.append(item);
+      });
     });
 
-    card.append(title, subject, chipRow);
-    topicListEl.append(card);
-  });
+  if (!activeTopic && filteredTopics.length > 0) {
+    openTopic(filteredTopics[0].id);
+  }
 
   updateProgress();
-}
-
-function makeChip(text) {
-  const chip = document.createElement("span");
-  chip.className = "chip";
-  chip.textContent = text;
-  return chip;
 }
 
 function openTopic(topicId) {
@@ -216,6 +219,8 @@ function openTopic(topicId) {
     return;
   }
   activeTopic = topic;
+  selectedTopicId = topic.id;
+  topicFilter.value = topic.id;
   writeText(storeKeys.lastTopic, topic.id);
   topicTitle.textContent = topic.title;
   topicSubject.textContent = topic.subject;
@@ -229,6 +234,7 @@ function openTopic(topicId) {
   const savedQuestionIdx = Number(readText(storeKeys.quizIdx, "0"));
   activeQuestionIdx = Number.isFinite(savedQuestionIdx) ? savedQuestionIdx % activeQuiz.length : 0;
   renderQuestion();
+  renderTopicPickerList();
   applyViewMode();
 }
 
@@ -291,6 +297,8 @@ function restoreLastTopic() {
 function clearActiveTopic() {
   activeTopic = null;
   activeQuiz = [];
+  selectedTopicId = "";
+  topicFilter.value = "";
   topicTitle.textContent = "";
   topicSubject.textContent = "";
   keyTermsEl.innerHTML = "";
@@ -323,7 +331,6 @@ function applyViewMode() {
   tabQuiz.classList.toggle("active", !showLearn);
   tabLearn.setAttribute("aria-selected", String(showLearn));
   tabQuiz.setAttribute("aria-selected", String(!showLearn));
-  topicListPanel.hidden = !showLearn;
   topicPanel.hidden = !(showLearn && activeTopic);
   quizPanel.hidden = !(!showLearn && activeTopic);
 }
@@ -336,6 +343,15 @@ function updateOfflineHint() {
 
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) {
+    return;
+  }
+  const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+  if (isLocalhost) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+      .then(() => caches.keys())
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))));
     return;
   }
   navigator.serviceWorker.register("./sw.js").then(

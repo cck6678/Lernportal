@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mockup F</title>
+    <link rel="stylesheet" href="./mockups.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="header">
+        <h1>Lernportal</h1>
+        <p>Variante F: Themen-Drop-down nach Fach gruppiert</p>
+      </header>
+      <main class="content">
+        <section class="block filter-grid">
+          <div>
+            <label class="field-label">Fach</label>
+            <select class="search">
+              <option>Alle Fächer</option>
+              <option selected>Mathematik</option>
+              <option>Deutsch</option>
+              <option>Geschichte</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Thema (gruppierte Auswahl + Metadaten)</label>
+            <div class="picker">
+              <div class="picker-head">Themenliste öffnen <span>▾</span></div>
+              <div class="picker-list">
+                <div class="section-label">Mathematik</div>
+                <article class="picker-item active">
+                  <h4>Ableitungen und Änderungsraten</h4>
+                  <p class="picker-meta">Kernbegriffe: 4 · Quiz: 2 · Offen</p>
+                </article>
+                <article class="picker-item">
+                  <h4>Integralrechnung Grundlagen</h4>
+                  <p class="picker-meta">Kernbegriffe: 3 · Quiz: 1 · Gelernt</p>
+                </article>
+                <div class="section-label">Deutsch</div>
+                <article class="picker-item">
+                  <h4>Lineare Erörterung</h4>
+                  <p class="picker-meta">Kernbegriffe: 4 · Quiz: 2 · Offen</p>
+                </article>
+              </div>
+            </div>
+          </div>
+          <input class="search" placeholder="Freitextsuche (z. B. Tangente)" />
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

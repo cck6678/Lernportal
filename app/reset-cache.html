@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lernportal Cache Reset</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        padding: 1rem;
+      }
+      .box {
+        max-width: 560px;
+        margin: 0 auto;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1>Cache wird zurückgesetzt…</h1>
+      <p id="status">Bitte warten.</p>
+    </div>
+    <script>
+      async function reset() {
+        const status = document.getElementById("status");
+        try {
+          if ("serviceWorker" in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.unregister()));
+          }
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+          status.textContent = "Fertig. Weiterleitung zur App…";
+          setTimeout(() => {
+            window.location.href = "/app/index.html?cacheReset=1";
+          }, 500);
+        } catch (error) {
+          status.textContent = `Fehler beim Reset: ${error}`;
+        }
+      }
+      reset();
+    </script>
+  </body>
+</html>

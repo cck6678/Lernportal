@@ -76,6 +76,7 @@ pnpm run dev:down
 
 - Themensuche über Fächer, Titel und Begriffe
 - Fach- und Themenfilter per Drop-down oberhalb der Freitextsuche
+- Themenauswahl direkt im Themen-Drop-down-Bereich (gruppiert nach Fach, inkl. Status/Quiz-Metadaten)
 - Kompakte Themenkarten mit Kernbegriffen, Formeln und Beispielen
 - Markierung von Themen als gelernt (lokal im Browser)
 - Kurzquiz pro Thema mit direktem Feedback, direkt über Tab "Quiz" erreichbar
