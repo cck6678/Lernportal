@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="Mobiles Lernportal für das hessische Abitur" />
+    <title>Lernportal</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Lernportal</h1>
+      <p>Hessisches Abitur – mobil lernen</p>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <div class="tabs" role="tablist" aria-label="Ansicht wählen">
+          <button id="tab-learn" class="tab active" role="tab" aria-selected="true">Lernen</button>
+          <button id="tab-quiz" class="tab" role="tab" aria-selected="false">Quiz</button>
+        </div>
+        <label class="label" for="subject-filter">Fach</label>
+        <select id="subject-filter" class="input"></select>
+        <label class="label" for="topic-filter">Thema</label>
+        <select id="topic-filter" class="input"></select>
+        <label class="label" for="search-input">Freitextsuche</label>
+        <input id="search-input" class="input" type="search" placeholder="Fach, Thema oder Begriff" />
+        <p id="offline-state" class="hint"></p>
+      </section>
+
+      <section class="panel" id="quiz-panel" hidden>
+        <div class="panel-title-row">
+          <h2>Kurzquiz</h2>
+          <span id="quiz-context" class="badge"></span>
+        </div>
+        <p id="quiz-question"></p>
+        <div id="quiz-options" class="quiz-options"></div>
+        <p id="quiz-feedback" class="feedback"></p>
+        <button id="next-question" class="button secondary" hidden>Nächste Frage</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title-row">
+          <h2>Themen</h2>
+          <span id="progress" class="badge"></span>
+        </div>
+        <div id="topic-list" class="topic-list"></div>
+      </section>
+
+      <section class="panel" id="topic-panel" hidden>
+        <h2 id="topic-title"></h2>
+        <p id="topic-subject" class="subject"></p>
+        <h3>Kernbegriffe</h3>
+        <ul id="topic-keyterms"></ul>
+        <h3>Formeln / Struktur</h3>
+        <ul id="topic-formulas"></ul>
+        <h3>Beispiele</h3>
+        <ul id="topic-examples"></ul>
+        <button id="learned-toggle" class="button"></button>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

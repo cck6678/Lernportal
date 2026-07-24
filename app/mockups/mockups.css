@@ -1,0 +1,184 @@
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --line: #cbd5e1;
+  --brand: #0f766e;
+  --soft: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.overview {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 1.2rem;
+}
+
+.overview h1 {
+  margin: 0 0 0.5rem;
+}
+
+.links {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.links a {
+  display: block;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.phone {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--card);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+
+.header {
+  background: #0f172a;
+  color: #fff;
+  padding: 1rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.header p {
+  margin: 0.25rem 0 0;
+  color: #cbd5e1;
+}
+
+.content {
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.block {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.8rem;
+}
+
+.search {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+}
+
+.filter-grid {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.field-label {
+  display: block;
+  margin: 0 0 0.2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.tabs,
+.segments {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.tabs {
+  grid-template-columns: 1fr 1fr;
+}
+
+.tab,
+.segment,
+.nav-item {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-weight: 600;
+}
+
+.active {
+  border-color: var(--brand);
+  background: #dff7f4;
+  color: #0b5250;
+}
+
+.segments {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.topic {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem;
+}
+
+.topic h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.topic p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.quiz-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.7rem;
+  background: #f8fafc;
+}
+
+.answers {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.answers button {
+  min-height: 42px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0.55rem;
+}

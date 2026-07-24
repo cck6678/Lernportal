@@ -1,0 +1,17 @@
+{
+  "name": "lernportal",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Lernportal development workspace",
+  "packageManager": "pnpm@9.12.3",
+  "scripts": {
+    "dev:up": "docker compose up -d --build",
+    "dev:down": "docker compose down",
+    "dev:shell": "docker compose exec workspace bash",
+    "db:psql": "docker compose exec postgres psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"",
+    "env:check": "node -v && pnpm -v"
+  },
+  "engines": {
+    "node": "22.16.0"
+  }
+}
