@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Kunst",
+    "title": "Bildanalyse: Farbe, Form und Komposition",
+    "keyTerms": ["Komposition", "Farbkontrast", "Symbolik", "Ikonographie"],
+    "formulas": [],
+    "examples": ["Analyse von Gemälden verschiedener Epochen; Erkennen von Symbolen"],
+    "quiz": [
+      {"question": "Nenne zwei Elemente der Bildkomposition.", "answers": ["Farbverteilung, Linienführung"]}
+    ],
+    "source": "Kerncurriculum Kunst (Hessen), Grundlagen & Themenfelder; kcgo_kunst_2016.pdf, S.10ff"
+  },
+  {
+    "subject": "Kunst",
+    "title": "Kunst und Gesellschaft: Propaganda und politisches Bild",
+    "keyTerms": ["Propaganda", "Ikonographie", "Öffentlicher Raum"],
+    "formulas": [],
+    "examples": ["Untersuchung politischer Plakate; Street Art als Ausdrucksform"],
+    "quiz": [
+      {"question": "Was kennzeichnet Propagandabildsprache?", "answers": ["Vereinfachte Symbole, starke Emotionalisierung"]}
+    ],
+    "source": "Kerncurriculum Kunst (Hessen), Q1–Q4 Themenfelder; kcgo_kunst_2016.pdf, S.17ff"
+  }
+]

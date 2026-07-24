@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Religion",
+    "title": "Mensch und Selbstverständnis",
+    "keyTerms": ["Menschenbild", "Identität", "Ethik", "Freiheit"],
+    "formulas": [],
+    "examples": ["Vergleich religiöser und säkularer Menschenbilder; ethische Fallanalysen"],
+    "quiz": [
+      {"question": "Nenne ein zentrales Merkmal christlicher Ethik.", "answers": ["Nächstenliebe/Fürsorge"]}
+    ],
+    "source": "Kerncurriculum Religion (Hessen), Einführungsphase und Q-Phase; kcgo_evangelische_religion_2026.pdf und kcgo_katholische_religion_2024.pdf, S.15ff"
+  },
+  {
+    "subject": "Religion",
+    "title": "Glaube, Vernunft und Wissenschaft",
+    "keyTerms": ["Schöpfung", "Theodizee", "Religionskritik", "Dialog"],
+    "formulas": [],
+    "examples": ["Diskussionen zu Glauben und Wissenschaft; historische Debatten"],
+    "quiz": [
+      {"question": "Was ist die Theodizeefrage?", "answers": ["Die Frage nach dem Problem des Bösen und Gottes Allmacht/Allgüte."]}
+    ],
+    "source": "Kerncurriculum Religion (Hessen), Q-Phase Themen; kcgo_evangelische_religion_2026.pdf, S.25ff"
+  }
+]

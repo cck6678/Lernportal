@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Chemie",
+    "title": "Stoff- und Reaktionslehre: Atome, Moleküle, Reaktionstypen",
+    "keyTerms": ["Atom", "Molekül", "Redoxreaktion", "Säure-Base"],
+    "formulas": [],
+    "examples": ["Stöchiometrische Berechnungen; einfache Redox- und Säure-Base-Reaktionen"],
+    "quiz": [
+      {"question": "Was versteht man unter einer Redoxreaktion?", "answers": ["Eine Reaktion mit Elektronenübertragung; Oxidation und Reduktion treten auf."]}
+    ],
+    "source": "Kerncurriculum Chemie (Hessen), Themenfelder E/Q; KC_Chemie_GO_2024.pdf, S.23ff"
+  },
+  {
+    "subject": "Chemie",
+    "title": "Thermodynamik und Energieumsatz",
+    "keyTerms": ["Enthalpie", "Gibbs-Energie", "Entropie", "Exotherm"],
+    "formulas": [],
+    "examples": ["Reaktionsenthalpie-Berechnungen; energetische Betrachtung von Batterien"],
+    "quiz": [
+      {"question": "Was bedeutet exotherm?", "answers": ["Energie wird an die Umgebung abgegeben"]}
+    ],
+    "source": "Kerncurriculum Chemie (Hessen), Q3 Energie; KC_Chemie_GO_2024.pdf, S.28ff"
+  }
+]

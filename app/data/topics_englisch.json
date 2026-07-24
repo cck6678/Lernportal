@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Englisch",
+    "title": "Individuum und Gesellschaft: Identity and Belonging",
+    "keyTerms": ["Identity", "Belonging", "Migration", "Multiculturalism"],
+    "formulas": [],
+    "examples": ["Analyse eines zeitgenössischen englischsprachigen Romans oder Films zur Identitätsbildung"],
+    "quiz": [
+      {"question": "Nenne zwei Themen, die Identitätsbildung in literarischen Texten beeinflussen.", "answers": ["Migration, sozioökonomischer Status"]}
+    ],
+    "source": "Kerncurriculum Englisch (Hessen), Q1 Themenfeld; kcgo_englisch_2024.pdf, S.33ff"
+  },
+  {
+    "subject": "Englisch",
+    "title": "Globale Herausforderungen: Climate Change",
+    "keyTerms": ["Climate change", "Sustainability", "Activism"],
+    "formulas": [],
+    "examples": ["Texte zu Klimapolitik analysieren; Debatten und Argumentationsstrategien untersuchen"],
+    "quiz": [
+      {"question": "Nenne zwei Maßnahmen zur Reduktion von Treibhausgasemissionen.", "answers": ["Erneuerbare Energien, Aufforstung"]}
+    ],
+    "source": "Kerncurriculum Englisch (Hessen), Q2 Themenfeld; kcgo_englisch_2024.pdf, S.34ff"
+  }
+]

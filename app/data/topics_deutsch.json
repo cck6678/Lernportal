@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Deutsch",
+    "title": "Fiktion und Wirklichkeit: Realismus und moderne Erzählformen",
+    "keyTerms": ["Realismus", "Fiktion", "Erzählperspektive", "Literaturtheorie"],
+    "formulas": [],
+    "examples": ["Analyse eines realistischen Kurzromans; Vergleich Film vs. Text"],
+    "quiz": [
+      {"question": "Was kennzeichnet den Realismus als literarische Epoche?", "answers": ["detaillierte Alltagsdarstellung, gesellschaftskritische Themen"]}
+    ],
+    "source": "Kerncurriculum Deutsch (Hessen), Kapitel Themenfelder Q1–Q4; kcgo_deutsch_2024.pdf, S.25ff"
+  },
+  {
+    "subject": "Deutsch",
+    "title": "Sprache und Gesellschaft: Rhetorik und Medien",
+    "keyTerms": ["Rhetorik", "Argumentation", "Medienkompetenz", "Diskursanalyse"],
+    "formulas": [],
+    "examples": ["Analyse von Reden/Leitartikeln; Erstellen einer argumentativen Stellungnahme"],
+    "quiz": [
+      {"question": "Nenne drei rhetorische Mittel.", "answers": ["Anapher, Metapher, Ironie"]}
+    ],
+    "source": "Kerncurriculum Deutsch (Hessen), Q2 Themenfelder; kcgo_deutsch_2024.pdf, S.26ff"
+  }
+]

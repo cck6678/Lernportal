@@ -1,0 +1,35 @@
+[
+  {
+    "subject": "Mathematik",
+    "title": "Analysis: Ableitungen und Integrale",
+    "keyTerms": ["Ableitung", "Integral", "Kurvendiskussion", "Extremwert"],
+    "formulas": ["f'(x) = lim_{h->0} (f(x+h)-f(x))/h"],
+    "examples": ["Kurvendiskussion einer ganzrationalen Funktion; Flächenberechnung zwischen Graphen"],
+    "quiz": [
+      {"question": "Was beschreibt die Ableitung einer Funktion?", "answers": ["Steigung der Tangente bzw. Momentanänderung"]}
+    ],
+    "source": "Kerncurriculum Mathematik (Hessen), Leitidee Analysis; vgl. kc_mathematik_go.pdf, Kapitel Analysis, S.22ff"
+  },
+  {
+    "subject": "Mathematik",
+    "title": "Lineare Algebra: Vektoren und Matrizen",
+    "keyTerms": ["Vektor", "Matrix", "Lineares Gleichungssystem", "Skalarprodukt"],
+    "formulas": [],
+    "examples": ["Lösen linearer Gleichungssysteme; Lagebeziehungen im Raum"],
+    "quiz": [
+      {"question": "Nenne zwei Anwendungen von Matrizen.", "answers": ["Lösung linearer Gleichungssysteme, Transformationen/Rotationen im Raum"]}
+    ],
+    "source": "Kerncurriculum Mathematik (Hessen), Leitidee Lineare Algebra; kc_mathematik_go.pdf, S.24ff"
+  },
+  {
+    "subject": "Mathematik",
+    "title": "Stochastik: Wahrscheinlichkeitsrechnung und Statistik",
+    "keyTerms": ["Wahrscheinlichkeit", "Binomialverteilung", "Erwartungswert", "Hypothesentest"],
+    "formulas": [],
+    "examples": ["Berechnung von Wahrscheinlichkeiten in einfachen Zufallsexperimenten; Interpretation von Erwartungswerten"],
+    "quiz": [
+      {"question": "Was ist der Erwartungswert einer Zufallsvariablen?", "answers": ["Der mittlere Wert, den die Zufallsvariable bei unendlich vielen Durchführungen annimmt"]}
+    ],
+    "source": "Kerncurriculum Mathematik (Hessen), Leitidee Stochastik; kc_mathematik_go.pdf, S.26ff"
+  }
+]

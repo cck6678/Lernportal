@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Politik und Wirtschaft",
+    "title": "Wahlen und Demokratie in Deutschland",
+    "keyTerms": ["Wahlen", "Parteien", "Wahlrecht", "Gewaltenteilung"],
+    "formulas": [],
+    "examples": ["Analyse eines Wahlkampfs; Funktionsweise des Bundestags"],
+    "quiz": [
+      {"question": "Was sind die drei Gewalten im politischen System?", "answers": ["Legislative, Exekutive, Judikative"]}
+    ],
+    "source": "Kerncurriculum Politik und Wirtschaft (Hessen), E/Q Themenfelder; kcgo_politik_und_wirtschaft_stand_august_2022.pdf, S.28ff"
+  },
+  {
+    "subject": "Politik und Wirtschaft",
+    "title": "Wirtschaftspolitik und Soziale Marktwirtschaft",
+    "keyTerms": ["Soziale Marktwirtschaft", "Fiskalpolitik", "Arbeitsmarkt"],
+    "formulas": [],
+    "examples": ["Grundzüge der Sozialen Marktwirtschaft; Rolle des Staates in der Wirtschaft"],
+    "quiz": [
+      {"question": "Nenne eine Aufgabe der Wirtschaftspolitik.", "answers": ["Konjunktursteuerung, Arbeitsmarktstabilisierung"]}
+    ],
+    "source": "Kerncurriculum Politik und Wirtschaft (Hessen), Q2 Themen; kcgo_politik_und_wirtschaft_stand_august_2022.pdf, S.30ff"
+  }
+]

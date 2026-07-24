@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Biologie",
+    "title": "Zellbiologie: Aufbau und Funktion von Zellen",
+    "keyTerms": ["Zellorganellen", "Mitose", "Meiose", "Stoffwechsel"],
+    "formulas": [],
+    "examples": ["Vergleich prokaryotischer und eukaryotischer Zellen; Experimente zu Osmose"],
+    "quiz": [
+      {"question": "Nenne zwei Organellen und ihre Funktion.", "answers": ["Mitochondrien – ATP-Synthese; Ribosomen – Proteinsynthese"]}
+    ],
+    "source": "Kerncurriculum Biologie (Hessen), E-Phase und Q1; KCGO_Biologie_2024.pdf, S.23ff"
+  },
+  {
+    "subject": "Biologie",
+    "title": "Evolution: Mechanismen und Belege",
+    "keyTerms": ["Mutation", "Selektion", "Gendrift", "Fossilien"],
+    "formulas": [],
+    "examples": ["Darwins Beobachtungen; Hardy-Weinberg-Gleichgewicht als Modell"],
+    "quiz": [
+      {"question": "Nenne einen Faktor, der genetische Variabilität erzeugt.", "answers": ["Mutation"]}
+    ],
+    "source": "Kerncurriculum Biologie (Hessen), Q3 Evolution; KCGO_Biologie_2024.pdf, S.26ff"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "subject": "Spanisch",
+    "title": "Individuum und Gemeinschaft: Familia y sociedad",
+    "keyTerms": ["Familia", "Identidad", "Integración", "Diversidad"],
+    "formulas": [],
+    "examples": ["Texte und Medien aus spanischsprachigen Ländern zur Familienstruktur analysieren"],
+    "quiz": [
+      {"question": "Nenne ein typisches Thema der Migration in spanischsprachigen Ländern.", "answers": ["Arbeitsmigration, Binnenmigration"]}
+    ],
+    "source": "Kerncurriculum Spanisch (Hessen), Themenfelder A 3.3; kerncurriculum_gymnasiale_oberstufe_spanisch_2024.pdf, S.34ff"
+  },
+  {
+    "subject": "Spanisch",
+    "title": "Globale Herausforderungen: Medio ambiente y sostenibilidad",
+    "keyTerms": ["Medio ambiente", "Cambio climático", "Desarrollo sostenible"],
+    "formulas": [],
+    "examples": ["Analyse spanischsprachiger Beiträge zur Umweltpolitik; Vokabulararbeit"],
+    "quiz": [
+      {"question": "Nenne zwei Folgen des Klimawandels, die in spanischsprachigen Regionen besonders relevant sind.", "answers": ["Wasserknappheit, Desertifikation"]}
+    ],
+    "source": "Kerncurriculum Spanisch (Hessen), Q4 Themenfeld; kerncurriculum_gymnasiale_oberstufe_spanisch_2024.pdf, S.48ff"
+  }
+]
