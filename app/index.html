@@ -19,16 +19,16 @@
 
     <main class="container">
       <section class="panel">
-        <div class="tabs" role="tablist" aria-label="Ansicht wählen">
-          <button id="tab-learn" class="tab active" role="tab" aria-selected="true">Lernen</button>
-          <button id="tab-quiz" class="tab" role="tab" aria-selected="false">Quiz</button>
-        </div>
         <label class="label" for="subject-filter">Fach</label>
         <select id="subject-filter" class="input"></select>
         <label class="label" for="topic-filter">Thema</label>
         <select id="topic-filter" class="input"></select>
         <label class="label" for="search-input">Freitextsuche</label>
         <input id="search-input" class="input" type="search" placeholder="Fach, Thema oder Begriff" />
+        <div class="tabs" role="tablist" aria-label="Ansicht wählen">
+          <button id="tab-learn" class="tab active" role="tab" aria-selected="true">Lernen</button>
+          <button id="tab-quiz" class="tab" role="tab" aria-selected="false">Quiz</button>
+        </div>
         <p id="offline-state" class="hint"></p>
       </section>
 
