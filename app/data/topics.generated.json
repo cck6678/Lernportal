@@ -1,0 +1,44 @@
+[
+  {
+    "id": "history-weimar-001",
+    "subject": "Geschichte",
+    "title": "Weimarer Republik: Chancen und Krisen",
+    "keyTerms": [
+      "Verfassung",
+      "Inflation",
+      "Präsidialkabinette",
+      "Radikalisierung"
+    ],
+    "formulas": [
+      "1919 Gründung",
+      "1923 Krisenjahr",
+      "1924–1929 relative Stabilisierung"
+    ],
+    "examples": [
+      "Hyperinflation 1923 zerstörte Ersparnisse.",
+      "Weltwirtschaftskrise 1929 verschärfte politische Extreme."
+    ],
+    "quiz": [
+      {
+        "question": "Welches Jahr gilt als Krisenjahr der Weimarer Republik?",
+        "options": [
+          "1918",
+          "1923",
+          "1927",
+          "1934"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Welche Entwicklung schwächte die Weimarer Republik deutlich?",
+        "options": [
+          "Stabile Vollbeschäftigung",
+          "Weltwirtschaftskrise",
+          "Dauerhaft starke Koalitionen",
+          "Abschaffung politischer Parteien"
+        ],
+        "answer": 1
+      }
+    ]
+  }
+]
