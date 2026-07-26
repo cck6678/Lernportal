@@ -93,3 +93,10 @@ Der Import muss auf Teilbereiche einschränkbar sein über:
 ## Abgleich mit Content-Schema v1
 Die Felder `gradeBand`, `topicFieldId`, `tags` werden als nächste
 Schema-Erweiterung (v1.1) ergänzt, ohne breaking changes für v1.0.
+
+## Abgleich mit Curriculum Domain Model v1 (#23)
+Die Taxonomie-Ebenen bleiben als operative Navigationssicht bestehen, werden jedoch
+aus dem curriculum-nativen Strukturmodell projiziert:
+- Quelle: `docs/requirements/curriculum-domain-model-v1.md`
+- Projektionskern: `CurriculumNode` mit `nodeType`
+- Vorteil: einheitliche Fachlogik für CMS, Navigation und Lernstatus ohne Parallelmodelle

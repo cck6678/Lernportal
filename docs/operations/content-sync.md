@@ -19,6 +19,19 @@ pnpm run content:sync -- \
   --topics-out app/data/topics.generated.json
 ```
 
+### E2E-Pilot Mathematik (Issue #23 Folgeumsetzung)
+```bash
+pnpm run content:sync -- \
+  --input docs/requirements/examples/strapi-mathematik.sample.json \
+  --export-out docs/requirements/examples/content-export.generated.json \
+  --topics-out app/data/topics.generated.json
+```
+
+Erwartung im Pilot:
+- Export enthält `subject.id = mathematik` mit Topics
+  `math-analysis-derivative-001` und `math-analysis-integral-001`.
+- App-Output enthält dieselben Topics im Frontend-kompatiblen Format.
+
 ### 2) Direkt aus Strapi-API
 ```bash
 STRAPI_API_TOKEN=... pnpm run content:sync -- \

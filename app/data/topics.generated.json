@@ -1,41 +1,82 @@
 [
   {
-    "id": "history-weimar-001",
-    "subject": "Geschichte",
-    "title": "Weimarer Republik: Chancen und Krisen",
+    "id": "math-analysis-derivative-001",
+    "subject": "Mathematik",
+    "title": "Ableitungen und Änderungsraten",
     "keyTerms": [
-      "Verfassung",
-      "Inflation",
-      "Präsidialkabinette",
-      "Radikalisierung"
+      "Ableitung",
+      "Tangente",
+      "Steigung",
+      "Monotonie"
     ],
     "formulas": [
-      "1919 Gründung",
-      "1923 Krisenjahr",
-      "1924–1929 relative Stabilisierung"
+      "(x^n)' = n * x^(n-1)",
+      "(sin x)' = cos x",
+      "(e^x)' = e^x"
     ],
     "examples": [
-      "Hyperinflation 1923 zerstörte Ersparnisse.",
-      "Weltwirtschaftskrise 1929 verschärfte politische Extreme."
+      "f(x)=x^3 -> f'(x)=3x^2",
+      "f'(x)>0 bedeutet: Funktion steigt in diesem Bereich."
     ],
     "quiz": [
       {
-        "question": "Welches Jahr gilt als Krisenjahr der Weimarer Republik?",
+        "question": "Wie lautet die Ableitung von f(x)=x^4?",
         "options": [
-          "1918",
-          "1923",
-          "1927",
-          "1934"
+          "4x^3",
+          "x^3",
+          "4x",
+          "x^5"
         ],
-        "answer": 1
+        "answer": 0
       },
       {
-        "question": "Welche Entwicklung schwächte die Weimarer Republik deutlich?",
+        "question": "Welche Aussage ist korrekt?",
         "options": [
-          "Stabile Vollbeschäftigung",
-          "Weltwirtschaftskrise",
-          "Dauerhaft starke Koalitionen",
-          "Abschaffung politischer Parteien"
+          "f'(x) < 0 heißt: Funktion steigt.",
+          "f'(x) > 0 heißt: Funktion fällt.",
+          "f'(x) > 0 heißt: Funktion steigt.",
+          "f'(x) = 0 heißt immer Hochpunkt."
+        ],
+        "answer": 2
+      }
+    ]
+  },
+  {
+    "id": "math-analysis-integral-001",
+    "subject": "Mathematik",
+    "title": "Integralrechnung Grundlagen",
+    "keyTerms": [
+      "Stammfunktion",
+      "Flächeninhalt",
+      "bestimmtes Integral",
+      "Hauptsatz"
+    ],
+    "formulas": [
+      "∫x^n dx = x^(n+1)/(n+1) + C",
+      "∫_a^b f(x)dx = F(b)-F(a)"
+    ],
+    "examples": [
+      "Die Fläche unter f(x)=x von 0 bis 2 ergibt 2.",
+      "Eine Stammfunktion zu f(x)=2x ist F(x)=x^2."
+    ],
+    "quiz": [
+      {
+        "question": "Welche Funktion ist eine Stammfunktion von f(x)=3x^2?",
+        "options": [
+          "x^3 + C",
+          "3x + C",
+          "x^2 + C",
+          "6x + C"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Wozu dient das bestimmte Integral in der Analysis?",
+        "options": [
+          "Zum Lösen quadratischer Gleichungen",
+          "Zur Berechnung orientierter Flächeninhalte",
+          "Nur zur Bestimmung von Nullstellen",
+          "Zur Umformung von Vektoren"
         ],
         "answer": 1
       }

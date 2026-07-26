@@ -85,3 +85,12 @@ Für das Fach **Geschichte** liegt ein vollständiges Beispiel im Exportformat v
 ## Folgearbeiten
 - #19: Export-Pipeline Strapi -> neutrales Format
 - #21: CI-Validator gegen JSON Schema
+
+## Erweiterungspfad: Curriculum Domain Model (#23)
+Für die curriculum-native Struktur wurde ein separates Modell spezifiziert:
+- `docs/requirements/curriculum-domain-model-v1.md`
+
+Kompatibilitätsstrategie:
+- Bestehende `schemaVersion: 1.0.0`-Exporte bleiben unverändert gültig.
+- Erweiterungen werden als v1.1 optional ergänzt (insb. `curriculumNodeIds[]`, `curriculumVersionId`, `titles`).
+- Breaking Changes bleiben einer zukünftigen Major-Version vorbehalten.
