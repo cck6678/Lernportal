@@ -26,3 +26,6 @@ jobs:
           node -v
           corepack prepare pnpm@9.12.3 --activate
           pnpm -v
+
+      - name: Validate content and quiz data
+        run: pnpm run content:validate
