@@ -23,6 +23,29 @@ Wir brauchen ein System, das:
 | Docusaurus (+ Git Workflow) | Schwach-Mittel (Datei-basiert, Schema diszipliniert manuell) | Mittel (PR-Review statt CMS-Workflow) | Schwach (kein natives CMS-API) | Sehr gut | Günstig, einfach | 4 |
 | Directus | Sehr gut (DB-first, stark strukturiert) | Gut (Rollen/Status) | Sehr gut (REST + GraphQL) | Mittel-Gut | Self-hosted, OSS | 2 |
 
+## Vertiefung: Non-Commercial heute vs. Commercial später
+
+### Lizenz- und Produkt-Risiken (strategisch)
+| Option | Non-Commercial Start | Bei Kommerzialisierung | Vorteil | Risiko/Nachteil |
+|---|---|---|---|---|
+| **Strapi** | sehr gut geeignet | weiterhin geeignet, aber Lizenz-/Planprüfung bei Wachstum notwendig | starker Ecosystem-Fit zu Node/Postgres, gutes Content-Modeling | mögliche Kosten-/Lizenzänderungen je nach Features/Edition |
+| **Directus** | sehr gut geeignet | weiterhin geeignet, typischerweise stabil für API-first Cases | sehr stark bei strukturierten Daten und Rollen | Team muss DB-first-Denkweise sauber beherrschen |
+| **Wiki.js** | gut für Wissensseiten | für stark strukturierte Produktdaten oft zu wiki-zentriert | exzellent für klassische Dokumentation | für Quiz-/Lernobjekte schneller Modellgrenzen |
+| **Docusaurus (+ Git)** | sehr gut und günstig | bei wachsender Redaktion schnell prozesslastig | minimaler Betriebsaufwand, ideal für docs-first | kein echtes CMS-Backoffice, Review/Workflow nur indirekt über Git |
+
+### Entscheidungsleitlinie für euer Szenario
+- Wenn **Produktisierung wahrscheinlich** ist (B2C/B2B-Lernprodukt): **Strapi oder Directus** priorisieren.
+- Wenn Fokus dauerhaft auf **klassischem Wissenswiki** liegt: **Wiki.js** kann reichen.
+- Wenn vor allem **Docs + Entwickler-Workflow** im Vordergrund stehen: **Docusaurus** als schlanke Option.
+
+### Empfohlene Absicherung (jetzt festlegen)
+1. **Vendor-Lock-in minimieren:** neutrales internes Content-Schema beibehalten (Issue #18), CMS nur als Quelle behandeln.
+2. **Lizenz-Gate im Prozess:** bei jedem Major-Upgrade Lizenz/Terms prüfen und dokumentieren.
+3. **Migrationsfähigkeit testen:** 1 Export-/Import-Pfad (JSON) als Exit-Strategie prototypisch nachweisen.
+4. **Kostenwächter definieren:** Schwellenwerte für Nutzer/Editoren/Umgebungen festlegen, ab wann Plan-/Hosting-Kosten neu bewertet werden.
+
+> Hinweis: Die konkrete rechtliche Bewertung von Lizenz-/Nutzungsbedingungen sollte vor Produktlaunch einmal juristisch geprüft werden.
+
 ## Empfehlung
 **Primär: Strapi (self-hosted, PostgreSQL)**
 
