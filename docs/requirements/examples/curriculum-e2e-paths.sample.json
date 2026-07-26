@@ -1,0 +1,411 @@
+{
+  "modelVersion": "1.0.0",
+  "paths": [
+    {
+      "subjectId": "deutsch",
+      "curriculumVersionId": "deutsch-hessen-kcgo-2021",
+      "nodePath": [
+        "de-q1",
+        "de-q1-sprachreflexion",
+        "de-q1-argumentationsanalyse",
+        "de-q1-argumentationsmuster-erkennen"
+      ],
+      "learningObjectIds": [
+        "de-topic-argumentation-001",
+        "de-quiz-argumentation-001"
+      ]
+    },
+    {
+      "subjectId": "englisch",
+      "curriculumVersionId": "englisch-hessen-kcgo-2021",
+      "nodePath": [
+        "en-q2",
+        "en-q2-reading",
+        "en-q2-globalisation",
+        "en-q2-globalisation-chances-challenges"
+      ],
+      "learningObjectIds": [
+        "en-topic-globalisation-001",
+        "en-quiz-globalisation-001"
+      ]
+    },
+    {
+      "subjectId": "spanisch",
+      "curriculumVersionId": "spanisch-hessen-kcgo-2021",
+      "nodePath": [
+        "es-q2",
+        "es-q2-comunicacion",
+        "es-q2-mundo-hispanohablante",
+        "es-q2-migracion-identidad"
+      ],
+      "learningObjectIds": [
+        "es-topic-migracion-001",
+        "es-quiz-migracion-001"
+      ]
+    },
+    {
+      "subjectId": "mathematik",
+      "curriculumVersionId": "mathematik-hessen-kcgo-2021",
+      "nodePath": [
+        "math-q1",
+        "math-q1-analysis",
+        "math-q1-differentialrechnung",
+        "math-q1-derivative-change-rates"
+      ],
+      "learningObjectIds": [
+        "math-topic-derivative-001",
+        "math-quiz-derivative-001"
+      ]
+    },
+    {
+      "subjectId": "politik-und-wirtschaft",
+      "curriculumVersionId": "powi-hessen-kcgo-2021",
+      "nodePath": [
+        "powi-q3",
+        "powi-q3-demokratietheorie",
+        "powi-q3-urteilskompetenz",
+        "powi-q3-partizipation-jugendlicher"
+      ],
+      "learningObjectIds": [
+        "powi-topic-partizipation-001",
+        "powi-quiz-partizipation-001"
+      ]
+    },
+    {
+      "subjectId": "geschichte",
+      "curriculumVersionId": "geschichte-hessen-kcgo-2021",
+      "nodePath": [
+        "hist-q2",
+        "hist-q2-deutschland-1918-1945",
+        "hist-q2-analysekompetenz",
+        "hist-q2-weimar-chancen-krisen"
+      ],
+      "learningObjectIds": [
+        "history-weimar-001",
+        "history-weimar-001-q01"
+      ]
+    },
+    {
+      "subjectId": "biologie",
+      "curriculumVersionId": "biologie-hessen-kerncurriculum",
+      "nodePath": [
+        "bio-q1",
+        "bio-q1-zelle",
+        "bio-q1-zelle-energiestoffwechsel",
+        "bio-q1-zelle-energiestoffwechsel-atp-rolle"
+      ],
+      "learningObjectIds": [
+        "bio-topic-atp-001",
+        "bio-quiz-atp-001"
+      ]
+    },
+    {
+      "subjectId": "chemie",
+      "curriculumVersionId": "chemie-hessen-kcgo-2026",
+      "nodePath": [
+        "chem-q1",
+        "chem-q1-reaktionen",
+        "chem-q1-reaktionen-kinetik",
+        "chem-q1-reaktionen-kinetik-katalyse"
+      ],
+      "learningObjectIds": [
+        "chem-topic-katalyse-001",
+        "chem-quiz-katalyse-001"
+      ]
+    },
+    {
+      "subjectId": "chinesisch",
+      "curriculumVersionId": "chinesisch-hessen-kerncurriculum",
+      "nodePath": [
+        "zh-q2",
+        "zh-q2-sprachmittlung",
+        "zh-q2-sprachmittlung-alltag",
+        "zh-q2-sprachmittlung-alltag-interkultureller-dialog"
+      ],
+      "learningObjectIds": [
+        "zh-topic-dialog-001",
+        "zh-quiz-dialog-001"
+      ]
+    },
+    {
+      "subjectId": "darstellendes-spiel",
+      "curriculumVersionId": "darstellendes-spiel-hessen-kerncurriculum",
+      "nodePath": [
+        "ds-q1",
+        "ds-q1-theatermittel",
+        "ds-q1-theatermittel-koerper",
+        "ds-q1-theatermittel-koerper-raumwirkung"
+      ],
+      "learningObjectIds": [
+        "ds-topic-raumwirkung-001",
+        "ds-quiz-raumwirkung-001"
+      ]
+    },
+    {
+      "subjectId": "ethik",
+      "curriculumVersionId": "ethik-hessen-kerncurriculum",
+      "nodePath": [
+        "eth-q1",
+        "eth-q1-moralphilosophie",
+        "eth-q1-moralphilosophie-utilitarismus",
+        "eth-q1-moralphilosophie-utilitarismus-fallanalyse"
+      ],
+      "learningObjectIds": [
+        "eth-topic-fallanalyse-001",
+        "eth-quiz-fallanalyse-001"
+      ]
+    },
+    {
+      "subjectId": "evangelische-religion",
+      "curriculumVersionId": "evangelische-religion-hessen-kcgo-2026",
+      "nodePath": [
+        "evr-q2",
+        "evr-q2-glauben-heute",
+        "evr-q2-glauben-heute-hermeneutik",
+        "evr-q2-glauben-heute-hermeneutik-textdeutung"
+      ],
+      "learningObjectIds": [
+        "evr-topic-textdeutung-001",
+        "evr-quiz-textdeutung-001"
+      ]
+    },
+    {
+      "subjectId": "franzoesisch",
+      "curriculumVersionId": "franzoesisch-hessen-kerncurriculum",
+      "nodePath": [
+        "fr-q2",
+        "fr-q2-communication",
+        "fr-q2-communication-societe",
+        "fr-q2-communication-societe-engagement-citoyen"
+      ],
+      "learningObjectIds": [
+        "fr-topic-engagement-001",
+        "fr-quiz-engagement-001"
+      ]
+    },
+    {
+      "subjectId": "geographie",
+      "curriculumVersionId": "geographie-hessen-kerncurriculum",
+      "nodePath": [
+        "geo-q1",
+        "geo-q1-raumstrukturen",
+        "geo-q1-raumstrukturen-urbanisierung",
+        "geo-q1-raumstrukturen-urbanisierung-nachhaltige-stadt"
+      ],
+      "learningObjectIds": [
+        "geo-topic-stadt-001",
+        "geo-quiz-stadt-001"
+      ]
+    },
+    {
+      "subjectId": "griechisch",
+      "curriculumVersionId": "griechisch-hessen-kerncurriculum",
+      "nodePath": [
+        "gr-q1",
+        "gr-q1-textarbeit",
+        "gr-q1-textarbeit-rhetorik",
+        "gr-q1-textarbeit-rhetorik-argumentstrukturen"
+      ],
+      "learningObjectIds": [
+        "gr-topic-rhetorik-001",
+        "gr-quiz-rhetorik-001"
+      ]
+    },
+    {
+      "subjectId": "informatik",
+      "curriculumVersionId": "informatik-hessen-kerncurriculum",
+      "nodePath": [
+        "inf-q1",
+        "inf-q1-algorithmen",
+        "inf-q1-algorithmen-effizienz",
+        "inf-q1-algorithmen-effizienz-komplexitaetsvergleich"
+      ],
+      "learningObjectIds": [
+        "inf-topic-komplexitaet-001",
+        "inf-quiz-komplexitaet-001"
+      ]
+    },
+    {
+      "subjectId": "italienisch",
+      "curriculumVersionId": "italienisch-hessen-kcgo-2026",
+      "nodePath": [
+        "it-q2",
+        "it-q2-comunicazione",
+        "it-q2-comunicazione-societa",
+        "it-q2-comunicazione-societa-identita-culturale"
+      ],
+      "learningObjectIds": [
+        "it-topic-identita-001",
+        "it-quiz-identita-001"
+      ]
+    },
+    {
+      "subjectId": "juedische-religion",
+      "curriculumVersionId": "juedische-religion-hessen-kerncurriculum",
+      "nodePath": [
+        "jr-q2",
+        "jr-q2-tradition",
+        "jr-q2-tradition-auslegung",
+        "jr-q2-tradition-auslegung-ethische-orientierung"
+      ],
+      "learningObjectIds": [
+        "jr-topic-orientierung-001",
+        "jr-quiz-orientierung-001"
+      ]
+    },
+    {
+      "subjectId": "katholische-religion",
+      "curriculumVersionId": "katholische-religion-hessen-kcgo-2026",
+      "nodePath": [
+        "kr-q2",
+        "kr-q2-glauben-reflektieren",
+        "kr-q2-glauben-reflektieren-ethik",
+        "kr-q2-glauben-reflektieren-ethik-verantwortung"
+      ],
+      "learningObjectIds": [
+        "kr-topic-verantwortung-001",
+        "kr-quiz-verantwortung-001"
+      ]
+    },
+    {
+      "subjectId": "kunst",
+      "curriculumVersionId": "kunst-hessen-kcgo-2026",
+      "nodePath": [
+        "art-q1",
+        "art-q1-bildanalyse",
+        "art-q1-bildanalyse-komposition",
+        "art-q1-bildanalyse-komposition-perspektive"
+      ],
+      "learningObjectIds": [
+        "art-topic-perspektive-001",
+        "art-quiz-perspektive-001"
+      ]
+    },
+    {
+      "subjectId": "latein",
+      "curriculumVersionId": "latein-hessen-kerncurriculum",
+      "nodePath": [
+        "la-q1",
+        "la-q1-texterschliessung",
+        "la-q1-texterschliessung-historischer-kontext",
+        "la-q1-texterschliessung-historischer-kontext-werturteil"
+      ],
+      "learningObjectIds": [
+        "la-topic-werturteil-001",
+        "la-quiz-werturteil-001"
+      ]
+    },
+    {
+      "subjectId": "litauisch",
+      "curriculumVersionId": "litauisch-hessen-kerncurriculum",
+      "nodePath": [
+        "lt-q2",
+        "lt-q2-kommunikation",
+        "lt-q2-kommunikation-kulturvergleich",
+        "lt-q2-kommunikation-kulturvergleich-identitaet"
+      ],
+      "learningObjectIds": [
+        "lt-topic-identitaet-001",
+        "lt-quiz-identitaet-001"
+      ]
+    },
+    {
+      "subjectId": "musik",
+      "curriculumVersionId": "musik-hessen-kcgo-2026",
+      "nodePath": [
+        "mu-q1",
+        "mu-q1-musikanalyse",
+        "mu-q1-musikanalyse-form",
+        "mu-q1-musikanalyse-form-sonatenhauptsatz"
+      ],
+      "learningObjectIds": [
+        "mu-topic-sonatenhauptsatz-001",
+        "mu-quiz-sonatenhauptsatz-001"
+      ]
+    },
+    {
+      "subjectId": "philosophie",
+      "curriculumVersionId": "philosophie-hessen-kcgo-2026",
+      "nodePath": [
+        "phi-q2",
+        "phi-q2-erkenntnistheorie",
+        "phi-q2-erkenntnistheorie-skepsis",
+        "phi-q2-erkenntnistheorie-skepsis-wahrheitskriterien"
+      ],
+      "learningObjectIds": [
+        "phi-topic-wahrheitskriterien-001",
+        "phi-quiz-wahrheitskriterien-001"
+      ]
+    },
+    {
+      "subjectId": "physik",
+      "curriculumVersionId": "physik-hessen-kerncurriculum",
+      "nodePath": [
+        "phy-q1",
+        "phy-q1-mechanik",
+        "phy-q1-mechanik-dynamik",
+        "phy-q1-mechanik-dynamik-kraeftegleichgewicht"
+      ],
+      "learningObjectIds": [
+        "phy-topic-kraeftegleichgewicht-001",
+        "phy-quiz-kraeftegleichgewicht-001"
+      ]
+    },
+    {
+      "subjectId": "polnisch",
+      "curriculumVersionId": "polnisch-hessen-kerncurriculum",
+      "nodePath": [
+        "pl-q2",
+        "pl-q2-kommunikation",
+        "pl-q2-kommunikation-medien",
+        "pl-q2-kommunikation-medien-meinungsbildung"
+      ],
+      "learningObjectIds": [
+        "pl-topic-meinungsbildung-001",
+        "pl-quiz-meinungsbildung-001"
+      ]
+    },
+    {
+      "subjectId": "russisch",
+      "curriculumVersionId": "russisch-hessen-kcgo-2026",
+      "nodePath": [
+        "ru-q2",
+        "ru-q2-kommunikaciya",
+        "ru-q2-kommunikaciya-obshchestvo",
+        "ru-q2-kommunikaciya-obshchestvo-identichnost"
+      ],
+      "learningObjectIds": [
+        "ru-topic-identichnost-001",
+        "ru-quiz-identichnost-001"
+      ]
+    },
+    {
+      "subjectId": "sport",
+      "curriculumVersionId": "sport-hessen-kerncurriculum",
+      "nodePath": [
+        "spo-q1",
+        "spo-q1-bewegungskompetenz",
+        "spo-q1-bewegungskompetenz-training",
+        "spo-q1-bewegungskompetenz-training-belastungssteuerung"
+      ],
+      "learningObjectIds": [
+        "spo-topic-belastungssteuerung-001",
+        "spo-quiz-belastungssteuerung-001"
+      ]
+    },
+    {
+      "subjectId": "wirtschaftswissenschaften",
+      "curriculumVersionId": "wirtschaftswissenschaften-hessen-kcgo-2026",
+      "nodePath": [
+        "wiwi-q2",
+        "wiwi-q2-mikrooekonomie",
+        "wiwi-q2-mikrooekonomie-marktformen",
+        "wiwi-q2-mikrooekonomie-marktformen-wettbewerbspolitik"
+      ],
+      "learningObjectIds": [
+        "wiwi-topic-wettbewerbspolitik-001",
+        "wiwi-quiz-wettbewerbspolitik-001"
+      ]
+    }
+  ]
+}

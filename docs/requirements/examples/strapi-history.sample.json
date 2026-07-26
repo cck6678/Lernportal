@@ -1,0 +1,100 @@
+{
+  "data": [
+    {
+      "id": 10,
+      "attributes": {
+        "slug": "geschichte",
+        "title": "Geschichte",
+        "description": "Hessisches Kerncurriculum Oberstufe",
+        "topics": {
+          "data": [
+            {
+              "id": 1001,
+              "attributes": {
+                "slug": "history-weimar-001",
+                "title": "Weimarer Republik: Chancen und Krisen",
+                "keyTerms": [
+                  "Verfassung",
+                  "Inflation",
+                  "Präsidialkabinette",
+                  "Radikalisierung"
+                ],
+                "formulas": [
+                  "1919 Gründung",
+                  "1923 Krisenjahr",
+                  "1924–1929 relative Stabilisierung"
+                ],
+                "examples": [
+                  "Hyperinflation 1923 zerstörte Ersparnisse.",
+                  "Weltwirtschaftskrise 1929 verschärfte politische Extreme."
+                ],
+                "sourceRefs": [
+                  "kcgo-geschichte-2021-s24"
+                ],
+                "difficulty": "medium",
+                "quiz": {
+                  "data": [
+                    {
+                      "id": 5001,
+                      "attributes": {
+                        "slug": "history-weimar-001-q01",
+                        "question": "Welches Jahr gilt als Krisenjahr der Weimarer Republik?",
+                        "options": [
+                          "1918",
+                          "1923",
+                          "1927",
+                          "1934"
+                        ],
+                        "answer": 1,
+                        "difficulty": "easy",
+                        "sourceRefs": [
+                          "kcgo-geschichte-2021-s24"
+                        ]
+                      }
+                    },
+                    {
+                      "id": 5002,
+                      "attributes": {
+                        "slug": "history-weimar-001-q02",
+                        "question": "Welche Entwicklung schwächte die Weimarer Republik deutlich?",
+                        "options": [
+                          "Stabile Vollbeschäftigung",
+                          "Weltwirtschaftskrise",
+                          "Dauerhaft starke Koalitionen",
+                          "Abschaffung politischer Parteien"
+                        ],
+                        "answer": 1,
+                        "difficulty": "medium",
+                        "sourceRefs": [
+                          "kcgo-geschichte-2021-s24"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "media": [
+    {
+      "id": 9001,
+      "attributes": {
+        "slug": "media-weimar-infla-plakat",
+        "kind": "image",
+        "title": "Plakat zur Hyperinflation",
+        "uri": "https://cdn.example.org/history/weimar/hyperinflation-plakat.jpg",
+        "mimeType": "image/jpeg",
+        "license": "CC BY-SA 4.0",
+        "source": "Staatsarchiv Beispielstadt",
+        "altText": "Historisches Plakat zur Inflation in der Weimarer Republik",
+        "topicIds": [
+          "history-weimar-001"
+        ]
+      }
+    }
+  ]
+}

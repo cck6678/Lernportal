@@ -1,0 +1,88 @@
+{
+  "schemaId": "lernportal-content-export",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-07-26T07:45:00Z",
+  "subjects": [
+    {
+      "id": "geschichte",
+      "title": "Geschichte",
+      "description": "Hessisches Kerncurriculum Oberstufe",
+      "topics": [
+        {
+          "id": "history-weimar-001",
+          "subjectId": "geschichte",
+          "title": "Weimarer Republik: Chancen und Krisen",
+          "keyTerms": [
+            "Verfassung",
+            "Inflation",
+            "Präsidialkabinette",
+            "Radikalisierung"
+          ],
+          "formulas": [
+            "1919 Gründung",
+            "1923 Krisenjahr",
+            "1924–1929 relative Stabilisierung"
+          ],
+          "examples": [
+            "Hyperinflation 1923 zerstörte Ersparnisse.",
+            "Weltwirtschaftskrise 1929 verschärfte politische Extreme."
+          ],
+          "sourceRefs": [
+            "kcgo-geschichte-2021-s24"
+          ],
+          "difficulty": "medium",
+          "quiz": [
+            {
+              "id": "history-weimar-001-q01",
+              "topicId": "history-weimar-001",
+              "question": "Welches Jahr gilt als Krisenjahr der Weimarer Republik?",
+              "options": [
+                "1918",
+                "1923",
+                "1927",
+                "1934"
+              ],
+              "answer": 1,
+              "explanation": "1923 war geprägt von Ruhrbesetzung, Inflation und Putschversuchen.",
+              "difficulty": "easy",
+              "sourceRefs": [
+                "kcgo-geschichte-2021-s24"
+              ]
+            },
+            {
+              "id": "history-weimar-001-q02",
+              "topicId": "history-weimar-001",
+              "question": "Welche Entwicklung schwächte die Weimarer Republik deutlich?",
+              "options": [
+                "Stabile Vollbeschäftigung",
+                "Weltwirtschaftskrise",
+                "Dauerhaft starke Koalitionen",
+                "Abschaffung politischer Parteien"
+              ],
+              "answer": 1,
+              "difficulty": "medium",
+              "sourceRefs": [
+                "kcgo-geschichte-2021-s24"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "media": [
+    {
+      "id": "media-weimar-infla-plakat",
+      "kind": "image",
+      "title": "Plakat zur Hyperinflation",
+      "uri": "https://cdn.example.org/history/weimar/hyperinflation-plakat.jpg",
+      "mimeType": "image/jpeg",
+      "license": "CC BY-SA 4.0",
+      "source": "Staatsarchiv Beispielstadt",
+      "altText": "Historisches Plakat zur Inflation in der Weimarer Republik",
+      "topicIds": [
+        "history-weimar-001"
+      ]
+    }
+  ]
+}

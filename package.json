@@ -9,7 +9,9 @@
     "dev:down": "docker compose down",
     "dev:shell": "docker compose exec workspace bash",
     "db:psql": "docker compose exec postgres psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"",
-    "env:check": "node -v && pnpm -v"
+    "env:check": "node -v && pnpm -v",
+    "content:sync": "node scripts/sync-content-from-strapi.mjs",
+    "content:validate": "node scripts/validate-content.mjs"
   },
   "engines": {
     "node": "22.16.0"

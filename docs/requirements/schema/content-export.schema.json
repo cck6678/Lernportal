@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lernportal.local/schema/content-export.schema.json",
+  "title": "Lernportal Content Export Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "generatedAt",
+    "subjects",
+    "media"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "lernportal-content-export"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "subjects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/subject"
+      }
+    },
+    "media": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mediaAsset"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"]
+    },
+    "sourceRefs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "quizQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "topicId",
+        "question",
+        "options",
+        "answer",
+        "sourceRefs"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "topicId": {
+          "$ref": "#/$defs/id"
+        },
+        "question": {
+          "type": "string",
+          "minLength": 5
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "answer": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "difficulty": {
+          "$ref": "#/$defs/difficulty"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/sourceRefs"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "options": {
+                "maxItems": 2
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "answer": {
+                "maximum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "options": {
+                "maxItems": 3
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "answer": {
+                "maximum": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "options": {
+                "maxItems": 4
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "answer": {
+                "maximum": 3
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "options": {
+                "maxItems": 5
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "answer": {
+                "maximum": 4
+              }
+            }
+          }
+        }
+      ]
+    },
+    "topic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subjectId",
+        "title",
+        "keyTerms",
+        "formulas",
+        "examples",
+        "sourceRefs",
+        "quiz"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "subjectId": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "keyTerms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "formulas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/sourceRefs"
+        },
+        "difficulty": {
+          "$ref": "#/$defs/difficulty"
+        },
+        "quiz": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/quizQuestion"
+          }
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "topics"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 2
+        },
+        "description": {
+          "type": "string"
+        },
+        "topics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/topic"
+          }
+        }
+      }
+    },
+    "mediaAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "uri",
+        "mimeType",
+        "license",
+        "source",
+        "topicIds"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["image", "audio", "video", "document"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 2
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mimeType": {
+          "type": "string",
+          "minLength": 3
+        },
+        "license": {
+          "type": "string",
+          "minLength": 2
+        },
+        "source": {
+          "type": "string",
+          "minLength": 2
+        },
+        "altText": {
+          "type": "string"
+        },
+        "topicIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    }
+  }
+}
