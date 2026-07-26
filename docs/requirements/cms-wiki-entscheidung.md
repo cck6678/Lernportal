@@ -90,7 +90,19 @@ app/data/topics*.json (Build-Artefakte) -> Lernportal PWA
 Für #17 wird **Strapi als Zielplattform** festgelegt.  
 Directus bleibt Fallback, falls sich im Prototyp ein kritischer Blocker zeigt.
 
+Zusätzlich wird ein **CMS-neutrales Exportformat** verbindlich eingeführt, um
+einen späteren Plattformwechsel (z. B. Strapi -> Wiki.js) mit geringerer
+Migrationskomplexität zu ermöglichen.
+
+## CMS-neutrales Exportformat (verbindlich)
+- **Content:** JSON für strukturierte Daten + Markdown für Fließtexte
+- **Medien:** separates Media-Manifest (Dateiname, URL/Pfad, MIME-Type, Lizenz/Quelle, Alt-Text)
+- **IDs:** stabile, CMS-unabhängige fachliche IDs (z. B. `history-weimar-001`)
+- **Relationen:** Referenzen immer über IDs (keine CMS-internen Primärschlüssel)
+- **Versionierung:** Export-Schema-Version im Root (`schemaVersion`)
+- **Validierung:** Export wird vor Übernahme durch denselben Validator geprüft
+
 ## Nächste Umsetzungsschritte
-1. #18: finales Content-Schema als Strapi Content Types definieren
-2. #19: Import-/Sync-Prototyp (1 Fach: Geschichte)
-3. #21: Validierungsregeln in CI
+1. #18: finales Content-Schema als Strapi Content Types **und neutrales Export-Schema** definieren
+2. #19: Import-/Sync-Prototyp (1 Fach: Geschichte) inkl. Export in neutrales Format
+3. #21: Validierungsregeln in CI (inkl. Export-Schema-Prüfung)
