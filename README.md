@@ -77,10 +77,18 @@ pnpm run dev:down
 Erster Backend-Einstiegspunkt für Fachinhalte und Quizdaten:
 
 ```bash
+pnpm install
+pnpm run api:prepare
 pnpm run api:start
 ```
 
 Base URL lokal: `http://localhost:3000`
+
+Persistenz über PostgreSQL:
+
+- `pnpm run db:migrate` legt das Curriculum-Schema an
+- `pnpm run db:seed` importiert die aktuellen Themen/Quizdaten in die DB
+- `pnpm run api:prepare` führt beides nacheinander aus
 
 Unterstützte Endpunkte:
 
