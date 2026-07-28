@@ -17,7 +17,8 @@
     "db:seed": "node app/api/seed.js",
     "api:prepare": "pnpm run db:migrate && pnpm run db:seed",
     "env:check": "node -v && pnpm -v",
-    "api:start": "node app/api/server.js"
+    "api:start": "node app/api/server.js",
+    "test": "node --test tests/api.test.js"
   },
   "engines": {
     "node": "22.16.0"
