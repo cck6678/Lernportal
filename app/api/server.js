@@ -30,6 +30,7 @@ function normalizeTopicRow(row) {
     keyTerms: toStringArray(row.key_terms),
     formulas: toStringArray(row.formulas),
     examples: toStringArray(row.examples),
+    sources: row.sources ? (Array.isArray(row.sources) ? row.sources : []) : [],
     quiz: normalizeQuiz(row.quiz)
   };
 }
@@ -69,6 +70,7 @@ export function createApp(queryFn) {
           t.key_terms,
           t.formulas,
           t.examples,
+          t.sources,
           COALESCE(
             json_agg(
               json_build_object(
@@ -84,7 +86,7 @@ export function createApp(queryFn) {
         INNER JOIN subjects s ON s.id = t.subject_id
         LEFT JOIN quiz_items qi ON qi.topic_id = t.id
         ${whereClause}
-        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples
+        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.sources
         ORDER BY s.name ASC, t.title ASC
       `,
       params
@@ -102,6 +104,7 @@ export function createApp(queryFn) {
           t.key_terms,
           t.formulas,
           t.examples,
+          t.sources,
           COALESCE(
             json_agg(
               json_build_object(
@@ -117,7 +120,7 @@ export function createApp(queryFn) {
         INNER JOIN subjects s ON s.id = t.subject_id
         LEFT JOIN quiz_items qi ON qi.topic_id = t.id
         WHERE t.id = $1
-        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples
+        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.sources
         LIMIT 1
       `,
       [topicId]

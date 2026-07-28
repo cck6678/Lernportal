@@ -16,6 +16,7 @@ const MOCK_TOPICS = [
     key_terms: ["Ableitung", "Tangente"],
     formulas: ["f'(x)=nx^(n-1)"],
     examples: ["f(x)=x^2 → f'(x)=2x"],
+    sources: [{ label: "Kerncurriculum Mathematik", url: "https://example.com", section: "Analysis" }],
     quiz: [
       { question: "Was ist die Ableitung von x^2?", options: ["2x", "x^2", "2", "x"], answer: 0 }
     ]
@@ -27,6 +28,7 @@ const MOCK_TOPICS = [
     key_terms: ["Verfassung", "Inflation"],
     formulas: [],
     examples: [],
+    sources: [],
     quiz: [
       {
         question: "Welches Jahr gilt als Krisenjahr?",

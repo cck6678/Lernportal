@@ -9,6 +9,9 @@ export const topics = [
       "f(x)=x^3 -> f'(x)=3x^2",
       "f'(x)>0 bedeutet: Funktion steigt in diesem Bereich."
     ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Mathematik (Gymnasiale Oberstufe)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2024-08/kerncurriculum_gymnasiale_oberstufe-mathematik.pdf", section: "Inhaltsfeld Analysis, S. 20–28" }
+    ],
     quiz: [
       {
         question: "Wie lautet die Ableitung von f(x)=x^4?",
@@ -37,6 +40,9 @@ export const topics = [
       "These: Handynutzung im Unterricht sollte klar geregelt sein.",
       "Argument mit Beleg: Konzentration sinkt laut Studien bei ständiger Ablenkung."
     ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Deutsch (Gymnasiale Oberstufe)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2024-08/kerncurriculum_gymnasiale_oberstufe-deutsch.pdf", section: "Kompetenzbereich Schreiben, S. 18–24" }
+    ],
     quiz: [
       {
         question: "Was gehört in eine tragfähige Argumentation?",
@@ -61,6 +67,9 @@ export const topics = [
       "Weltwirtschaftskrise 1929 verschärfte politische Extreme und ermöglichte NSDAP-Aufstieg.",
       "Analyse der Weimarer Verfassung: Artikel 48 als Notstandsparagraph mit Missbrauchspotenzial.",
       "Auswertung von Wahlstatistiken 1928–1933: Stimmengewinne der NSDAP im Vergleich."
+    ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
     ],
     quiz: [
       {
@@ -150,6 +159,9 @@ export const topics = [
       "Kreuzung reinerbiger Eltern zeigt uniforme F1-Generation.",
       "Bei monohybrider Kreuzung in F2 oft 3:1 im Phänotyp."
     ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Biologie (Gymnasiale Oberstufe)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2024-08/kerncurriculum_gymnasiale_oberstufe-biologie.pdf", section: "Inhaltsfeld Genetik, S. 25-30" }
+    ],
     quiz: [
       {
         question: "Welche Zahl gehört zur Spaltungsregel bei monohybrider Kreuzung?",
@@ -172,6 +184,9 @@ export const topics = [
       "Vergleich Bürgerbegriff: Athen (freie männliche Bürger) vs. Rom (Ständegesellschaft)",
       "Auswertung des Periander-Epitaphs zur Beurteilung des athenischen Bürgerideals",
       "Analyse der Zwölf-Tafel-Gesetze Roms als Quelle für Gleichheitsforderungen der Plebejer"
+    ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
     ],
     quiz: [
       {
@@ -277,6 +292,9 @@ export const topics = [
       "Vergleich ländlicher und städtischer Lebensverhältnisse im Mittelalter",
       "Karikatur zum Investiturstreit: Canossagang Heinrichs IV. 1077",
       "Analyse eines mittelalterlichen Urkundentextes zur Grundherrschaft"
+    ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
     ],
     quiz: [
       {
@@ -388,6 +406,9 @@ export const topics = [
       "Hambacher Fest 1832 als Vorläufer der Revolution",
       "Ablehnung der Kaiserkrone durch Friedrich Wilhelm IV.: Auswertung seiner Begründung"
     ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
+    ],
     quiz: [
       {
         question: "Wo tagte 1848/49 die erste deutsche Nationalversammlung?",
@@ -498,6 +519,9 @@ export const topics = [
       "Grafik: Bevölkerungswachstum deutscher Industriestädte 1850–1910",
       "Auswertung eines Fabrikarbeiterlohns im Vergleich zu Lebenshaltungskosten"
     ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
+    ],
     quiz: [
       {
         question: "Was versteht man unter der 'Sozialen Frage' im 19. Jahrhundert?",
@@ -597,6 +621,9 @@ export const topics = [
       "Ermächtigungsgesetz 1933 als Quelle für die Ausschaltung des Parlaments",
       "Nürnberger Gesetze 1935: Analyse des Textes und Folgen für jüdische Bevölkerung",
       "Novemberpogrome 1938: Augenzeugenberichte und Täterprotokolle im Vergleich"
+    ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
     ],
     quiz: [
       {
@@ -707,6 +734,9 @@ export const topics = [
       "Mauerfall 9. November 1989 als Wendepunkt",
       "Rede Helmut Kohls zur Einheit: Analyse politischer Rhetorik",
       "Zwei-plus-Vier-Vertrag: Außenpolitische Voraussetzung der Wiedervereinigung"
+    ],
+    sources: [
+      { label: "Hessisches Kerncurriculum Geschichte (Gymnasiale Oberstufe, Aug 2021)", url: "https://kultus.hessen.de/sites/kultus.hessen.de/files/2021-08/kcgo_-_geschichte_-_stand_august_2021.pdf", section: "siehe Thema" }
     ],
     quiz: [
       {
