@@ -188,7 +188,7 @@ async function initializeApp() {
     offlineStateEl.textContent = "API derzeit nicht erreichbar – lokale Daten werden genutzt.";
   }
 
-  initializeFilters();
+  await initializeFilters();
   applyFilters();
   await restoreLastTopic();
   updateScoreDisplay();
@@ -215,6 +215,22 @@ async function fetchTopics(subject = "") {
     throw new Error("Ungültiges Datenformat von GET /api/topics");
   }
   return normalizeTopics(payload.data);
+}
+
+async function fetchSubjects() {
+  const response = await fetch(buildApiUrl("/api/subjects"));
+  if (!response.ok) {
+    throw new Error(`GET /api/subjects fehlgeschlagen (${response.status})`);
+  }
+  const payload = await response.json();
+  if (!Array.isArray(payload)) {
+    throw new Error("Ungültiges Datenformat von GET /api/subjects");
+  }
+  return payload.map((entry) => ({
+    id: String(entry.id ?? ""),
+    name: String(entry.name ?? ""),
+    topicCount: Number(entry.topicCount ?? 0)
+  })).filter((entry) => entry.name);
 }
 
 async function fetchTopicDetail(topicId) {
@@ -301,14 +317,23 @@ function bindEvents() {
   window.addEventListener("offline", updateOfflineHint);
 }
 
-function initializeFilters() {
-  const subjects = Array.from(new Set(allTopics.map((topic) => topic.subject))).sort((a, b) =>
-    a.localeCompare(b, "de")
-  );
+async function initializeFilters() {
+  let subjectNames = [];
+
+  try {
+    const subjects = await fetchSubjects();
+    subjectNames = subjects.map((s) => s.name).sort((a, b) => a.localeCompare(b, "de"));
+  } catch (error) {
+    console.error("Fächer konnten nicht über die API geladen werden – Fallback auf Topics:", error);
+    subjectNames = Array.from(new Set(allTopics.map((topic) => topic.subject))).sort((a, b) =>
+      a.localeCompare(b, "de")
+    );
+  }
+
   subjectFilter.innerHTML = "";
   subjectFilter.append(makeOption("", "Alle Fächer"));
-  subjects.forEach((subject) => {
-    subjectFilter.append(makeOption(subject, subject));
+  subjectNames.forEach((name) => {
+    subjectFilter.append(makeOption(name, name));
   });
   populateTopicFilter();
 }
