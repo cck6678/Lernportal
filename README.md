@@ -93,6 +93,8 @@ Persistenz über PostgreSQL:
 Unterstützte Endpunkte:
 
 - `GET /api/health` – schneller Health-Check (`status`, `startedAt`, `topicsTotal`)
+- `GET /api/subjects` – alle Fächer als JSON-Array (`id`, `name`, `topicCount`)
+- `GET /api/subjects/:id` – ein einzelnes Fach oder 404
 - `GET /api/topics` – liefert alle Topics als JSON (`{ data: Topic[], total: number }`)
 - `GET /api/topics?subject=Geschichte` – filtert optional nach Fach (Alias `subjectId` wird ebenfalls unterstützt)
 - `GET /api/topics/:id` – liefert ein einzelnes Topic inklusive `quiz[]`
