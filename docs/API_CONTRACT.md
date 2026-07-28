@@ -136,6 +136,27 @@ interface Progress {
 
 ## 3. Endpoints
 
+### 3.0 Health
+
+#### `GET /api/health`
+Liveness/Readiness-ähnlicher Schnelltest für lokale Entwicklung.
+
+**Request:**
+```
+GET /api/health
+```
+
+**Response (200 OK):**
+```json
+{
+  "status": "ok",
+  "startedAt": "2026-07-28T14:00:00.000Z",
+  "topicsTotal": 42
+}
+```
+
+---
+
 ### 3.1 Subjects (Fächer)
 
 #### `GET /api/subjects`
@@ -204,7 +225,8 @@ GET /api/subjects/geschichte
 Themen mit optionalen Filtern und Suchtext.
 
 **Query Parameters:**
-- `subjectId` (string, optional): Filter nach Fach
+- `subject` (string, optional): Filter nach Fach (aktuell umgesetzt)
+- `subjectId` (string, optional): Alias zu `subject` (aktuell umgesetzt)
 - `search` (string, optional): Volltextsuche in Title + Keywords
 - `status` (string, optional): Filter nach Status (`notStarted`, `inProgress`, `completed`)
 - `limit` (number, optional, default: 20): Paginierung
