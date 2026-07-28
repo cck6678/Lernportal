@@ -72,6 +72,43 @@ Umgebung stoppen:
 pnpm run dev:down
 ```
 
+## REST-API (Issue #24)
+
+Erster Backend-Einstiegspunkt für Fachinhalte und Quizdaten:
+
+```bash
+pnpm run api:start
+```
+
+Base URL lokal: `http://localhost:3000`
+
+Unterstützte Endpunkte:
+
+- `GET /api/health` – schneller Health-Check (`status`, `startedAt`, `topicsTotal`)
+- `GET /api/topics` – liefert alle Topics als JSON (`{ data: Topic[], total: number }`)
+- `GET /api/topics?subject=Geschichte` – filtert optional nach Fach (Alias `subjectId` wird ebenfalls unterstützt)
+- `GET /api/topics/:id` – liefert ein einzelnes Topic inklusive `quiz[]`
+
+Frontend-Integration:
+
+- `app/app.js` lädt die Themenliste über `GET /api/topics`
+- beim Fachwechsel wird `GET /api/topics?subject=...` genutzt
+- Topic-Details werden beim Öffnen über `GET /api/topics/:id` nachgeladen
+
+Fehlerformat:
+
+```json
+{
+  "error": "Human-readable error message",
+  "code": "MACHINE_READABLE_CODE",
+  "timestamp": "2026-07-27T12:00:00.000Z"
+}
+```
+
+Relevante Fehlercodes in diesem Schritt:
+- `404` (`TOPIC_NOT_FOUND`, `ROUTE_NOT_FOUND`)
+- `500` (`INTERNAL_SERVER_ERROR`)
+
 ## MVP-Funktionen (P0)
 
 - Themensuche über Fächer, Titel und Begriffe

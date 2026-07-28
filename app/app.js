@@ -65,8 +65,33 @@ function normalizeTopics(input) {
   return input.map((topic, idx) => normalizeTopic(topic, idx));
 }
 
-const customTopics = _earlyReadJson("lernportal.customTopics", []);
-const topics = normalizeTopics([...basTopics, ...customTopics]);
+function mergeTopics(primary, secondary) {
+  const byId = new Map();
+  normalizeTopics(primary).forEach((topic) => {
+    byId.set(topic.id, topic);
+  });
+  normalizeTopics(secondary).forEach((topic) => {
+    byId.set(topic.id, topic);
+  });
+  return Array.from(byId.values());
+}
+
+function resolveApiBaseUrl() {
+  const configured = String(localStorage.getItem("lernportal.apiBaseUrl") ?? "").trim();
+  if (configured) {
+    return configured.replace(/\/+$/, "");
+  }
+  const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+  if (isLocalhost && window.location.port !== "3000") {
+    return `${window.location.protocol}//${window.location.hostname}:3000`;
+  }
+  return "";
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+const customTopics = normalizeTopics(_earlyReadJson("lernportal.customTopics", []));
+let allTopics = mergeTopics(basTopics, customTopics);
+let topics = allTopics.slice();
 
 const storeKeys = {
   learned: "lernportal.learnedTopics",
@@ -113,7 +138,6 @@ const goalInput = document.getElementById("goal-input");
 const goalBar = document.getElementById("goal-bar");
 const goalStatus = document.getElementById("goal-status");
 const badgeList = document.getElementById("badge-list");
-const MAX_POINTS = topics.reduce((sum, t) => sum + t.quiz.length * 10, 0);
 
 let activeTopic = null;
 let activeQuiz = [];
@@ -129,6 +153,8 @@ const earnedBadges = new Set(readJson(storeKeys.earnedBadges, []));
 let filteredTopics = topics.slice();
 let repeatWrongMode = false;
 let wrongQueue = [];
+let subjectScopedTopics = null;
+let maxPoints = allTopics.reduce((sum, topic) => sum + topic.quiz.length * 10, 0);
 
 // Wöchentliches Lernziel – Woche zurücksetzen wenn nötig
 (function initWeek() {
@@ -144,14 +170,61 @@ let wrongQueue = [];
   }
 })();
 
-initializeFilters();
-applyFilters();
-restoreLastTopic();
 bindEvents();
 setViewMode("learn");
 updateOfflineHint();
 updateScoreDisplay();
 registerServiceWorker();
+void initializeApp();
+
+async function initializeApp() {
+  try {
+    const apiTopics = await fetchTopics();
+    allTopics = mergeTopics(apiTopics, customTopics);
+    topics = allTopics.slice();
+    maxPoints = allTopics.reduce((sum, topic) => sum + topic.quiz.length * 10, 0);
+  } catch (error) {
+    console.error("Topics konnten nicht über die API geladen werden:", error);
+    offlineStateEl.textContent = "API derzeit nicht erreichbar – lokale Daten werden genutzt.";
+  }
+
+  initializeFilters();
+  applyFilters();
+  await restoreLastTopic();
+  updateScoreDisplay();
+}
+
+function buildApiUrl(path, params = {}) {
+  const base = API_BASE_URL || window.location.origin;
+  const url = new URL(path, base);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    url.searchParams.set(key, String(value));
+  });
+  return url;
+}
+
+async function fetchTopics(subject = "") {
+  const url = buildApiUrl("/api/topics", subject ? { subject } : {});
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`GET /api/topics fehlgeschlagen (${response.status})`);
+  }
+  const payload = await response.json();
+  if (!Array.isArray(payload?.data)) {
+    throw new Error("Ungültiges Datenformat von GET /api/topics");
+  }
+  return normalizeTopics(payload.data);
+}
+
+async function fetchTopicDetail(topicId) {
+  const response = await fetch(buildApiUrl(`/api/topics/${encodeURIComponent(topicId)}`));
+  if (!response.ok) {
+    throw new Error(`GET /api/topics/${topicId} fehlgeschlagen (${response.status})`);
+  }
+  const payload = await response.json();
+  return normalizeTopic(payload, 0);
+}
 
 function bindEvents() {
   searchInput.addEventListener("input", () => {
@@ -161,15 +234,14 @@ function bindEvents() {
   subjectFilter.addEventListener("change", () => {
     selectedSubject = subjectFilter.value;
     selectedTopicId = "";
-    populateTopicFilter();
-    applyFilters();
+    void loadSubjectTopicsAndRender();
   });
 
   topicFilter.addEventListener("change", () => {
     selectedTopicId = topicFilter.value;
     applyFilters();
     if (selectedTopicId) {
-      openTopic(selectedTopicId);
+      void openTopic(selectedTopicId);
     }
   });
 
@@ -230,7 +302,7 @@ function bindEvents() {
 }
 
 function initializeFilters() {
-  const subjects = Array.from(new Set(topics.map((topic) => topic.subject))).sort((a, b) =>
+  const subjects = Array.from(new Set(allTopics.map((topic) => topic.subject))).sort((a, b) =>
     a.localeCompare(b, "de")
   );
   subjectFilter.innerHTML = "";
@@ -241,10 +313,35 @@ function initializeFilters() {
   populateTopicFilter();
 }
 
+async function loadSubjectTopicsAndRender() {
+  if (!selectedSubject) {
+    subjectScopedTopics = null;
+    topics = allTopics.slice();
+    populateTopicFilter();
+    applyFilters();
+    return;
+  }
+
+  try {
+    const apiTopics = await fetchTopics(selectedSubject);
+    const scopedCustomTopics = customTopics.filter((topic) => topic.subject === selectedSubject);
+    subjectScopedTopics = mergeTopics(apiTopics, scopedCustomTopics);
+    topics = subjectScopedTopics;
+  } catch (error) {
+    console.error("Fachfilter konnte nicht über API geladen werden:", error);
+    subjectScopedTopics = null;
+    topics = allTopics.slice();
+    offlineStateEl.textContent = "API-Filter derzeit nicht erreichbar – lokale Daten werden genutzt.";
+  }
+
+  populateTopicFilter();
+  applyFilters();
+}
+
 function populateTopicFilter() {
   const scopedTopics = selectedSubject
     ? topics.filter((topic) => topic.subject === selectedSubject)
-    : topics;
+    : allTopics;
   topicFilter.innerHTML = "";
   topicFilter.append(makeOption("", "Alle Themen"));
   scopedTopics.forEach((topic) => {
@@ -322,7 +419,7 @@ function renderTopicPickerList() {
         item.addEventListener("click", () => {
           selectedTopicId = topic.id;
           topicFilter.value = topic.id;
-          openTopic(topic.id);
+          void openTopic(topic.id);
         });
 
         const title = document.createElement("h4");
@@ -339,30 +436,45 @@ function renderTopicPickerList() {
     });
 
   if (!activeTopic && filteredTopics.length > 0) {
-    openTopic(filteredTopics[0].id);
+    void openTopic(filteredTopics[0].id);
   }
 
   updateProgress();
 }
 
-function openTopic(topicId) {
-  const topic = topics.find((item) => item.id === topicId);
+async function openTopic(topicId) {
+  const topic = allTopics.find((item) => item.id === topicId) ?? topics.find((item) => item.id === topicId);
   if (!topic) {
     return;
   }
-  activeTopic = topic;
+  let resolvedTopic = topic;
+  try {
+    const detailedTopic = await fetchTopicDetail(topicId);
+    const replaceTopic = (entry) => (entry.id === detailedTopic.id ? detailedTopic : entry);
+    allTopics = allTopics.map(replaceTopic);
+    topics = topics.map(replaceTopic);
+    if (Array.isArray(subjectScopedTopics)) {
+      subjectScopedTopics = subjectScopedTopics.map(replaceTopic);
+    }
+    resolvedTopic = detailedTopic;
+  } catch (error) {
+    console.error(`Topic-Detail konnte nicht geladen werden (${topicId}):`, error);
+    offlineStateEl.textContent = "Topic-Detail derzeit nicht erreichbar – lokale Daten werden genutzt.";
+  }
+
+  activeTopic = resolvedTopic;
   selectedTopicId = topic.id;
   topicFilter.value = topic.id;
   writeText(storeKeys.lastTopic, topic.id);
-  topicTitle.textContent = topic.title;
-  topicSubject.textContent = topic.subject;
-  quizContext.textContent = topic.subject;
-  fillList(keyTermsEl, topic.keyTerms);
-  fillList(formulasEl, topic.formulas);
-  fillList(examplesEl, topic.examples);
-  setLearnedButton(topic.id);
+  topicTitle.textContent = resolvedTopic.title;
+  topicSubject.textContent = resolvedTopic.subject;
+  quizContext.textContent = resolvedTopic.subject;
+  fillList(keyTermsEl, resolvedTopic.keyTerms);
+  fillList(formulasEl, resolvedTopic.formulas);
+  fillList(examplesEl, resolvedTopic.examples);
+  setLearnedButton(resolvedTopic.id);
 
-  activeQuiz = topic.quiz;
+  activeQuiz = resolvedTopic.quiz;
   const savedQuestionIdx = Number(readText(storeKeys.quizIdx, "0"));
   activeQuestionIdx =
     Number.isFinite(savedQuestionIdx) && activeQuiz.length > 0
@@ -386,7 +498,7 @@ function renderQuestion() {
       return;
     }
     const entry = wrongQueue[activeQuestionIdx % wrongQueue.length];
-    const t = topics.find((x) => x.id === entry.topicId);
+    const t = allTopics.find((x) => x.id === entry.topicId);
     question = t ? t.quiz[entry.idx] : null;
     questionKey = `${entry.topicId}::${entry.idx}`;
   } else {
@@ -456,7 +568,7 @@ function startRepeatWrongMode() {
     const [topicId, idxStr] = key.split("::");
     return { topicId, idx: parseInt(idxStr, 10) };
   }).filter(({ topicId, idx }) => {
-    const t = topics.find((x) => x.id === topicId);
+    const t = allTopics.find((x) => x.id === topicId);
     return t && t.quiz[idx];
   });
   if (wrongQueue.length === 0) return;
@@ -479,7 +591,7 @@ function awardPoints(amount, label) {
 
 function updateScoreDisplay() {
   scorePointsEl.textContent = points;
-  scoreMaxEl.textContent = ` / ${MAX_POINTS}`;
+  scoreMaxEl.textContent = ` / ${maxPoints}`;
 }
 
 function setLearnedButton(topicId) {
@@ -488,7 +600,7 @@ function setLearnedButton(topicId) {
 }
 
 function updateProgress() {
-  progressEl.textContent = `${learnedTopics.size}/${topics.length} gelernt`;
+  progressEl.textContent = `${learnedTopics.size}/${allTopics.length} gelernt`;
 }
 
 function fillList(el, values) {
@@ -500,10 +612,10 @@ function fillList(el, values) {
   });
 }
 
-function restoreLastTopic() {
+async function restoreLastTopic() {
   const lastTopicId = readText(storeKeys.lastTopic, "");
   if (lastTopicId) {
-    openTopic(lastTopicId);
+    await openTopic(lastTopicId);
   }
 }
 
@@ -538,7 +650,7 @@ function setViewMode(mode) {
 
 function ensureActiveTopicForQuiz() {
   if (!activeTopic && filteredTopics.length > 0) {
-    openTopic(filteredTopics[0].id);
+    void openTopic(filteredTopics[0].id);
   }
 }
 
@@ -647,7 +759,7 @@ const BADGE_DEFS = [
     icon: "🏆",
     name: "Halbzeit",
     desc: "50% der Gesamtpunkte erreicht",
-    check: () => MAX_POINTS > 0 && points >= MAX_POINTS * 0.5
+    check: () => maxPoints > 0 && points >= maxPoints * 0.5
   },
   {
     id: "all-questions",
@@ -655,7 +767,7 @@ const BADGE_DEFS = [
     name: "Meister",
     desc: "Alle Quizfragen mindestens einmal richtig",
     check: () => {
-      const total = topics.reduce((s, t) => s + t.quiz.length, 0);
+      const total = allTopics.reduce((s, t) => s + t.quiz.length, 0);
       return total > 0 && answeredQuestions.size >= total;
     }
   },
@@ -672,9 +784,9 @@ const BADGE_DEFS = [
     name: "Fachexperte",
     desc: "Alle Themen eines Fachs als gelernt markiert",
     check: () => {
-      const subjects = [...new Set(topics.map((t) => t.subject))];
+      const subjects = [...new Set(allTopics.map((t) => t.subject))];
       return subjects.some((subj) => {
-        const subTopics = topics.filter((t) => t.subject === subj);
+        const subTopics = allTopics.filter((t) => t.subject === subj);
         return subTopics.length > 0 && subTopics.every((t) => learnedTopics.has(t.id));
       });
     }
