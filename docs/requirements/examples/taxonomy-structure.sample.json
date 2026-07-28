@@ -1,0 +1,77 @@
+{
+  "taxonomyVersion": "1.0.0",
+  "subjects": [
+    {
+      "id": "geschichte",
+      "title": "Geschichte",
+      "gradeBands": [
+        {
+          "id": "q2",
+          "topicFields": [
+            {
+              "id": "deutschland-1918-1945",
+              "title": "Deutschland 1918–1945",
+              "topics": [
+                {
+                  "id": "history-weimar-001",
+                  "title": "Weimarer Republik: Chancen und Krisen",
+                  "tags": [
+                    "era:weimar",
+                    "skill:analyse",
+                    "exam:abitur-core",
+                    "region:deutschland"
+                  ]
+                },
+                {
+                  "id": "history-nationalsozialismus-001",
+                  "title": "Aufstieg und Herrschaft des Nationalsozialismus",
+                  "tags": [
+                    "era:zwischenkriegszeit",
+                    "skill:urteil",
+                    "exam:abitur-core",
+                    "region:deutschland"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematik",
+      "title": "Mathematik",
+      "gradeBands": [
+        {
+          "id": "q1",
+          "topicFields": [
+            {
+              "id": "analysis",
+              "title": "Analysis",
+              "topics": [
+                {
+                  "id": "math-analysis-derivative-001",
+                  "title": "Ableitungen und Änderungsraten",
+                  "tags": [
+                    "skill:modellieren",
+                    "skill:berechnen",
+                    "exam:abitur-core"
+                  ]
+                },
+                {
+                  "id": "math-analysis-integral-001",
+                  "title": "Integralrechnung Grundlagen",
+                  "tags": [
+                    "skill:berechnen",
+                    "skill:interpretieren",
+                    "exam:abitur-core"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
