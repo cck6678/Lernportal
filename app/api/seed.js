@@ -34,6 +34,7 @@ function normalizeTopic(topic, index) {
     keyTerms: toStringArray(topic?.keyTerms),
     formulas: toStringArray(topic?.formulas),
     examples: toStringArray(topic?.examples),
+    sources: Array.isArray(topic?.sources) ? topic.sources : [],
     quiz: normalizeQuiz(topic?.quiz)
   };
 }
@@ -86,10 +87,10 @@ async function run() {
         const subjectId = subjectIdByName.get(topic.subject);
         await client.query(
           `
-            INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples, sources)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
           `,
-          [topic.id, subjectId, topic.title, topic.keyTerms, topic.formulas, topic.examples]
+          [topic.id, subjectId, topic.title, topic.keyTerms, topic.formulas, topic.examples, JSON.stringify(topic.sources)]
         );
 
         for (let i = 0; i < topic.quiz.length; i += 1) {
