@@ -1,0 +1,245 @@
+{
+  "modelId": "lernportal-curriculum-model",
+  "modelVersion": "1.0.0",
+  "generatedAt": "2026-07-26T09:30:00Z",
+  "sources": [
+    {
+      "id": "src-kcgo-englisch-2021",
+      "type": "curriculum-document",
+      "title": "Kerncurriculum gymnasiale Oberstufe Englisch",
+      "publisher": "Hessisches Kultusministerium",
+      "year": 2021,
+      "uri": "https://kultus.hessen.de/",
+      "locator": "Kap. 2, S. 18-34"
+    },
+    {
+      "id": "src-kcgo-mathematik-2021",
+      "type": "curriculum-document",
+      "title": "Kerncurriculum gymnasiale Oberstufe Mathematik",
+      "publisher": "Hessisches Kultusministerium",
+      "year": 2021,
+      "uri": "https://kultus.hessen.de/",
+      "locator": "Kap. 2, S. 20-39"
+    }
+  ],
+  "subjects": [
+    {
+      "id": "englisch",
+      "title": "Englisch",
+      "titles": {
+        "de": "Englisch",
+        "en": "English"
+      },
+      "activeCurriculumVersionId": "englisch-hessen-kcgo-2021",
+      "curriculumVersions": [
+        {
+          "id": "englisch-hessen-kcgo-2021",
+          "subjectId": "englisch",
+          "issuer": "Hessisches Kultusministerium",
+          "region": "de-he",
+          "validFrom": "2021-08-01",
+          "status": "active",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "en-q2",
+          "curriculumVersionId": "englisch-hessen-kcgo-2021",
+          "subjectId": "englisch",
+          "nodeType": "phase",
+          "parentNodeId": null,
+          "orderIndex": 0,
+          "code": "Q2",
+          "title": "Q2",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ]
+        },
+        {
+          "id": "en-q2-reading",
+          "curriculumVersionId": "englisch-hessen-kcgo-2021",
+          "subjectId": "englisch",
+          "nodeType": "competencyArea",
+          "parentNodeId": "en-q2",
+          "orderIndex": 0,
+          "code": "READ",
+          "title": "Reading",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ]
+        },
+        {
+          "id": "en-q2-globalisation",
+          "curriculumVersionId": "englisch-hessen-kcgo-2021",
+          "subjectId": "englisch",
+          "nodeType": "topicField",
+          "parentNodeId": "en-q2-reading",
+          "orderIndex": 0,
+          "code": "GLOB",
+          "title": "Globalisation",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ]
+        },
+        {
+          "id": "en-q2-globalisation-chances-challenges",
+          "curriculumVersionId": "englisch-hessen-kcgo-2021",
+          "subjectId": "englisch",
+          "nodeType": "topic",
+          "parentNodeId": "en-q2-globalisation",
+          "orderIndex": 0,
+          "code": "EN-GLOB-01",
+          "title": "Chances and challenges",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ]
+        }
+      ],
+      "learningObjects": [
+        {
+          "id": "en-topic-globalisation-001",
+          "kind": "topic",
+          "subjectId": "englisch",
+          "title": "Globalisation: Chancen und Risiken",
+          "curriculumNodeIds": [
+            "en-q2-globalisation-chances-challenges"
+          ],
+          "workflowStatus": "approved",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ],
+          "tags": [
+            "skill:analyse",
+            "exam:abitur-core"
+          ]
+        },
+        {
+          "id": "en-quiz-globalisation-001",
+          "kind": "quizQuestion",
+          "subjectId": "englisch",
+          "title": "Globalisation quiz item #1",
+          "curriculumNodeIds": [
+            "en-q2-globalisation-chances-challenges"
+          ],
+          "workflowStatus": "published",
+          "sourceRefIds": [
+            "src-kcgo-englisch-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematik",
+      "title": "Mathematik",
+      "titles": {
+        "de": "Mathematik",
+        "en": "Mathematics"
+      },
+      "activeCurriculumVersionId": "mathematik-hessen-kcgo-2021",
+      "curriculumVersions": [
+        {
+          "id": "mathematik-hessen-kcgo-2021",
+          "subjectId": "mathematik",
+          "issuer": "Hessisches Kultusministerium",
+          "region": "de-he",
+          "validFrom": "2021-08-01",
+          "status": "active",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "math-q1",
+          "curriculumVersionId": "mathematik-hessen-kcgo-2021",
+          "subjectId": "mathematik",
+          "nodeType": "phase",
+          "parentNodeId": null,
+          "orderIndex": 0,
+          "code": "Q1",
+          "title": "Q1",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ]
+        },
+        {
+          "id": "math-q1-analysis",
+          "curriculumVersionId": "mathematik-hessen-kcgo-2021",
+          "subjectId": "mathematik",
+          "nodeType": "topicField",
+          "parentNodeId": "math-q1",
+          "orderIndex": 0,
+          "code": "ANA",
+          "title": "Analysis",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ]
+        },
+        {
+          "id": "math-q1-differentialrechnung",
+          "curriculumVersionId": "mathematik-hessen-kcgo-2021",
+          "subjectId": "mathematik",
+          "nodeType": "module",
+          "parentNodeId": "math-q1-analysis",
+          "orderIndex": 0,
+          "code": "DIFF",
+          "title": "Differentialrechnung",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ]
+        },
+        {
+          "id": "math-q1-derivative-change-rates",
+          "curriculumVersionId": "mathematik-hessen-kcgo-2021",
+          "subjectId": "mathematik",
+          "nodeType": "topic",
+          "parentNodeId": "math-q1-differentialrechnung",
+          "orderIndex": 0,
+          "code": "MATH-ANA-01",
+          "title": "Ableitungen und Aenderungsraten",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ]
+        }
+      ],
+      "learningObjects": [
+        {
+          "id": "math-topic-derivative-001",
+          "kind": "topic",
+          "subjectId": "mathematik",
+          "title": "Ableitung als lokale Aenderungsrate",
+          "curriculumNodeIds": [
+            "math-q1-derivative-change-rates"
+          ],
+          "workflowStatus": "approved",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ],
+          "gradeBand": "q1",
+          "topicFieldId": "analysis",
+          "tags": [
+            "skill:berechnen",
+            "exam:abitur-core"
+          ]
+        },
+        {
+          "id": "math-quiz-derivative-001",
+          "kind": "quizQuestion",
+          "subjectId": "mathematik",
+          "title": "Welche Aussage zur Ableitung ist korrekt?",
+          "curriculumNodeIds": [
+            "math-q1-derivative-change-rates"
+          ],
+          "workflowStatus": "published",
+          "sourceRefIds": [
+            "src-kcgo-mathematik-2021"
+          ]
+        }
+      ]
+    }
+  ]
+}

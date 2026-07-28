@@ -1,0 +1,165 @@
+{
+  "data": [
+    {
+      "id": 20,
+      "attributes": {
+        "slug": "mathematik",
+        "title": "Mathematik",
+        "description": "Hessisches Kerncurriculum Oberstufe",
+        "topics": {
+          "data": [
+            {
+              "id": 2001,
+              "attributes": {
+                "slug": "math-analysis-derivative-001",
+                "title": "Ableitungen und Änderungsraten",
+                "keyTerms": [
+                  "Ableitung",
+                  "Tangente",
+                  "Steigung",
+                  "Monotonie"
+                ],
+                "formulas": [
+                  "(x^n)' = n * x^(n-1)",
+                  "(sin x)' = cos x",
+                  "(e^x)' = e^x"
+                ],
+                "examples": [
+                  "f(x)=x^3 -> f'(x)=3x^2",
+                  "f'(x)>0 bedeutet: Funktion steigt in diesem Bereich."
+                ],
+                "sourceRefs": [
+                  "kcgo-mathematik-2021-s22"
+                ],
+                "difficulty": "medium",
+                "quiz": {
+                  "data": [
+                    {
+                      "id": 6001,
+                      "attributes": {
+                        "slug": "math-analysis-derivative-001-q01",
+                        "question": "Wie lautet die Ableitung von f(x)=x^4?",
+                        "options": [
+                          "4x^3",
+                          "x^3",
+                          "4x",
+                          "x^5"
+                        ],
+                        "answer": 0,
+                        "difficulty": "easy",
+                        "sourceRefs": [
+                          "kcgo-mathematik-2021-s22"
+                        ]
+                      }
+                    },
+                    {
+                      "id": 6002,
+                      "attributes": {
+                        "slug": "math-analysis-derivative-001-q02",
+                        "question": "Welche Aussage ist korrekt?",
+                        "options": [
+                          "f'(x) < 0 heißt: Funktion steigt.",
+                          "f'(x) > 0 heißt: Funktion fällt.",
+                          "f'(x) > 0 heißt: Funktion steigt.",
+                          "f'(x) = 0 heißt immer Hochpunkt."
+                        ],
+                        "answer": 2,
+                        "difficulty": "medium",
+                        "sourceRefs": [
+                          "kcgo-mathematik-2021-s22"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": 2002,
+              "attributes": {
+                "slug": "math-analysis-integral-001",
+                "title": "Integralrechnung Grundlagen",
+                "keyTerms": [
+                  "Stammfunktion",
+                  "Flächeninhalt",
+                  "bestimmtes Integral",
+                  "Hauptsatz"
+                ],
+                "formulas": [
+                  "∫x^n dx = x^(n+1)/(n+1) + C",
+                  "∫_a^b f(x)dx = F(b)-F(a)"
+                ],
+                "examples": [
+                  "Die Fläche unter f(x)=x von 0 bis 2 ergibt 2.",
+                  "Eine Stammfunktion zu f(x)=2x ist F(x)=x^2."
+                ],
+                "sourceRefs": [
+                  "kcgo-mathematik-2021-s26"
+                ],
+                "difficulty": "medium",
+                "quiz": {
+                  "data": [
+                    {
+                      "id": 6003,
+                      "attributes": {
+                        "slug": "math-analysis-integral-001-q01",
+                        "question": "Welche Funktion ist eine Stammfunktion von f(x)=3x^2?",
+                        "options": [
+                          "x^3 + C",
+                          "3x + C",
+                          "x^2 + C",
+                          "6x + C"
+                        ],
+                        "answer": 0,
+                        "difficulty": "easy",
+                        "sourceRefs": [
+                          "kcgo-mathematik-2021-s26"
+                        ]
+                      }
+                    },
+                    {
+                      "id": 6004,
+                      "attributes": {
+                        "slug": "math-analysis-integral-001-q02",
+                        "question": "Wozu dient das bestimmte Integral in der Analysis?",
+                        "options": [
+                          "Zum Lösen quadratischer Gleichungen",
+                          "Zur Berechnung orientierter Flächeninhalte",
+                          "Nur zur Bestimmung von Nullstellen",
+                          "Zur Umformung von Vektoren"
+                        ],
+                        "answer": 1,
+                        "difficulty": "medium",
+                        "sourceRefs": [
+                          "kcgo-mathematik-2021-s26"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "media": [
+    {
+      "id": 9101,
+      "attributes": {
+        "slug": "media-math-analysis-graph-derivative",
+        "kind": "image",
+        "title": "Graphische Deutung der Ableitung",
+        "uri": "https://cdn.example.org/math/analysis/derivative-graph.png",
+        "mimeType": "image/png",
+        "license": "CC BY-SA 4.0",
+        "source": "Beispielmaterial Mathematik",
+        "altText": "Graph mit Tangente zur Veranschaulichung der Ableitung",
+        "topicIds": [
+          "math-analysis-derivative-001"
+        ]
+      }
+    }
+  ]
+}
