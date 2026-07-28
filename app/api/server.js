@@ -138,6 +138,57 @@ async function fetchTopicById(topicId) {
   return normalizeTopicRow(result.rows[0]);
 }
 
+async function fetchSubjects() {
+  const result = await query(
+    `
+      SELECT
+        s.id,
+        s.name,
+        s.description,
+        COUNT(t.id)::int AS topic_count
+      FROM subjects s
+      LEFT JOIN topics t ON t.subject_id = s.id
+      GROUP BY s.id, s.name, s.description
+      ORDER BY s.name ASC
+    `
+  );
+
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    name: String(row.name),
+    ...(row.description ? { description: String(row.description) } : {}),
+    topicCount: row.topic_count
+  }));
+}
+
+async function fetchSubjectById(subjectId) {
+  const result = await query(
+    `
+      SELECT
+        s.id,
+        s.name,
+        s.description,
+        COUNT(t.id)::int AS topic_count
+      FROM subjects s
+      LEFT JOIN topics t ON t.subject_id = s.id
+      WHERE s.id = $1
+      GROUP BY s.id, s.name, s.description
+      LIMIT 1
+    `,
+    [subjectId]
+  );
+
+  if (result.rows.length === 0) return null;
+
+  const row = result.rows[0];
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    ...(row.description ? { description: String(row.description) } : {}),
+    topicCount: row.topic_count
+  };
+}
+
 async function handleHealth(response) {
   const result = await query("SELECT COUNT(*)::int AS total FROM topics");
   sendJson(response, 200, {
@@ -145,6 +196,20 @@ async function handleHealth(response) {
     startedAt,
     topicsTotal: result.rows[0].total
   });
+}
+
+async function handleSubjectsList(response) {
+  const subjects = await fetchSubjects();
+  sendJson(response, 200, subjects);
+}
+
+async function handleSubjectDetail(subjectId, response) {
+  const subject = await fetchSubjectById(subjectId);
+  if (!subject) {
+    sendJson(response, 404, createError("Subject not found", "SUBJECT_NOT_FOUND"));
+    return;
+  }
+  sendJson(response, 200, subject);
 }
 
 async function handleTopicsList(url, response) {
@@ -184,6 +249,17 @@ async function handleRequest(request, response) {
 
   if (url.pathname === "/api/health") {
     await handleHealth(response);
+    return;
+  }
+
+  if (url.pathname === "/api/subjects") {
+    await handleSubjectsList(response);
+    return;
+  }
+
+  const subjectMatch = url.pathname.match(/^\/api\/subjects\/([^/]+)$/);
+  if (subjectMatch) {
+    await handleSubjectDetail(decodeURIComponent(subjectMatch[1]), response);
     return;
   }
 
