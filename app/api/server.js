@@ -1,55 +1,39 @@
 import http from "node:http";
-import { topics as rawTopics } from "../data/topics.js";
+import { closeDb, query } from "./db.js";
 
 const DEFAULT_PORT = 3000;
 const port = Number.parseInt(process.env.PORT ?? `${DEFAULT_PORT}`, 10);
 const host = process.env.HOST ?? "0.0.0.0";
 const startedAt = new Date().toISOString();
 
-const topics = normalizeTopics(rawTopics);
-
 function toStringArray(value) {
   if (!Array.isArray(value)) return [];
   return value.map((entry) => String(entry ?? "").trim()).filter(Boolean);
 }
 
-function normalizeQuiz(rawQuiz) {
-  if (!Array.isArray(rawQuiz)) return [];
-
-  return rawQuiz
+function normalizeQuiz(quiz) {
+  if (!Array.isArray(quiz)) return [];
+  return quiz
     .map((item) => {
       const question = String(item?.question ?? "").trim();
-      if (!question) return null;
-
       const options = toStringArray(item?.options).slice(0, 4);
-      if (options.length < 2) return null;
-
       const answer = Number.isInteger(item?.answer) && item.answer >= 0 && item.answer < options.length ? item.answer : 0;
-
+      if (!question || options.length < 2) return null;
       return { question, options, answer };
     })
     .filter(Boolean);
 }
 
-function normalizeTopic(topic, index) {
-  const id = String(topic?.id ?? `topic-${index + 1}`).trim() || `topic-${index + 1}`;
-  const subject = String(topic?.subject ?? "Allgemein").trim() || "Allgemein";
-  const title = String(topic?.title ?? `Thema ${index + 1}`).trim() || `Thema ${index + 1}`;
-
+function normalizeTopicRow(row) {
   return {
-    id,
-    subject,
-    title,
-    keyTerms: toStringArray(topic?.keyTerms),
-    formulas: toStringArray(topic?.formulas),
-    examples: toStringArray(topic?.examples),
-    quiz: normalizeQuiz(topic?.quiz)
+    id: String(row.id),
+    subject: String(row.subject),
+    title: String(row.title),
+    keyTerms: toStringArray(row.key_terms),
+    formulas: toStringArray(row.formulas),
+    examples: toStringArray(row.examples),
+    quiz: normalizeQuiz(row.quiz)
   };
-}
-
-function normalizeTopics(input) {
-  if (!Array.isArray(input)) return [];
-  return input.map((topic, index) => normalizeTopic(topic, index));
 }
 
 function createError(message, code) {
@@ -74,23 +58,106 @@ function sendJson(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
-function handleTopicsList(url, response) {
-  const subjectQuery = (url.searchParams.get("subject") ?? url.searchParams.get("subjectId") ?? "").trim();
-  let filtered = topics;
+async function fetchTopics(subject = "") {
+  const params = [];
+  let whereClause = "";
 
-  if (subjectQuery) {
-    const query = subjectQuery.toLocaleLowerCase("de-DE");
-    filtered = topics.filter((topic) => topic.subject.toLocaleLowerCase("de-DE") === query);
+  if (subject) {
+    params.push(subject.trim());
+    whereClause = "WHERE LOWER(s.name) = LOWER($1)";
   }
 
+  const result = await query(
+    `
+      SELECT
+        t.id,
+        s.name AS subject,
+        t.title,
+        t.key_terms,
+        t.formulas,
+        t.examples,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'question', qi.question,
+              'options', qi.options,
+              'answer', qi.answer
+            )
+            ORDER BY qi.sort_order
+          ) FILTER (WHERE qi.id IS NOT NULL),
+          '[]'::json
+        ) AS quiz
+      FROM topics t
+      INNER JOIN subjects s ON s.id = t.subject_id
+      LEFT JOIN quiz_items qi ON qi.topic_id = t.id
+      ${whereClause}
+      GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples
+      ORDER BY s.name ASC, t.title ASC
+    `,
+    params
+  );
+
+  return result.rows.map(normalizeTopicRow);
+}
+
+async function fetchTopicById(topicId) {
+  const result = await query(
+    `
+      SELECT
+        t.id,
+        s.name AS subject,
+        t.title,
+        t.key_terms,
+        t.formulas,
+        t.examples,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'question', qi.question,
+              'options', qi.options,
+              'answer', qi.answer
+            )
+            ORDER BY qi.sort_order
+          ) FILTER (WHERE qi.id IS NOT NULL),
+          '[]'::json
+        ) AS quiz
+      FROM topics t
+      INNER JOIN subjects s ON s.id = t.subject_id
+      LEFT JOIN quiz_items qi ON qi.topic_id = t.id
+      WHERE t.id = $1
+      GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples
+      LIMIT 1
+    `,
+    [topicId]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  return normalizeTopicRow(result.rows[0]);
+}
+
+async function handleHealth(response) {
+  const result = await query("SELECT COUNT(*)::int AS total FROM topics");
   sendJson(response, 200, {
-    data: filtered,
-    total: filtered.length
+    status: "ok",
+    startedAt,
+    topicsTotal: result.rows[0].total
   });
 }
 
-function handleTopicDetail(topicId, response) {
-  const topic = topics.find((entry) => entry.id === topicId);
+async function handleTopicsList(url, response) {
+  const subjectQuery = (url.searchParams.get("subject") ?? url.searchParams.get("subjectId") ?? "").trim();
+  const topics = await fetchTopics(subjectQuery);
+  sendJson(response, 200, {
+    data: topics,
+    total: topics.length
+  });
+}
+
+async function handleTopicDetail(topicId, response) {
+  const topic = await fetchTopicById(topicId);
 
   if (!topic) {
     sendJson(response, 404, createError("Topic not found", "TOPIC_NOT_FOUND"));
@@ -100,7 +167,7 @@ function handleTopicDetail(topicId, response) {
   sendJson(response, 200, topic);
 }
 
-function handleRequest(request, response) {
+async function handleRequest(request, response) {
   if (request.method === "OPTIONS") {
     response.statusCode = 204;
     setCommonHeaders(response);
@@ -116,22 +183,18 @@ function handleRequest(request, response) {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
 
   if (url.pathname === "/api/health") {
-    sendJson(response, 200, {
-      status: "ok",
-      startedAt,
-      topicsTotal: topics.length
-    });
+    await handleHealth(response);
     return;
   }
 
   if (url.pathname === "/api/topics") {
-    handleTopicsList(url, response);
+    await handleTopicsList(url, response);
     return;
   }
 
   const topicMatch = url.pathname.match(/^\/api\/topics\/([^/]+)$/);
   if (topicMatch) {
-    handleTopicDetail(decodeURIComponent(topicMatch[1]), response);
+    await handleTopicDetail(decodeURIComponent(topicMatch[1]), response);
     return;
   }
 
@@ -139,14 +202,22 @@ function handleRequest(request, response) {
 }
 
 const server = http.createServer((request, response) => {
-  try {
-    handleRequest(request, response);
-  } catch (error) {
+  handleRequest(request, response).catch((error) => {
     console.error("API request failed:", error);
     sendJson(response, 500, createError("Internal server error", "INTERNAL_SERVER_ERROR"));
-  }
+  });
 });
 
 server.listen(port, host, () => {
   console.log(`Lernportal API listening on http://${host}:${port}`);
+});
+
+process.on("SIGINT", async () => {
+  await closeDb();
+  server.close(() => process.exit(0));
+});
+
+process.on("SIGTERM", async () => {
+  await closeDb();
+  server.close(() => process.exit(0));
 });

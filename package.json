@@ -5,11 +5,17 @@
   "description": "Lernportal development workspace",
   "type": "module",
   "packageManager": "pnpm@9.12.3",
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
   "scripts": {
     "dev:up": "docker compose up -d --build",
     "dev:down": "docker compose down",
     "dev:shell": "docker compose exec workspace bash",
     "db:psql": "docker compose exec postgres psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"",
+    "db:migrate": "node app/api/migrate.js",
+    "db:seed": "node app/api/seed.js",
+    "api:prepare": "pnpm run db:migrate && pnpm run db:seed",
     "env:check": "node -v && pnpm -v",
     "api:start": "node app/api/server.js"
   },
