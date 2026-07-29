@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#1d4ed8" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="description" content="Mobiles Lernportal für das hessische Abitur" />
     <title>Lernportal</title>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -93,20 +93,12 @@
       <section class="panel" id="topic-panel" hidden>
         <h2 id="topic-title"></h2>
         <p id="topic-subject" class="subject"></p>
-        <details id="topic-outline" hidden>
-          <summary>📋 Gliederung</summary>
-          <ol id="topic-outline-list"></ol>
-        </details>
         <h3>Kernbegriffe</h3>
         <ul id="topic-keyterms"></ul>
         <h3>Formeln / Struktur</h3>
         <ul id="topic-formulas"></ul>
         <h3>Beispiele</h3>
         <ul id="topic-examples"></ul>
-        <details id="topic-sources" hidden>
-          <summary>📚 Quellen</summary>
-          <ul id="topic-sources-list"></ul>
-        </details>
         <button id="learned-toggle" class="button"></button>
       </section>
     </main>
