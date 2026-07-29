@@ -137,6 +137,8 @@ const topicSubject = document.getElementById("topic-subject");
 const keyTermsEl = document.getElementById("topic-keyterms");
 const formulasEl = document.getElementById("topic-formulas");
 const examplesEl = document.getElementById("topic-examples");
+const sourcesDetailsEl = document.getElementById("topic-sources");
+const sourcesListEl = document.getElementById("topic-sources-list");
 const learnedToggle = document.getElementById("learned-toggle");
 const quizPanel = document.getElementById("quiz-panel");
 const quizContext = document.getElementById("quiz-context");
@@ -582,6 +584,7 @@ async function openTopic(topicId) {
   fillList(keyTermsEl, resolvedTopic.keyTerms);
   fillList(formulasEl, resolvedTopic.formulas);
   fillList(examplesEl, resolvedTopic.examples);
+  renderSources(resolvedTopic.sources);
   setLearnedButton(resolvedTopic.id);
 
   activeQuiz = resolvedTopic.quiz;
@@ -721,6 +724,32 @@ function fillList(el, values) {
     li.textContent = item;
     el.append(li);
   });
+}
+
+function renderSources(sources) {
+  sourcesListEl.innerHTML = "";
+  if (!Array.isArray(sources) || sources.length === 0) {
+    sourcesDetailsEl.hidden = true;
+    return;
+  }
+  sources.forEach((src) => {
+    const li = document.createElement("li");
+    if (src.url) {
+      const a = document.createElement("a");
+      a.href = src.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = src.label;
+      if (src.section) {
+        a.textContent += ` – ${src.section}`;
+      }
+      li.append(a);
+    } else {
+      li.textContent = src.section ? `${src.label} – ${src.section}` : src.label;
+    }
+    sourcesListEl.append(li);
+  });
+  sourcesDetailsEl.hidden = false;
 }
 
 async function restoreLastTopic() {
