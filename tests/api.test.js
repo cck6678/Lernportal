@@ -453,4 +453,27 @@ describe("Admin-Endpunkte", () => {
     assert.equal(res.status, 401);
     assert.equal(body.code, "UNAUTHORIZED");
   });
+
+  it("POST /api/topics/ai-draft ohne API-Key liefert 503", async () => {
+    const res = await fetch(`${baseUrl}/api/topics/ai-draft`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer dev-admin" },
+      body: JSON.stringify({ source: "Testinhalt über Photosynthese" })
+    });
+    const body = await res.json();
+    // Kein OPENAI_API_KEY gesetzt → 503
+    assert.equal(res.status, 503);
+    assert.equal(body.code, "AI_NOT_CONFIGURED");
+  });
+
+  it("POST /api/topics/ai-draft ohne Token liefert 401", async () => {
+    const res = await fetch(`${baseUrl}/api/topics/ai-draft`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "Test" })
+    });
+    const body = await res.json();
+    assert.equal(res.status, 401);
+    assert.equal(body.code, "UNAUTHORIZED");
+  });
 });

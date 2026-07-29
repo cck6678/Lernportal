@@ -144,6 +144,19 @@
     </header>
 
     <main class="admin-body">
+      <!-- KI-Vorschlag -->
+      <div class="form-panel" id="ai-panel" style="border-color: #8b5cf6;">
+        <h2 style="color:#8b5cf6;">🤖 KI-Vorschlag generieren</h2>
+        <div class="form-row">
+          <label for="ai-source">URL oder Text als Quelle</label>
+          <textarea id="ai-source" placeholder="https://example.com/lehrplan oder Text direkt einfügen …" style="min-height:80px"></textarea>
+          <span class="hint">URL wird automatisch abgerufen. Alternativ Text direkt einfügen (max. ~6000 Zeichen).</span>
+        </div>
+        <p id="ai-error" style="color:#dc2626;font-size:0.88rem;display:none"></p>
+        <button class="button" type="button" id="ai-generate-btn" style="background:#8b5cf6">✨ Vorschlag generieren</button>
+        <p id="ai-status" class="hint" style="margin-top:0.5rem"></p>
+      </div>
+
       <!-- Formular für neues / bearbeitetes Thema -->
       <div class="form-panel" id="form-panel">
         <h2 id="form-title">Neues Thema anlegen</h2>
@@ -472,6 +485,53 @@
           el.innerHTML = `<p class="hint" style="color:#dc2626">${escHtml(err.message)}</p>`;
         }
       }
+
+      // ── KI-Vorschlag ─────────────────────────────────────────
+      document.getElementById("ai-generate-btn").addEventListener("click", async () => {
+        const source = document.getElementById("ai-source").value.trim();
+        const statusEl = document.getElementById("ai-status");
+        const errorEl = document.getElementById("ai-error");
+        errorEl.style.display = "none";
+        if (!source) { errorEl.textContent = "Bitte URL oder Text eingeben."; errorEl.style.display = "block"; return; }
+
+        const btn = document.getElementById("ai-generate-btn");
+        btn.disabled = true;
+        btn.textContent = "⏳ Generiere …";
+        statusEl.textContent = "KI analysiert die Quelle …";
+
+        try {
+          const res = await fetch(`${API}/api/topics/ai-draft`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+            body: JSON.stringify({ source })
+          });
+          const draft = await res.json();
+          if (!res.ok) throw new Error(draft.error ?? `Fehler ${res.status}`);
+
+          // Formular vorausfüllen
+          editIdInput.value = "";
+          fSubject.value = draft.subject ?? "";
+          fTitle.value = draft.title ?? "";
+          fKeyterms.value = (draft.keyTerms ?? []).join("\n");
+          fFormulas.value = (draft.formulas ?? []).join("\n");
+          fExamples.value = (draft.examples ?? []).join("\n");
+          sourceItems = (draft.sources ?? []).map((s) => ({ label: s.label ?? "", url: s.url ?? "", section: s.section ?? "" }));
+          quizItems = (draft.quiz ?? []).map((q) => ({ question: q.question ?? "", options: Array.isArray(q.options) ? [...q.options] : ["","","",""], answer: q.answer ?? 0 }));
+          renderSourcesBuilder();
+          renderQuizBuilder();
+          formTitle.textContent = "KI-Vorschlag – bitte prüfen und speichern";
+          showError("");
+          statusEl.textContent = "✅ Vorschlag übernommen – bitte prüfen und ggf. anpassen.";
+          document.getElementById("form-panel").scrollIntoView({ behavior: "smooth" });
+        } catch (err) {
+          errorEl.textContent = err.message;
+          errorEl.style.display = "block";
+          statusEl.textContent = "";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "✨ Vorschlag generieren";
+        }
+      });
 
       resetForm();
       loadTopicList();
