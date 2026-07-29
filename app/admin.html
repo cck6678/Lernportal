@@ -144,6 +144,19 @@
     </header>
 
     <main class="admin-body">
+      <!-- KI-Vorschlag -->
+      <div class="form-panel" id="ai-panel" style="border-color: #8b5cf6;">
+        <h2 style="color:#8b5cf6;">🤖 KI-Vorschlag generieren</h2>
+        <div class="form-row">
+          <label for="ai-source">URL oder Text als Quelle</label>
+          <textarea id="ai-source" placeholder="https://example.com/lehrplan oder Text direkt einfügen …" style="min-height:80px"></textarea>
+          <span class="hint">URL wird automatisch abgerufen. Alternativ Text direkt einfügen (max. ~6000 Zeichen).</span>
+        </div>
+        <p id="ai-error" style="color:#dc2626;font-size:0.88rem;display:none"></p>
+        <button class="button" type="button" id="ai-generate-btn" style="background:#8b5cf6">✨ Vorschlag generieren</button>
+        <p id="ai-status" class="hint" style="margin-top:0.5rem"></p>
+      </div>
+
       <!-- Formular für neues / bearbeitetes Thema -->
       <div class="form-panel" id="form-panel">
         <h2 id="form-title">Neues Thema anlegen</h2>
@@ -151,12 +164,22 @@
         <input type="hidden" id="edit-id" />
 
         <div class="form-row">
-          <label for="f-subject">Fach</label>
-          <input id="f-subject" type="text" placeholder="z.B. Mathematik" />
+          <label for="f-token">Admin-Token <span style="color:#dc2626">*</span></label>
+          <input id="f-token" type="password" placeholder="dev-admin (Standard lokal)" />
+          <span class="hint">Wird im Browser gespeichert. Standard: dev-admin</span>
         </div>
         <div class="form-row">
-          <label for="f-title">Thema-Titel</label>
-          <input id="f-title" type="text" placeholder="z.B. Quadratische Gleichungen" />
+          <label for="f-subject">Fach <span style="color:#dc2626">*</span></label>
+          <input id="f-subject" type="text" placeholder="z.B. Mathematik" required />
+        </div>
+        <div class="form-row">
+          <label for="f-title">Thema-Titel <span style="color:#dc2626">*</span></label>
+          <input id="f-title" type="text" placeholder="z.B. Quadratische Gleichungen" required />
+        </div>
+        <div class="form-row">
+          <label for="f-outline">Gliederung</label>
+          <textarea id="f-outline" placeholder="Ein Gliederungspunkt pro Zeile, z.B.:&#10;1. Einführung&#10;1.1 Definition&#10;2. Hauptteil" rows="6"></textarea>
+          <span class="hint">Strukturierte Gliederung aus der Quelle, ein Punkt pro Zeile</span>
         </div>
         <div class="form-row">
           <label for="f-keyterms">Kernbegriffe</label>
@@ -174,42 +197,129 @@
           <span class="hint">Ein Beispiel pro Zeile</span>
         </div>
 
+        <div class="section-divider">Quellen</div>
+        <div id="sources-builder"></div>
+        <button class="button secondary" type="button" id="add-source-btn" style="margin-bottom:0.8rem">＋ Quelle hinzufügen</button>
+
         <div class="section-divider">Quizfragen</div>
         <div id="quiz-builder"></div>
         <button class="button secondary" type="button" id="add-question-btn" style="margin-bottom:0.8rem">＋ Frage hinzufügen</button>
 
+        <p id="form-error" style="color:#dc2626;font-size:0.88rem;display:none"></p>
         <div style="display:flex; gap:0.6rem; flex-wrap:wrap">
           <button class="button" type="button" id="save-btn">Speichern</button>
           <button class="button secondary" type="button" id="cancel-btn">Abbrechen</button>
         </div>
       </div>
 
-      <!-- Eigene Themen -->
-      <div class="section-divider">Eigene Themen</div>
+      <!-- Alle Themen aus der DB -->
+      <div class="section-divider">Themen in der Datenbank</div>
       <div id="custom-topic-list"></div>
-
-      <!-- Basis-Themen (read-only Übersicht) -->
-      <div class="section-divider">Basis-Themen (aus topics.js, nur Lesezugriff)</div>
-      <div id="base-topic-list"></div>
     </main>
 
     <script type="module">
-      import { topics as baseTopics } from "./data/topics.js";
+      const API = window.location.port === "3000"
+        ? `${window.location.protocol}//${window.location.hostname}:3000`
+        : "";
 
-      const STORE_KEY = "lernportal.customTopics";
-
-      function load() {
-        try { return JSON.parse(localStorage.getItem(STORE_KEY)) ?? []; }
-        catch { return []; }
+      function getToken() {
+        return document.getElementById("f-token").value.trim()
+          || localStorage.getItem("lernportal.adminToken")
+          || "dev-admin";
       }
 
-      function save(list) {
-        localStorage.setItem(STORE_KEY, JSON.stringify(list));
+      function saveToken(t) {
+        localStorage.setItem("lernportal.adminToken", t);
       }
 
-      function genId() {
-        return "custom-" + Date.now();
+      async function apiGet(path) {
+        const res = await fetch(`${API}${path}`);
+        if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
+        return res.json();
       }
+
+      async function apiPost(path, body) {
+        const res = await fetch(`${API}${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `POST ${path} → ${res.status}`);
+        return data;
+      }
+
+      async function apiPut(path, body) {
+        const res = await fetch(`${API}${path}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `PUT ${path} → ${res.status}`);
+        return data;
+      }
+
+      async function apiDelete(path) {
+        const res = await fetch(`${API}${path}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${getToken()}` }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `DELETE ${path} → ${res.status}`);
+        return data;
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("form-error");
+        el.textContent = msg;
+        el.style.display = msg ? "block" : "none";
+      }
+
+      function escHtml(s) {
+        return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      }
+
+      // ── Sources-Builder ───────────────────────────────────────
+      const sourcesBuilder = document.getElementById("sources-builder");
+      let sourceItems = [];
+
+      function renderSourcesBuilder() {
+        sourcesBuilder.innerHTML = "";
+        sourceItems.forEach((src, i) => {
+          const el = document.createElement("div");
+          el.className = "quiz-item";
+          el.innerHTML = `
+            <div class="quiz-item-header">
+              Quelle ${i + 1}
+              <button class="btn-sm danger" data-si="${i}" type="button">Entfernen</button>
+            </div>
+            <div class="form-row">
+              <label>Bezeichnung <span style="color:#dc2626">*</span></label>
+              <input type="text" class="src-label" data-i="${i}" value="${escHtml(src.label)}" placeholder="z.B. Kerncurriculum Hessen" />
+            </div>
+            <div class="form-row">
+              <label>URL (optional)</label>
+              <input type="url" class="src-url" data-i="${i}" value="${escHtml(src.url ?? "")}" placeholder="https://…" />
+            </div>
+            <div class="form-row">
+              <label>Abschnitt (optional)</label>
+              <input type="text" class="src-section" data-i="${i}" value="${escHtml(src.section ?? "")}" placeholder="z.B. Kapitel 3.2" />
+            </div>`;
+          el.querySelector(".btn-sm.danger").addEventListener("click", () => {
+            sourceItems.splice(i, 1); renderSourcesBuilder();
+          });
+          el.querySelector(".src-label").addEventListener("input", (e) => { sourceItems[i].label = e.target.value; });
+          el.querySelector(".src-url").addEventListener("input", (e) => { sourceItems[i].url = e.target.value; });
+          el.querySelector(".src-section").addEventListener("input", (e) => { sourceItems[i].section = e.target.value; });
+          sourcesBuilder.appendChild(el);
+        });
+      }
+
+      document.getElementById("add-source-btn").addEventListener("click", () => {
+        sourceItems.push({ label: "", url: "", section: "" });
+        renderSourcesBuilder();
+      });
 
       // ── Quiz-Builder ──────────────────────────────────────────
       const quizBuilder = document.getElementById("quiz-builder");
@@ -226,7 +336,7 @@
               <button class="btn-sm danger" data-qi="${i}" type="button">Entfernen</button>
             </div>
             <div class="form-row">
-              <label>Frage</label>
+              <label>Frage <span style="color:#dc2626">*</span></label>
               <input type="text" class="qi-question" data-i="${i}" value="${escHtml(q.question)}" placeholder="Fragentext" />
             </div>
             ${[0,1,2,3].map((oi) => `
@@ -234,15 +344,11 @@
                 <input type="radio" name="correct-${i}" value="${oi}" ${q.answer === oi ? "checked" : ""} />
                 <input type="text" class="qi-option" data-i="${i}" data-oi="${oi}" value="${escHtml(q.options[oi] ?? "")}" placeholder="Option ${oi + 1}" style="flex:1" />
               </div>`).join("")}
-            <span class="hint">Radio = richtige Antwort</span>
-          `;
+            <span class="hint">Radio = richtige Antwort. Mindestens 2 Optionen.</span>`;
           el.querySelector(".btn-sm.danger").addEventListener("click", () => {
-            quizItems.splice(i, 1);
-            renderQuizBuilder();
+            quizItems.splice(i, 1); renderQuizBuilder();
           });
-          el.querySelectorAll(".qi-question").forEach((inp) => {
-            inp.addEventListener("input", () => { quizItems[i].question = inp.value; });
-          });
+          el.querySelector(".qi-question").addEventListener("input", (e) => { quizItems[i].question = e.target.value; });
           el.querySelectorAll(".qi-option").forEach((inp) => {
             inp.addEventListener("input", () => { quizItems[i].options[inp.dataset.oi] = inp.value; });
           });
@@ -258,18 +364,18 @@
         renderQuizBuilder();
       });
 
-      function escHtml(s) {
-        return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-      }
-
       // ── Form ──────────────────────────────────────────────────
       const editIdInput = document.getElementById("edit-id");
       const formTitle = document.getElementById("form-title");
+      const fToken = document.getElementById("f-token");
       const fSubject = document.getElementById("f-subject");
       const fTitle = document.getElementById("f-title");
       const fKeyterms = document.getElementById("f-keyterms");
       const fFormulas = document.getElementById("f-formulas");
       const fExamples = document.getElementById("f-examples");
+      const fOutline = document.getElementById("f-outline");
+
+      fToken.value = localStorage.getItem("lernportal.adminToken") ?? "dev-admin";
 
       function resetForm() {
         editIdInput.value = "";
@@ -278,9 +384,13 @@
         fKeyterms.value = "";
         fFormulas.value = "";
         fExamples.value = "";
+        fOutline.value = "";
         quizItems = [];
+        sourceItems = [];
         renderQuizBuilder();
+        renderSourcesBuilder();
         formTitle.textContent = "Neues Thema anlegen";
+        showError("");
       }
 
       function loadTopicIntoForm(topic) {
@@ -290,100 +400,151 @@
         fKeyterms.value = (topic.keyTerms ?? []).join("\n");
         fFormulas.value = (topic.formulas ?? []).join("\n");
         fExamples.value = (topic.examples ?? []).join("\n");
-        quizItems = (topic.quiz ?? []).map((q) => ({
-          question: q.question,
-          options: [...q.options],
-          answer: q.answer
-        }));
+        fOutline.value = (topic.outline ?? []).join("\n");
+        sourceItems = (topic.sources ?? []).map((s) => ({ label: s.label ?? "", url: s.url ?? "", section: s.section ?? "" }));
+        quizItems = (topic.quiz ?? []).map((q) => ({ question: q.question, options: [...q.options], answer: q.answer }));
+        renderSourcesBuilder();
         renderQuizBuilder();
         formTitle.textContent = "Thema bearbeiten";
+        showError("");
         document.getElementById("form-panel").scrollIntoView({ behavior: "smooth" });
       }
 
-      document.getElementById("save-btn").addEventListener("click", () => {
+      document.getElementById("save-btn").addEventListener("click", async () => {
+        showError("");
+        const token = fToken.value.trim() || "dev-admin";
+        saveToken(token);
         const subj = fSubject.value.trim();
         const title = fTitle.value.trim();
-        if (!subj || !title) {
-          alert("Bitte Fach und Titel ausfüllen.");
-          return;
-        }
+        if (!subj || !title) { showError("Bitte Fach und Titel ausfüllen."); return; }
+
         const topic = {
-          id: editIdInput.value || genId(),
+          id: editIdInput.value || undefined,
           subject: subj,
           title,
           keyTerms: fKeyterms.value.split("\n").map((s) => s.trim()).filter(Boolean),
           formulas: fFormulas.value.split("\n").map((s) => s.trim()).filter(Boolean),
           examples: fExamples.value.split("\n").map((s) => s.trim()).filter(Boolean),
-          quiz: quizItems.filter((q) => q.question.trim() && q.options.some((o) => o.trim()))
+          outline: fOutline.value.split("\n").map((s) => s.trim()).filter(Boolean),
+          sources: sourceItems.filter((s) => s.label.trim()).map((s) => ({
+            label: s.label.trim(),
+            ...(s.url.trim() ? { url: s.url.trim() } : {}),
+            ...(s.section.trim() ? { section: s.section.trim() } : {})
+          })),
+          quiz: quizItems.filter((q) => q.question.trim() && q.options.filter((o) => o.trim()).length >= 2)
         };
-        const list = load();
-        const idx = list.findIndex((t) => t.id === topic.id);
-        if (idx >= 0) {
-          list[idx] = topic;
-        } else {
-          list.push(topic);
+
+        try {
+          if (editIdInput.value) {
+            await apiPut(`/api/topics/${encodeURIComponent(editIdInput.value)}`, topic);
+          } else {
+            await apiPost("/api/topics", topic);
+          }
+          resetForm();
+          await loadTopicList();
+        } catch (err) {
+          showError(err.message);
         }
-        save(list);
-        resetForm();
-        renderCustomList();
-        alert(`Thema „${topic.title}" gespeichert!`);
       });
 
       document.getElementById("cancel-btn").addEventListener("click", resetForm);
 
-      // ── Custom topic list ─────────────────────────────────────
-      function renderCustomList() {
-        const list = load();
+      // ── Topic-Liste aus DB ────────────────────────────────────
+      async function loadTopicList() {
         const el = document.getElementById("custom-topic-list");
-        if (list.length === 0) {
-          el.innerHTML = "<p id='custom-list-empty'>Noch keine eigenen Themen angelegt.</p>";
-          return;
+        el.innerHTML = "<p class='hint'>Lädt …</p>";
+        try {
+          const data = await apiGet("/api/topics");
+          const list = data.data ?? [];
+          if (list.length === 0) {
+            el.innerHTML = "<p class='hint'>Noch keine Themen in der Datenbank.</p>";
+            return;
+          }
+          el.innerHTML = list.map((t) => `
+            <div class="topic-card">
+              <div class="topic-card-row">
+                <div>
+                  <div class="topic-card-title">${escHtml(t.title)}</div>
+                  <div class="topic-card-subject">${escHtml(t.subject)} · ${(t.quiz ?? []).length} Fragen</div>
+                </div>
+                <div class="topic-actions">
+                  <button class="btn-sm edit-btn" data-id="${escHtml(t.id)}" type="button">Bearbeiten</button>
+                  <button class="btn-sm danger delete-btn" data-id="${escHtml(t.id)}" data-title="${escHtml(t.title)}" type="button">Löschen</button>
+                </div>
+              </div>
+            </div>`).join("");
+          el.querySelectorAll(".edit-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              try {
+                const topic = await apiGet(`/api/topics/${encodeURIComponent(btn.dataset.id)}`);
+                loadTopicIntoForm(topic);
+              } catch (err) { alert(err.message); }
+            });
+          });
+          el.querySelectorAll(".delete-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              if (!confirm(`Thema „${btn.dataset.title}" wirklich löschen?`)) return;
+              try {
+                await apiDelete(`/api/topics/${encodeURIComponent(btn.dataset.id)}`);
+                await loadTopicList();
+              } catch (err) { alert(err.message); }
+            });
+          });
+        } catch (err) {
+          el.innerHTML = `<p class="hint" style="color:#dc2626">${escHtml(err.message)}</p>`;
         }
-        el.innerHTML = list.map((t) => `
-          <div class="topic-card">
-            <div class="topic-card-row">
-              <div>
-                <div class="topic-card-title">${escHtml(t.title)}</div>
-                <div class="topic-card-subject">${escHtml(t.subject)} · ${t.quiz.length} Fragen</div>
-              </div>
-              <div class="topic-actions">
-                <button class="btn-sm edit-btn" data-id="${t.id}" type="button">Bearbeiten</button>
-                <button class="btn-sm danger delete-btn" data-id="${t.id}" type="button">Löschen</button>
-              </div>
-            </div>
-          </div>
-        `).join("");
-        el.querySelectorAll(".edit-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const topic = load().find((t) => t.id === btn.dataset.id);
-            if (topic) loadTopicIntoForm(topic);
-          });
-        });
-        el.querySelectorAll(".delete-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const topic = load().find((t) => t.id === btn.dataset.id);
-            if (topic && confirm(`Thema „${topic.title}" wirklich löschen?`)) {
-              save(load().filter((t) => t.id !== btn.dataset.id));
-              renderCustomList();
-            }
-          });
-        });
       }
 
-      // ── Base topic list ───────────────────────────────────────
-      function renderBaseList() {
-        const el = document.getElementById("base-topic-list");
-        el.innerHTML = baseTopics.map((t) => `
-          <div class="topic-card" style="opacity:0.7">
-            <div class="topic-card-title">${escHtml(t.title)}</div>
-            <div class="topic-card-subject">${escHtml(t.subject)} · ${t.quiz.length} Fragen</div>
-          </div>
-        `).join("");
-      }
+      // ── KI-Vorschlag ─────────────────────────────────────────
+      document.getElementById("ai-generate-btn").addEventListener("click", async () => {
+        const source = document.getElementById("ai-source").value.trim();
+        const statusEl = document.getElementById("ai-status");
+        const errorEl = document.getElementById("ai-error");
+        errorEl.style.display = "none";
+        if (!source) { errorEl.textContent = "Bitte URL oder Text eingeben."; errorEl.style.display = "block"; return; }
+
+        const btn = document.getElementById("ai-generate-btn");
+        btn.disabled = true;
+        btn.textContent = "⏳ Generiere …";
+        statusEl.textContent = "KI analysiert die Quelle …";
+
+        try {
+          const res = await fetch(`${API}/api/topics/ai-draft`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+            body: JSON.stringify({ source })
+          });
+          const draft = await res.json();
+          if (!res.ok) throw new Error(draft.error ?? `Fehler ${res.status}`);
+
+          // Formular vorausfüllen
+          editIdInput.value = "";
+          fSubject.value = draft.subject ?? "";
+          fTitle.value = draft.title ?? "";
+          fKeyterms.value = (draft.keyTerms ?? []).join("\n");
+          fFormulas.value = (draft.formulas ?? []).join("\n");
+          fExamples.value = (draft.examples ?? []).join("\n");
+          fOutline.value = (draft.outline ?? []).join("\n");
+          sourceItems = (draft.sources ?? []).map((s) => ({ label: s.label ?? "", url: s.url ?? "", section: s.section ?? "" }));
+          quizItems = (draft.quiz ?? []).map((q) => ({ question: q.question ?? "", options: Array.isArray(q.options) ? [...q.options] : ["","","",""], answer: q.answer ?? 0 }));
+          renderSourcesBuilder();
+          renderQuizBuilder();
+          formTitle.textContent = "KI-Vorschlag – bitte prüfen und speichern";
+          showError("");
+          statusEl.textContent = "✅ Vorschlag übernommen – bitte prüfen und ggf. anpassen.";
+          document.getElementById("form-panel").scrollIntoView({ behavior: "smooth" });
+        } catch (err) {
+          errorEl.textContent = err.message;
+          errorEl.style.display = "block";
+          statusEl.textContent = "";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "✨ Vorschlag generieren";
+        }
+      });
 
       resetForm();
-      renderCustomList();
-      renderBaseList();
+      loadTopicList();
     </script>
   </body>
 </html>

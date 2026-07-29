@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>Datenschutz – Lernportal</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      .privacy-content { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+      .privacy-content h2 { margin-top: 2rem; font-size: 1.1rem; color: #e2e8f0; }
+      .privacy-content p, .privacy-content li { color: #94a3b8; line-height: 1.7; }
+      .privacy-content table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.85rem; }
+      .privacy-content th, .privacy-content td { text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #334155; color: #94a3b8; }
+      .privacy-content th { background: #1e293b; color: #e2e8f0; }
+      .back-link { display: inline-block; margin: 1rem; color: #94a3b8; font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-row">
+        <div>
+          <h1>Lernportal</h1>
+          <p>Datenschutz &amp; Datennutzung</p>
+        </div>
+      </div>
+    </header>
+
+    <a class="back-link" href="./index.html">← Zurück zur App</a>
+
+    <main class="privacy-content">
+
+      <h2>Zusammenfassung</h2>
+      <p>
+        Das Lernportal speichert <strong>ausschließlich auf deinem Gerät</strong> (localStorage im Browser)
+        und sendet <strong>keine personenbezogenen Daten</strong> an Server.
+        Es gibt kein Tracking, keine Cookies und keine Nutzerkonten.
+      </p>
+
+      <h2>Was wird gespeichert?</h2>
+      <p>
+        Alle Daten liegen lokal in deinem Browser (<code>localStorage</code>).
+        Du kannst sie jederzeit löschen (Browser → Einstellungen → Websitedaten löschen).
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Schlüssel</th>
+            <th>Inhalt</th>
+            <th>Zweck</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>lernportal.learnedTopics</code></td><td>IDs erlernter Themen</td><td>Fortschrittsanzeige</td></tr>
+          <tr><td><code>lernportal.lastTopic</code></td><td>Zuletzt geöffnetes Thema</td><td>Schnellnavigation</td></tr>
+          <tr><td><code>lernportal.quizIndex</code></td><td>Aktueller Quiz-Fortschritt</td><td>Quiz-Weitermachen</td></tr>
+          <tr><td><code>lernportal.points</code></td><td>Punktestand</td><td>Gamification</td></tr>
+          <tr><td><code>lernportal.answeredQuestions</code></td><td>Beantwortete Fragen</td><td>Statistik lokal</td></tr>
+          <tr><td><code>lernportal.wrongQuestions</code></td><td>Falsch beantwortete Fragen</td><td>Wiederholung</td></tr>
+          <tr><td><code>lernportal.earnedBadges</code></td><td>Verdiente Abzeichen</td><td>Gamification</td></tr>
+          <tr><td><code>lernportal.weeklyGoal</code></td><td>Wochenziel</td><td>Lernplanung</td></tr>
+          <tr><td><code>lernportal.weekStart</code></td><td>Start der Lernwoche</td><td>Wochenfortschritt</td></tr>
+          <tr><td><code>lernportal.weekTopics</code></td><td>Themen der Woche</td><td>Wochenfortschritt</td></tr>
+          <tr><td><code>lernportal.apiBaseUrl</code></td><td>Optionale API-URL</td><td>Entwickler-Einstellung</td></tr>
+          <tr><td><code>lernportal.customTopics</code></td><td>Eigene Themen (optional)</td><td>Eigene Inhalte</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Was wird <em>nicht</em> gespeichert?</h2>
+      <ul>
+        <li>Keine Namen, E-Mail-Adressen oder andere Kontaktdaten</li>
+        <li>Keine IP-Adressen (kein Nutzer-Tracking)</li>
+        <li>Keine Cookies</li>
+        <li>Keine Nutzungsstatistiken, die an Dritte gesendet werden</li>
+      </ul>
+
+      <h2>Service Worker / Offline-Cache</h2>
+      <p>
+        Die App nutzt einen <strong>Service Worker</strong>, der App-Dateien (HTML, CSS, JS) im
+        Browser-Cache speichert — ausschließlich für Offline-Nutzung. Es werden keine persönlichen
+        Daten gecacht. Den Cache kannst du über <code>reset-cache.html</code> leeren.
+      </p>
+
+      <h2>API-Server</h2>
+      <p>
+        Wenn der API-Server (<code>api:start</code>) erreichbar ist, lädt die App
+        Lerninhalte von <code>/api/topics</code> und <code>/api/subjects</code>.
+        Dabei werden <strong>keine Nutzer-IDs</strong> übermittelt — nur reine Inhaltsabfragen
+        (GET-Anfragen ohne Authentifizierung).
+      </p>
+
+      <h2>Daten löschen</h2>
+      <p>
+        Alle lokal gespeicherten Daten löschst du über:<br>
+        Browser → Einstellungen → Datenschutz → Websitedaten löschen → Lernportal
+      </p>
+      <p>Alternativ: In der Browser-Konsole <code>localStorage.clear()</code> ausführen.</p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Fragen zur Datennutzung: über das
+        <a href="https://github.com/cck6678/Lernportal/issues" style="color:#60a5fa;">GitHub Repository</a>.
+      </p>
+
+    </main>
+  </body>
+</html>

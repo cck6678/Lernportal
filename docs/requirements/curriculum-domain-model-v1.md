@@ -190,31 +190,31 @@ standardisierter ID-Normalisierung ergänzt.
 
 ### Ergaenzter Scope (Anhang: weitere hessische Curricula)
 
-| Fach | Subject-ID | Vorgeschlagene CurriculumVersion-ID |
-| --- | --- | --- |
-| Biologie | `biologie` | `biologie-hessen-kerncurriculum` |
-| Chemie | `chemie` | `chemie-hessen-kcgo-2026` |
-| Chinesisch | `chinesisch` | `chinesisch-hessen-kerncurriculum` |
-| Darstellendes Spiel | `darstellendes-spiel` | `darstellendes-spiel-hessen-kerncurriculum` |
-| Ethik | `ethik` | `ethik-hessen-kerncurriculum` |
-| Evangelische Religion | `evangelische-religion` | `evangelische-religion-hessen-kcgo-2026` |
-| Franzoesisch | `franzoesisch` | `franzoesisch-hessen-kerncurriculum` |
-| Geographie | `geographie` | `geographie-hessen-kerncurriculum` |
-| Griechisch | `griechisch` | `griechisch-hessen-kerncurriculum` |
-| Informatik | `informatik` | `informatik-hessen-kerncurriculum` |
-| Italienisch | `italienisch` | `italienisch-hessen-kcgo-2026` |
-| Juedische Religion | `juedische-religion` | `juedische-religion-hessen-kerncurriculum` |
-| Katholische Religion | `katholische-religion` | `katholische-religion-hessen-kcgo-2026` |
-| Kunst | `kunst` | `kunst-hessen-kcgo-2026` |
-| Latein | `latein` | `latein-hessen-kerncurriculum` |
-| Litauisch | `litauisch` | `litauisch-hessen-kerncurriculum` |
-| Musik | `musik` | `musik-hessen-kcgo-2026` |
-| Philosophie | `philosophie` | `philosophie-hessen-kcgo-2026` |
-| Physik | `physik` | `physik-hessen-kerncurriculum` |
-| Polnisch | `polnisch` | `polnisch-hessen-kerncurriculum` |
-| Russisch | `russisch` | `russisch-hessen-kcgo-2026` |
-| Sport | `sport` | `sport-hessen-kerncurriculum` |
-| Wirtschaftswissenschaften | `wirtschaftswissenschaften` | `wirtschaftswissenschaften-hessen-kcgo-2026` |
+Verfügbare PDFs (23 Fächer insgesamt, inkl. der 6 Kernfächer oben):
+
+| Fach | Subject-ID | Curriculum-Struktur | Vorgeschlagene CurriculumVersion-ID |
+| --- | --- | --- | --- |
+| Biologie | `biologie` | Phase → Inhaltsfeld → Kompetenzbereich → Thema | `biologie-hessen-kerncurriculum` |
+| Chemie | `chemie` | Phase → Inhaltsfeld → Basiskonzept/Kompetenz → Thema | `chemie-hessen-kcgo-2026` |
+| Chinesisch | `chinesisch` | Phase → Kompetenzbereich → Themenfeld → Thema | `chinesisch-hessen-kerncurriculum` |
+| Darstellendes Spiel | `darstellendes-spiel` | Phase → Spielpraktischer Bereich → Lernfeld → Thema | `darstellendes-spiel-hessen-kerncurriculum` |
+| Evangelische Religion | `evangelische-religion` | Phase → Inhaltsfeld → Perspektive → Thema | `evangelische-religion-hessen-kcgo-2026` |
+| Französisch | `franzoesisch` | Phase → Kompetenzbereich → Themenfeld → Thema | `franzoesisch-hessen-kerncurriculum` |
+| Griechisch | `griechisch` | Phase → Kompetenzbereich → Textgattung/Thema → Thema | `griechisch-hessen-kerncurriculum` |
+| Italienisch | `italienisch` | Phase → Kompetenzbereich → Themenfeld → Thema | `italienisch-hessen-kcgo-2026` |
+| Jüdische Religion | `juedische-religion` | Phase → Inhaltsfeld → Lernbereich → Thema | `juedische-religion-hessen-kerncurriculum` |
+| Katholische Religion | `katholische-religion` | Phase → Inhaltsfeld → Perspektive → Thema | `katholische-religion-hessen-kcgo-2026` |
+| Kunst | `kunst` | Phase → Lernbereich → Gestaltungsbereich → Thema | `kunst-hessen-kcgo-2026` |
+| Latein | `latein` | Phase → Kompetenzbereich → Textgattung → Thema | `latein-hessen-kerncurriculum` |
+| Litauisch | `litauisch` | Phase → Kompetenzbereich → Themenfeld → Thema | `litauisch-hessen-kerncurriculum` |
+| Musik | `musik` | Phase → Lernbereich → Inhaltsfeld → Thema | `musik-hessen-kcgo-2026` |
+| Philosophie | `philosophie` | Phase → Inhaltsfeld → Problembereich → Thema | `philosophie-hessen-kcgo-2026` |
+| Polnisch | `polnisch` | Phase → Kompetenzbereich → Themenfeld → Thema | `polnisch-hessen-kerncurriculum` |
+| Russisch | `russisch` | Phase → Kompetenzbereich → Themenfeld → Thema | `russisch-hessen-kcgo-2026` |
+| Wirtschaftswissenschaften | `wirtschaftswissenschaften` | Phase → Inhaltsfeld → Perspektive/Kompetenz → Thema | `wirtschaftswissenschaften-hessen-kcgo-2026` |
+
+> **Hinweis:** Fächer ohne verfügbares Kerncurriculum-PDF (Ethik, Geographie, Informatik, Physik, Sport, Spanisch)
+> werden bei Bedarf nachgepflegt sobald die Dokumente vorliegen. Die Subject-IDs sind vorbelegt.
 
 ## Validierungsregeln (automatisierbar)
 1. Alle IDs sind global eindeutig im Export.

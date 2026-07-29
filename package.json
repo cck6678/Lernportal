@@ -3,15 +3,22 @@
   "private": true,
   "version": "0.1.0",
   "description": "Lernportal development workspace",
+  "type": "module",
   "packageManager": "pnpm@9.12.3",
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
   "scripts": {
     "dev:up": "docker compose up -d --build",
     "dev:down": "docker compose down",
     "dev:shell": "docker compose exec workspace bash",
     "db:psql": "docker compose exec postgres psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"",
+    "db:migrate": "node app/api/migrate.js",
+    "db:seed": "node app/api/seed.js",
+    "api:prepare": "pnpm run db:migrate && pnpm run db:seed",
     "env:check": "node -v && pnpm -v",
-    "content:sync": "node scripts/sync-content-from-strapi.mjs",
-    "content:validate": "node scripts/validate-content.mjs"
+    "api:start": "node app/api/server.js",
+    "test": "node --test tests/api.test.js"
   },
   "engines": {
     "node": "22.16.0"

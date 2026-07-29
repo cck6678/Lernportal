@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lernportal – Designstudien</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+  .page-header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+    background: #1e293b;
+    color: white;
+  }
+  .page-header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+  .page-header p { color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem; }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem 0;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    background: white;
+    color: #475569;
+    border-color: #e2e8f0;
+  }
+  .tab-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  .variant-wrapper {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  /* ── Variant Grid ── */
+  .mockup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 700px) { .mockup-grid { grid-template-columns: 1fr; } }
+
+  .mockup-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  }
+  .mockup-label {
+    text-align: center;
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+
+  /* Color Palette Strip */
+  .palette {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 56px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .swatch {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+  }
+  .swatch.light { color: rgba(0,0,0,0.5); }
+
+  /* Typography Preview */
+  .typo-box {
+    background: white;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .typo-box .t-h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .typo-box .t-h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .typo-box .t-body { font-size: 0.88rem; line-height: 1.6; color: #475569; margin-bottom: 0.5rem; }
+  .typo-box .t-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    margin-right: 0.3rem;
+  }
+
+  /* ════════════════════════════════
+     VARIANTE 1 — Academic Deep Blue
+     ════════════════════════════════ */
+  .v1-phone {
+    background: #f8f7f4;
+    min-height: 580px;
+    font-family: 'Georgia', serif;
+  }
+  .v1-header {
+    background: #1a2744;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .v1-logo {
+    width: 36px; height: 36px;
+    background: #c9aa71;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .v1-header-text { color: white; }
+  .v1-header-text h2 { font-size: 0.95rem; font-weight: 700; font-family: 'Georgia', serif; }
+  .v1-header-text p { font-size: 0.7rem; color: #9ba8c0; font-family: system-ui, sans-serif; }
+  .v1-nav {
+    background: #243158;
+    padding: 0 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .v1-nav-item {
+    color: #9ba8c0;
+    font-size: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 2px solid transparent;
+    font-family: system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .v1-nav-item.active { color: #c9aa71; border-color: #c9aa71; }
+  .v1-body { padding: 1rem; }
+  .v1-subject-chip {
+    display: inline-block;
+    background: #e8e4d8;
+    color: #7a6840;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-family: system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+  .v1-topic-title {
+    font-size: 1.2rem;
+    color: #1a2744;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+  }
+  .v1-card {
+    background: white;
+    border-radius: 8px;
+    padding: 0.9rem;
+    margin-bottom: 0.7rem;
+    border-left: 3px solid #c9aa71;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .v1-card-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #7a6840;
+    font-weight: 700;
+    font-family: system-ui, sans-serif;
+    margin-bottom: 0.5rem;
+  }
+  .v1-card ul { padding-left: 1.2rem; }
+  .v1-card li { font-size: 0.82rem; color: #374151; margin-bottom: 0.25rem; }
+  .v1-btn {
+    background: #1a2744;
+    color: #c9aa71;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: system-ui, sans-serif;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  .v1-btn.secondary {
+    background: transparent;
+    border: 2px solid #1a2744;
+    color: #1a2744;
+  }
+  .v1-progress-bar {
+    height: 4px;
+    background: #e8e4d8;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .v1-progress-fill { height: 100%; background: #c9aa71; border-radius: 2px; width: 35%; }
+
+  /* Desktop mockup V1 */
+  .v1-desktop {
+    background: #f8f7f4;
+    font-family: 'Georgia', serif;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+  }
+  .v1-desk-top {
+    background: #1a2744;
+    padding: 0.7rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .v1-desk-brand { color: white; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+  .v1-desk-brand span { background: #c9aa71; width:24px; height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; }
+  .v1-desk-nav { display: flex; gap: 1.5rem; }
+  .v1-desk-nav a { color: #9ba8c0; font-size: 0.78rem; text-decoration: none; font-family: system-ui,sans-serif; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+  .v1-desk-nav a.active { color: #c9aa71; }
+  .v1-desk-body { display: flex; flex: 1; }
+  .v1-desk-sidebar {
+    width: 220px;
+    background: #243158;
+    padding: 1rem;
+    flex-shrink: 0;
+  }
+  .v1-sidebar-section { color: #6b7fa8; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-family: system-ui,sans-serif; font-weight: 700; margin-bottom: 0.5rem; margin-top: 1rem; }
+  .v1-sidebar-item { color: #c4cde0; font-size: 0.8rem; padding: 0.4rem 0.6rem; border-radius: 6px; margin-bottom: 0.2rem; font-family: system-ui,sans-serif; cursor: pointer; }
+  .v1-sidebar-item.active { background: #1a2744; color: #c9aa71; font-weight: 600; }
+  .v1-desk-main { flex: 1; padding: 1.5rem; }
+  .v1-desk-breadcrumb { font-size: 0.72rem; color: #9ca3af; font-family: system-ui,sans-serif; margin-bottom: 0.8rem; }
+  .v1-desk-h1 { font-size: 1.4rem; color: #1a2744; font-weight: 700; margin-bottom: 0.3rem; }
+  .v1-desk-sub { font-size: 0.78rem; color: #7a6840; font-family: system-ui,sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+  .v1-desk-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .v1-desk-card { background: white; border-radius: 8px; padding: 0.8rem; border-top: 3px solid #c9aa71; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .v1-desk-card-t { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.8px; color: #7a6840; font-weight: 700; font-family: system-ui,sans-serif; margin-bottom: 0.4rem; }
+  .v1-desk-card ul { padding-left: 1rem; }
+  .v1-desk-card li { font-size: 0.75rem; color: #374151; margin-bottom: 0.2rem; }
+
+  /* ════════════════════════════════
+     VARIANTE 2 — Modern Dark / Neon
+     ════════════════════════════════ */
+  .v2-phone {
+    background: #0f1117;
+    min-height: 580px;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #e2e8f0;
+  }
+  .v2-header {
+    background: linear-gradient(135deg, #1a1033 0%, #0f1117 100%);
+    padding: 1rem;
+    border-bottom: 1px solid #ffffff10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .v2-brand { display: flex; align-items: center; gap: 0.6rem; }
+  .v2-brand-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    box-shadow: 0 0 12px #7c3aed60;
+  }
+  .v2-brand-name { font-size: 0.9rem; font-weight: 800; color: white; letter-spacing: -0.3px; }
+  .v2-status-pill {
+    background: #7c3aed20;
+    border: 1px solid #7c3aed40;
+    color: #a78bfa;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+  }
+  .v2-body { padding: 1rem; }
+  .v2-progress-section { margin-bottom: 1rem; }
+  .v2-progress-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.4rem; }
+  .v2-progress-track { height: 6px; background: #1e2535; border-radius: 3px; overflow: hidden; }
+  .v2-progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7c3aed, #a855f7); width: 35%; box-shadow: 0 0 8px #7c3aed80; }
+  .v2-topic-badge { display: inline-flex; align-items: center; gap: 0.3rem; background: #7c3aed15; border: 1px solid #7c3aed30; color: #a78bfa; font-size: 0.7rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px; margin-bottom: 0.6rem; }
+  .v2-topic-title { font-size: 1.15rem; font-weight: 800; color: #f1f5f9; line-height: 1.3; margin-bottom: 1rem; letter-spacing: -0.3px; }
+  .v2-glass-card {
+    background: linear-gradient(135deg, #ffffff08, #ffffff04);
+    backdrop-filter: blur(10px);
+    border: 1px solid #ffffff12;
+    border-radius: 12px;
+    padding: 0.9rem;
+    margin-bottom: 0.7rem;
+  }
+  .v2-card-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+  .v2-card-dot { width: 6px; height: 6px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 4px #a855f7; }
+  .v2-card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #a78bfa; font-weight: 700; }
+  .v2-card ul { list-style: none; }
+  .v2-card li { font-size: 0.8rem; color: #cbd5e1; padding: 0.2rem 0; border-bottom: 1px solid #ffffff08; }
+  .v2-card li:last-child { border: none; }
+  .v2-card li::before { content: "→ "; color: #7c3aed; font-size: 0.75rem; }
+  .v2-btn {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 16px #7c3aed50;
+    letter-spacing: 0.2px;
+  }
+  .v2-btn.secondary {
+    background: transparent;
+    border: 1px solid #ffffff20;
+    color: #94a3b8;
+    box-shadow: none;
+  }
+  /* Desktop V2 */
+  .v2-desktop { background: #0a0d14; font-family: system-ui,sans-serif; min-height: 420px; display: flex; flex-direction: column; }
+  .v2-desk-top { background: #0f1117; border-bottom: 1px solid #ffffff10; padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .v2-desk-brand { display: flex; align-items: center; gap: 0.5rem; }
+  .v2-desk-icon { width: 28px; height: 28px; background: linear-gradient(135deg, #7c3aed, #a855f7); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; box-shadow: 0 0 10px #7c3aed50; }
+  .v2-desk-brand-name { font-weight: 800; color: white; font-size: 0.95rem; letter-spacing: -0.3px; }
+  .v2-desk-nav { display: flex; gap: 1rem; align-items: center; }
+  .v2-desk-nav span { color: #64748b; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+  .v2-desk-nav span.active { color: #a78bfa; }
+  .v2-desk-nav .pill { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .v2-desk-body { display: flex; flex: 1; }
+  .v2-desk-sidebar { width: 200px; background: #0d1018; border-right: 1px solid #ffffff08; padding: 1rem; flex-shrink: 0; }
+  .v2-desk-sidebar-sec { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: #475569; font-weight: 700; margin-bottom: 0.4rem; margin-top: 0.8rem; }
+  .v2-desk-sidebar-item { font-size: 0.78rem; color: #64748b; padding: 0.35rem 0.5rem; border-radius: 6px; margin-bottom: 0.15rem; cursor: pointer; }
+  .v2-desk-sidebar-item.active { background: #7c3aed20; color: #a78bfa; font-weight: 600; border-left: 2px solid #7c3aed; padding-left: 0.8rem; }
+  .v2-desk-main { flex: 1; padding: 1.5rem; }
+  .v2-desk-title { font-size: 1.3rem; font-weight: 800; color: #f1f5f9; letter-spacing: -0.4px; margin-bottom: 0.3rem; }
+  .v2-desk-sub { font-size: 0.72rem; color: #7c3aed; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.3rem; }
+  .v2-desk-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+  .v2-desk-card { background: #ffffff06; border: 1px solid #ffffff10; border-radius: 10px; padding: 0.75rem; }
+  .v2-desk-card-t { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; color: #a78bfa; font-weight: 700; margin-bottom: 0.4rem; }
+  .v2-desk-card ul { list-style: none; }
+  .v2-desk-card li { font-size: 0.72rem; color: #94a3b8; padding: 0.15rem 0; border-bottom: 1px solid #ffffff06; }
+  .v2-desk-card li::before { content: "· "; color: #7c3aed; }
+
+  /* ════════════════════════════════
+     VARIANTE 3 — Fresh / Hessian Green
+     ════════════════════════════════ */
+  .v3-phone {
+    background: #f0fdf4;
+    min-height: 580px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .v3-header {
+    background: linear-gradient(135deg, #166534, #15803d);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .v3-brand { display: flex; align-items: center; gap: 0.6rem; }
+  .v3-brand-icon {
+    width: 36px; height: 36px;
+    background: #bbf7d0;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .v3-brand-text { color: white; }
+  .v3-brand-text h2 { font-size: 0.9rem; font-weight: 800; }
+  .v3-brand-text p { font-size: 0.65rem; color: #bbf7d0; }
+  .v3-streak { background: #fbbf2420; border: 1px solid #fbbf2440; color: #fde68a; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 8px; }
+  .v3-body { padding: 1rem; }
+  .v3-hero {
+    background: linear-gradient(135deg, #166534, #16a34a);
+    border-radius: 16px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .v3-hero::after {
+    content: "🎯";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.5rem;
+    opacity: 0.3;
+  }
+  .v3-hero-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px; color: #bbf7d0; font-weight: 700; margin-bottom: 0.3rem; }
+  .v3-hero-title { font-size: 1.1rem; font-weight: 800; line-height: 1.3; margin-bottom: 0.3rem; }
+  .v3-hero-meta { font-size: 0.72rem; color: #d1fae5; }
+  .v3-progress-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+  .v3-progress-track { flex: 1; height: 8px; background: #dcfce7; border-radius: 4px; overflow: hidden; }
+  .v3-progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #16a34a, #4ade80); width: 35%; }
+  .v3-progress-text { font-size: 0.72rem; color: #15803d; font-weight: 700; white-space: nowrap; }
+  .v3-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .v3-chip {
+    background: white;
+    border: 1px solid #d1fae5;
+    color: #166534;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .v3-chip.active { background: #166534; color: white; border-color: #166534; }
+  .v3-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 0.7rem;
+    box-shadow: 0 2px 8px rgba(22,101,52,0.08);
+    border: 1px solid #d1fae5;
+  }
+  .v3-card-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+  .v3-card-icon { width: 24px; height: 24px; border-radius: 6px; background: #dcfce7; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+  .v3-card-title { font-size: 0.78rem; font-weight: 700; color: #166534; }
+  .v3-card ul { list-style: none; }
+  .v3-card li { font-size: 0.8rem; color: #374151; padding: 0.2rem 0; border-bottom: 1px solid #f0fdf4; display: flex; align-items: center; gap: 0.4rem; }
+  .v3-card li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+  .v3-card li:last-child { border: none; }
+  .v3-btn {
+    background: linear-gradient(135deg, #166534, #15803d);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(22,101,52,0.3);
+  }
+  .v3-btn.secondary {
+    background: white;
+    border: 2px solid #d1fae5;
+    color: #166534;
+    box-shadow: none;
+  }
+  /* Desktop V3 */
+  .v3-desktop { background: #f0fdf4; font-family: system-ui,sans-serif; min-height: 420px; display: flex; flex-direction: column; }
+  .v3-desk-top { background: linear-gradient(135deg, #166534, #15803d); padding: 0.7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .v3-desk-brand { display: flex; align-items: center; gap: 0.5rem; }
+  .v3-desk-icon { width: 28px; height: 28px; background: #bbf7d0; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+  .v3-desk-brand-name { font-weight: 800; color: white; font-size: 0.95rem; }
+  .v3-desk-nav { display: flex; gap: 1.2rem; align-items: center; }
+  .v3-desk-nav span { color: #bbf7d0; font-size: 0.78rem; font-weight: 600; cursor: pointer; opacity: 0.8; }
+  .v3-desk-nav span.active { color: white; opacity: 1; }
+  .v3-desk-nav .pill { background: white; color: #166534; padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; opacity: 1; }
+  .v3-desk-body { display: flex; flex: 1; }
+  .v3-desk-sidebar { width: 200px; background: white; border-right: 1px solid #d1fae5; padding: 1rem; flex-shrink: 0; }
+  .v3-desk-sidebar-sec { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: #86efac; font-weight: 700; margin-bottom: 0.4rem; margin-top: 0.8rem; }
+  .v3-desk-sidebar-item { font-size: 0.78rem; color: #4b5563; padding: 0.4rem 0.5rem; border-radius: 8px; margin-bottom: 0.15rem; cursor: pointer; }
+  .v3-desk-sidebar-item.active { background: #dcfce7; color: #166534; font-weight: 700; }
+  .v3-desk-main { flex: 1; padding: 1.5rem; }
+  .v3-desk-breadcrumb { font-size: 0.7rem; color: #86efac; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+  .v3-desk-title { font-size: 1.35rem; font-weight: 800; color: #14532d; letter-spacing: -0.4px; margin-bottom: 0.25rem; }
+  .v3-desk-sub { font-size: 0.75rem; color: #16a34a; font-weight: 700; margin-bottom: 1rem; }
+  .v3-desk-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .v3-desk-card { background: white; border: 1px solid #d1fae5; border-radius: 12px; padding: 0.75rem; box-shadow: 0 2px 6px rgba(22,101,52,0.06); }
+  .v3-desk-card-t { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; color: #16a34a; font-weight: 700; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem; }
+  .v3-desk-card ul { list-style: none; }
+  .v3-desk-card li { font-size: 0.73rem; color: #374151; padding: 0.15rem 0; border-bottom: 1px solid #f0fdf4; }
+  .v3-desk-card li:last-child { border: none; }
+  .v3-desk-card li::before { content: "✓ "; color: #4ade80; font-weight: 700; }
+
+  /* Info boxes */
+  .info-box {
+    background: white;
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 0.8rem;
+    border-left: 4px solid;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .info-box h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .info-box p { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
+  .info-box ul { font-size: 0.8rem; color: #64748b; padding-left: 1.2rem; line-height: 1.8; }
+
+  /* Buttons preview row */
+  .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .btn-preview {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+  }
+
+  footer { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.78rem; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🎨 Lernportal — Designstudien</h1>
+  <p>Sechs Varianten für Desktop &amp; iPhone · Nur zur Ansicht</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="show('v5',this)">1) Nüchtern / Copilot-Stil</button>
+  <button class="tab-btn" onclick="show('v1',this)">2) Akademisch / Classic</button>
+  <button class="tab-btn" onclick="show('v4',this)">3) California Retro Surf</button>
+  <button class="tab-btn" onclick="show('v6',this)">4) Disco Glam</button>
+</div>
+
+<!-- ══════════════════════ VARIANTE 1 ══════════════════════ -->
+<div id="v1" class="variant">
+  <div class="variant-wrapper">
+
+    <div class="section-title">Farbpalette</div>
+    <div class="palette" style="margin-bottom:0.4rem">
+      <div class="swatch" style="background:#1a2744">Navy<br>#1a2744</div>
+      <div class="swatch" style="background:#243158">Mittel<br>#243158</div>
+      <div class="swatch" style="background:#c9aa71">Gold<br>#c9aa71</div>
+      <div class="swatch" style="background:#f8f7f4" class="light">Creme<br>#f8f7f4</div>
+      <div class="swatch" style="background:#e8e4d8" class="light">Sand<br>#e8e4d8</div>
+      <div class="swatch" style="background:#7a6840" style="background:#7a6840">Braun<br>#7a6840</div>
+    </div>
+    <div class="mockup-label" style="margin-bottom:1rem">Typografie: Georgia (Headings) + System UI (Body) · Stil: Klassisch, akademisch, vertrauenswürdig</div>
+
+    <div class="info-box" style="border-color:#1a2744">
+      <h4>① Akademisch / Classic Blue &amp; Gold</h4>
+      <p>Angelehnt an renommierte Universitätsbibliotheken und Abitur-Lehrwerke. Tiefes Navy mit Goldakzenten vermittelt Seriosität und Vertrauen — ideal für einen Bildungskontext. Georgia als Serifenschrift betont den akademischen Charakter, während System UI für Lesbarkeit bei Fließtext sorgt.</p>
+      <ul>
+        <li>Zielgruppe: Schüler die Struktur und Ernst schätzen</li>
+        <li>Stärke: Hohe Lesbarkeit, klassisch zeitlos</li>
+        <li>Dark-Mode: Nein (aber dunkle Sidebar als Kontrast)</li>
+      </ul>
+    </div>
+
+    <div class="mockup-grid">
+      <div>
+        <div class="mockup-card">
+          <!-- iPhone Mockup V1 -->
+          <div class="v1-phone">
+            <div class="v1-header">
+              <div class="v1-logo">📚</div>
+              <div class="v1-header-text">
+                <h2>Lernportal Hessen</h2>
+                <p>Abitur-Vorbereitung</p>
+              </div>
+            </div>
+            <div class="v1-nav">
+              <div class="v1-nav-item active">Lernen</div>
+              <div class="v1-nav-item">Fächer</div>
+              <div class="v1-nav-item">Quiz</div>
+              <div class="v1-nav-item">Fortschritt</div>
+            </div>
+            <div class="v1-body">
+              <div class="v1-progress-bar"><div class="v1-progress-fill"></div></div>
+              <div class="v1-subject-chip">Mathematik</div>
+              <div class="v1-topic-title">Ableitungsregeln und ihre Anwendungen</div>
+              <div class="v1-card">
+                <div class="v1-card-title">Kernbegriffe</div>
+                <ul>
+                  <li>Ableitung – Steigung im Punkt</li>
+                  <li>Differenzialquotient</li>
+                  <li>Potenzregel: f'(x) = n·xⁿ⁻¹</li>
+                </ul>
+              </div>
+              <div class="v1-card">
+                <div class="v1-card-title">Merksatz</div>
+                <ul>
+                  <li>Summenregel: (f+g)' = f' + g'</li>
+                  <li>Produktregel: (fg)' = f'g + fg'</li>
+                </ul>
+              </div>
+              <button class="v1-btn">▶ Quiz starten</button>
+              <button class="v1-btn secondary" style="margin-top:0.4rem">← Zurück zur Übersicht</button>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">📱 iPhone-Ansicht</div>
+      </div>
+      <div>
+        <div class="mockup-card">
+          <!-- Desktop Mockup V1 -->
+          <div class="v1-desktop">
+            <div class="v1-desk-top">
+              <div class="v1-desk-brand">
+                <span>📚</span>
+                Lernportal Hessen
+              </div>
+              <div class="v1-desk-nav">
+                <a href="#" class="active">Lernen</a>
+                <a href="#">Fächer</a>
+                <a href="#">Fortschritt</a>
+                <a href="#">CMS ✏️</a>
+              </div>
+            </div>
+            <div class="v1-desk-body">
+              <div class="v1-desk-sidebar">
+                <div class="v1-sidebar-section">Fächer</div>
+                <div class="v1-sidebar-item active">📐 Mathematik</div>
+                <div class="v1-sidebar-item">🧬 Biologie</div>
+                <div class="v1-sidebar-item">⚗️ Chemie</div>
+                <div class="v1-sidebar-item">📜 Geschichte</div>
+                <div class="v1-sidebar-section">Themen</div>
+                <div class="v1-sidebar-item active">Ableitungsregeln</div>
+                <div class="v1-sidebar-item">Integralrechnung</div>
+                <div class="v1-sidebar-item">Stochastik</div>
+              </div>
+              <div class="v1-desk-main">
+                <div class="v1-desk-breadcrumb">Mathematik › Ableitungsregeln</div>
+                <div class="v1-desk-h1">Ableitungsregeln</div>
+                <div class="v1-desk-sub">Mathematik · 5 Quizfragen · Fortschritt 35 %</div>
+                <div class="v1-desk-cards">
+                  <div class="v1-desk-card">
+                    <div class="v1-desk-card-t">Kernbegriffe</div>
+                    <ul>
+                      <li>Ableitung, Tangente</li>
+                      <li>Differenzialquotient</li>
+                      <li>Steigung, Extremwert</li>
+                    </ul>
+                  </div>
+                  <div class="v1-desk-card">
+                    <div class="v1-desk-card-t">Formeln</div>
+                    <ul>
+                      <li>Potenzregel: nxⁿ⁻¹</li>
+                      <li>Summenregel: (f+g)'</li>
+                      <li>Produktregel: f'g + fg'</li>
+                    </ul>
+                  </div>
+                  <div class="v1-desk-card" style="grid-column:span 2">
+                    <div class="v1-desk-card-t">Beispiele</div>
+                    <ul>
+                      <li>f(x)=x² → f'(x)=2x</li>
+                      <li>f(x)=3x³ → f'(x)=9x²</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">💻 Desktop-Ansicht</div>
+      </div>
+    </div>
+
+    <div class="section-title">Buttons &amp; Tags</div>
+    <div class="btn-row">
+      <button class="btn-preview" style="background:#1a2744;color:#c9aa71">▶ Quiz starten</button>
+      <button class="btn-preview" style="background:transparent;border:2px solid #1a2744;color:#1a2744">← Zurück</button>
+      <button class="btn-preview" style="background:#c9aa71;color:#1a2744">✓ Gelernt</button>
+      <span style="background:#e8e4d8;color:#7a6840;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.5px">Mathematik</span>
+      <span style="background:#1a2744;color:#c9aa71;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:4px">5 Fragen</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VARIANTE 2 ══════════════════════ -->
+<div id="v2" class="variant">
+  <div class="variant-wrapper">
+
+    <div class="section-title">Farbpalette</div>
+    <div class="palette" style="margin-bottom:0.4rem">
+      <div class="swatch" style="background:#0a0d14">Nacht<br>#0a0d14</div>
+      <div class="swatch" style="background:#0f1117">Dunkel<br>#0f1117</div>
+      <div class="swatch" style="background:#1e2535">Oberfläche<br>#1e2535</div>
+      <div class="swatch" style="background:#7c3aed">Violett<br>#7c3aed</div>
+      <div class="swatch" style="background:#a855f7">Lila<br>#a855f7</div>
+      <div class="swatch" style="background:#e2e8f0">Text<br>#e2e8f0</div>
+    </div>
+    <div class="mockup-label" style="margin-bottom:1rem">Typografie: Inter / System UI · Stil: Modern, fokussiert, techaffin, Dark Mode</div>
+
+    <div class="info-box" style="border-color:#7c3aed;background:#0f1117;color:#e2e8f0">
+      <h4 style="color:#a78bfa">② Modern Dark / Neon Violet</h4>
+      <p style="color:#94a3b8">Ein vollständiges Dark-Mode-Design mit leuchtendem Violet-Lila-Farbakzent. Glassmorphism-Karten, Neon-Glow-Effekte auf Buttons. Ideal für Abend-Sessions und schont die Augen. Fühlt sich nach einer modernen Lern-App an — ähnlich wie Duolingo Dark oder Notion Dark.</p>
+      <ul style="color:#94a3b8">
+        <li>Zielgruppe: Tech-affine Schüler, Abend-Nutzung</li>
+        <li>Stärke: Fokussiert, geringe Blendung, modern</li>
+        <li>Dark-Mode: Vollständig, kein Light-Mode</li>
+      </ul>
+    </div>
+
+    <div class="mockup-grid">
+      <div>
+        <div class="mockup-card" style="background:#0a0d14">
+          <div class="v2-phone">
+            <div class="v2-header">
+              <div class="v2-brand">
+                <div class="v2-brand-icon">🎓</div>
+                <div class="v2-brand-name">Lernportal</div>
+              </div>
+              <div class="v2-status-pill">🔥 3-Tage-Streak</div>
+            </div>
+            <div class="v2-body">
+              <div class="v2-progress-section">
+                <div class="v2-progress-label">
+                  <span>Mathematik</span><span style="color:#a78bfa">35%</span>
+                </div>
+                <div class="v2-progress-track"><div class="v2-progress-fill"></div></div>
+              </div>
+              <div class="v2-topic-badge">⚡ Mathematik</div>
+              <div class="v2-topic-title">Ableitungsregeln und ihre Anwendungen</div>
+              <div class="v2-glass-card">
+                <div class="v2-card-header">
+                  <div class="v2-card-dot"></div>
+                  <div class="v2-card-title">Kernbegriffe</div>
+                </div>
+                <div class="v2-card">
+                  <ul>
+                    <li>Ableitung – Steigung im Punkt</li>
+                    <li>Differenzialquotient</li>
+                    <li>Potenzregel: f'(x) = n·xⁿ⁻¹</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="v2-glass-card">
+                <div class="v2-card-header">
+                  <div class="v2-card-dot" style="background:#06b6d4;box-shadow:0 0 4px #06b6d4"></div>
+                  <div class="v2-card-title" style="color:#67e8f9">Formeln</div>
+                </div>
+                <div class="v2-card">
+                  <ul>
+                    <li>Summenregel: (f+g)' = f' + g'</li>
+                    <li>Produktregel: (fg)' = f'g + fg'</li>
+                  </ul>
+                </div>
+              </div>
+              <button class="v2-btn">⚡ Quiz starten</button>
+              <button class="v2-btn secondary" style="margin-top:0.4rem">← Übersicht</button>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">📱 iPhone-Ansicht</div>
+      </div>
+      <div>
+        <div class="mockup-card" style="background:#0a0d14">
+          <div class="v2-desktop">
+            <div class="v2-desk-top">
+              <div class="v2-desk-brand">
+                <div class="v2-desk-icon">🎓</div>
+                <div class="v2-desk-brand-name">Lernportal</div>
+              </div>
+              <div class="v2-desk-nav">
+                <span class="active">Lernen</span>
+                <span>Fächer</span>
+                <span>Fortschritt</span>
+                <span class="pill">✏️ CMS</span>
+              </div>
+            </div>
+            <div class="v2-desk-body">
+              <div class="v2-desk-sidebar">
+                <div class="v2-desk-sidebar-sec">Fächer</div>
+                <div class="v2-desk-sidebar-item active">⚡ Mathematik</div>
+                <div class="v2-desk-sidebar-item">🧬 Biologie</div>
+                <div class="v2-desk-sidebar-item">⚗️ Chemie</div>
+                <div class="v2-desk-sidebar-item">📜 Geschichte</div>
+                <div class="v2-desk-sidebar-sec">Themen</div>
+                <div class="v2-desk-sidebar-item active">Ableitungsregeln</div>
+                <div class="v2-desk-sidebar-item">Integration</div>
+                <div class="v2-desk-sidebar-item">Stochastik</div>
+              </div>
+              <div class="v2-desk-main">
+                <div class="v2-desk-title">Ableitungsregeln</div>
+                <div class="v2-desk-sub">⚡ Mathematik <span style="color:#475569;margin:0 0.3rem">·</span> 5 Quizfragen <span style="color:#475569;margin:0 0.3rem">·</span> 35 % done</div>
+                <div class="v2-desk-cards">
+                  <div class="v2-desk-card">
+                    <div class="v2-desk-card-t">🔑 Kernbegriffe</div>
+                    <ul>
+                      <li>Ableitung, Tangente</li>
+                      <li>Differenzialquotient</li>
+                      <li>Steigung, Extremwert</li>
+                    </ul>
+                  </div>
+                  <div class="v2-desk-card">
+                    <div class="v2-desk-card-t" style="color:#67e8f9">📐 Formeln</div>
+                    <ul>
+                      <li>Potenzregel: nxⁿ⁻¹</li>
+                      <li>Summenregel: (f+g)'</li>
+                      <li>Produktregel: f'g+fg'</li>
+                    </ul>
+                  </div>
+                  <div class="v2-desk-card" style="grid-column:span 2;border-color:#7c3aed30">
+                    <div class="v2-desk-card-t" style="color:#34d399">💡 Beispiele</div>
+                    <ul>
+                      <li>f(x)=x² → f'(x)=2x</li>
+                      <li>f(x)=3x³ → f'(x)=9x²</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">💻 Desktop-Ansicht</div>
+      </div>
+    </div>
+
+    <div class="section-title">Buttons &amp; Tags</div>
+    <div class="btn-row" style="background:#0f1117;padding:0.8rem;border-radius:10px">
+      <button class="btn-preview" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;box-shadow:0 4px 12px #7c3aed50">⚡ Quiz starten</button>
+      <button class="btn-preview" style="background:transparent;border:1px solid #ffffff20;color:#94a3b8">← Zurück</button>
+      <button class="btn-preview" style="background:linear-gradient(135deg,#059669,#10b981);color:white">✓ Gelernt</button>
+      <span style="background:#7c3aed20;border:1px solid #7c3aed40;color:#a78bfa;font-size:0.72rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:6px">⚡ Mathematik</span>
+      <span style="background:#ffffff10;color:#94a3b8;font-size:0.72rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:6px">5 Fragen</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VARIANTE 3 ══════════════════════ -->
+<div id="v3" class="variant">
+  <div class="variant-wrapper">
+
+    <div class="section-title">Farbpalette</div>
+    <div class="palette" style="margin-bottom:0.4rem">
+      <div class="swatch" style="background:#166534">Waldgrün<br>#166534</div>
+      <div class="swatch" style="background:#16a34a">Grün<br>#16a34a</div>
+      <div class="swatch" style="background:#4ade80">Hellgrün<br>#4ade80</div>
+      <div class="swatch" style="background:#f0fdf4" class="light">Mintcreme<br>#f0fdf4</div>
+      <div class="swatch" style="background:#fbbf24">Amber<br>#fbbf24</div>
+      <div class="swatch" style="background:#dc2626">Rot/Alert<br>#dc2626</div>
+    </div>
+    <div class="mockup-label" style="margin-bottom:1rem">Typografie: System UI / -apple-system · Stil: Frisch, motivierend, Hessen-Grün, freundlich</div>
+
+    <div class="info-box" style="border-color:#16a34a">
+      <h4>③ Frisch / Hessian Green</h4>
+      <p>Inspiriert von Hessens Natur und dem grünen Bundesland-Logo. Frisches Grün als Primärfarbe weckt Energie und positive Emotion — ideal für eine Lern-App, die motivieren soll. Amber-Akzente für Streaks und Gamification. Weiße Karten auf hellem Grün-Hintergrund ergeben maximale Lesbarkeit.</p>
+      <ul>
+        <li>Zielgruppe: Alle Altersgruppen, wirkt einladend</li>
+        <li>Stärke: Erkennbar, motivierend, regional verankert</li>
+        <li>Dark-Mode: Optional erweiterbar (Dark Forest Variant)</li>
+      </ul>
+    </div>
+
+    <div class="mockup-grid">
+      <div>
+        <div class="mockup-card">
+          <div class="v3-phone">
+            <div class="v3-header">
+              <div class="v3-brand">
+                <div class="v3-brand-icon">🌿</div>
+                <div class="v3-brand-text">
+                  <h2>Lernportal Hessen</h2>
+                  <p>Abitur-Vorbereitung</p>
+                </div>
+              </div>
+              <div class="v3-streak">🔥 3</div>
+            </div>
+            <div class="v3-body">
+              <div class="v3-progress-row">
+                <div class="v3-progress-track"><div class="v3-progress-fill"></div></div>
+                <div class="v3-progress-text">35 % ✓</div>
+              </div>
+              <div class="v3-chips">
+                <div class="v3-chip active">📐 Mathe</div>
+                <div class="v3-chip">🧬 Bio</div>
+                <div class="v3-chip">📜 Geschichte</div>
+              </div>
+              <div class="v3-hero">
+                <div class="v3-hero-label">Aktuelles Thema</div>
+                <div class="v3-hero-title">Ableitungsregeln und ihre Anwendungen</div>
+                <div class="v3-hero-meta">5 Quizfragen · 3 Formeln · 2 Beispiele</div>
+              </div>
+              <div class="v3-card">
+                <div class="v3-card-header">
+                  <div class="v3-card-icon">🔑</div>
+                  <div class="v3-card-title">Kernbegriffe</div>
+                </div>
+                <ul>
+                  <li>Ableitung – Steigung im Punkt</li>
+                  <li>Differenzialquotient</li>
+                  <li>Potenzregel: f'(x) = n·xⁿ⁻¹</li>
+                </ul>
+              </div>
+              <div class="v3-card">
+                <div class="v3-card-header">
+                  <div class="v3-card-icon">📐</div>
+                  <div class="v3-card-title">Formeln</div>
+                </div>
+                <ul>
+                  <li>Summenregel: (f+g)' = f' + g'</li>
+                  <li>Produktregel: (fg)' = f'g + fg'</li>
+                </ul>
+              </div>
+              <button class="v3-btn">▶ Quiz starten</button>
+              <button class="v3-btn secondary" style="margin-top:0.4rem">← Übersicht</button>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">📱 iPhone-Ansicht</div>
+      </div>
+      <div>
+        <div class="mockup-card">
+          <div class="v3-desktop">
+            <div class="v3-desk-top">
+              <div class="v3-desk-brand">
+                <div class="v3-desk-icon">🌿</div>
+                <div class="v3-desk-brand-name">Lernportal Hessen</div>
+              </div>
+              <div class="v3-desk-nav">
+                <span class="active">Lernen</span>
+                <span>Fächer</span>
+                <span>Fortschritt</span>
+                <span class="pill">✏️ CMS</span>
+              </div>
+            </div>
+            <div class="v3-desk-body">
+              <div class="v3-desk-sidebar">
+                <div class="v3-desk-sidebar-sec">Fächer</div>
+                <div class="v3-desk-sidebar-item active">📐 Mathematik</div>
+                <div class="v3-desk-sidebar-item">🧬 Biologie</div>
+                <div class="v3-desk-sidebar-item">⚗️ Chemie</div>
+                <div class="v3-desk-sidebar-item">📜 Geschichte</div>
+                <div class="v3-desk-sidebar-sec">Themen</div>
+                <div class="v3-desk-sidebar-item active">Ableitungsregeln</div>
+                <div class="v3-desk-sidebar-item">Integration</div>
+                <div class="v3-desk-sidebar-item">Stochastik</div>
+              </div>
+              <div class="v3-desk-main">
+                <div class="v3-desk-breadcrumb">Mathematik › Analysis</div>
+                <div class="v3-desk-title">Ableitungsregeln</div>
+                <div class="v3-desk-sub">Mathematik · 5 Quizfragen · Fortschritt 35 %</div>
+                <div class="v3-desk-cards">
+                  <div class="v3-desk-card">
+                    <div class="v3-desk-card-t">🔑 Kernbegriffe</div>
+                    <ul>
+                      <li>Ableitung, Tangente</li>
+                      <li>Differenzialquotient</li>
+                      <li>Steigung, Extremwert</li>
+                    </ul>
+                  </div>
+                  <div class="v3-desk-card">
+                    <div class="v3-desk-card-t">📐 Formeln</div>
+                    <ul>
+                      <li>Potenzregel: nxⁿ⁻¹</li>
+                      <li>Summenregel: (f+g)'</li>
+                      <li>Produktregel: f'g+fg'</li>
+                    </ul>
+                  </div>
+                  <div class="v3-desk-card" style="grid-column:span 2">
+                    <div class="v3-desk-card-t">💡 Beispiele</div>
+                    <ul>
+                      <li>f(x)=x² → f'(x)=2x</li>
+                      <li>f(x)=3x³ → f'(x)=9x²</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">💻 Desktop-Ansicht</div>
+      </div>
+    </div>
+
+    <div class="section-title">Buttons &amp; Tags</div>
+    <div class="btn-row">
+      <button class="btn-preview" style="background:linear-gradient(135deg,#166534,#15803d);color:white;box-shadow:0 4px 10px rgba(22,101,52,0.3)">▶ Quiz starten</button>
+      <button class="btn-preview" style="background:white;border:2px solid #d1fae5;color:#166534">← Zurück</button>
+      <button class="btn-preview" style="background:#fbbf24;color:#78350f;border:none">🔥 Streak: 3</button>
+      <span style="background:#dcfce7;color:#166534;font-size:0.72rem;font-weight:700;padding:0.3rem 0.7rem;border-radius:999px">📐 Mathematik</span>
+      <span style="background:#166534;color:white;font-size:0.72rem;font-weight:700;padding:0.3rem 0.7rem;border-radius:999px">✓ Gelernt</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VARIANTE 4 ══════════════════════ -->
+<div id="v4" class="variant">
+  <div class="variant-wrapper">
+    <div class="section-title">Farbpalette</div>
+    <div class="palette" style="margin-bottom:0.4rem">
+      <div class="swatch light" style="background:#ffd166">Sun<br>#ffd166</div>
+      <div class="swatch" style="background:#ef476f">Coral<br>#ef476f</div>
+      <div class="swatch" style="background:#f78c6b">Peach<br>#f78c6b</div>
+      <div class="swatch" style="background:#06d6a0">Mint<br>#06d6a0</div>
+      <div class="swatch" style="background:#118ab2">Ocean<br>#118ab2</div>
+      <div class="swatch" style="background:#073b4c">Deep Sea<br>#073b4c</div>
+    </div>
+    <div class="info-box" style="border-color:#118ab2">
+      <h4>④ California Retro Surf (70er/80er)</h4>
+      <p>Warme Sunset-Verläufe, türkis-blaue Flächen und runde Formen. Das Design wirkt leicht, kreativ und motivierend — mit klarem Mobile-Flow und großzügigen Touch-Flächen.</p>
+      <ul>
+        <li>Ziel: spielerisches Lernen mit positiver Energie</li>
+        <li>Stärke: hoher Wiedererkennungswert, emotional</li>
+        <li>Einsatz: besonders stark auf iPhone</li>
+      </ul>
+    </div>
+
+    <div class="mockup-grid">
+      <div>
+        <div class="mockup-card" style="background:linear-gradient(180deg,#ffd166 0%,#f78c6b 25%,#118ab2 100%);">
+          <div style="min-height:580px;padding:1rem;font-family:system-ui,sans-serif;color:#073b4c;">
+            <div style="background:#ffffffcc;border-radius:16px;padding:0.9rem;display:flex;justify-content:space-between;align-items:center;">
+              <strong>🌊 Lernportal Surf</strong><span style="font-size:0.75rem">Streak 3</span>
+            </div>
+            <div style="margin-top:1rem;background:#ffffffd9;border-radius:16px;padding:1rem;">
+              <div style="display:inline-block;background:#06d6a022;color:#0f766e;font-weight:700;font-size:0.72rem;padding:0.2rem 0.6rem;border-radius:999px;">Mathematik</div>
+              <h3 style="margin-top:0.5rem;font-size:1.2rem;">Ableitungsregeln</h3>
+              <p style="font-size:0.82rem;color:#0f172a;">Sunset-Card mit klaren Lernblöcken und großen Buttons.</p>
+            </div>
+            <div style="margin-top:0.8rem;background:#ffffffd9;border-radius:14px;padding:0.9rem;">
+              <div style="font-size:0.72rem;font-weight:700;color:#0f766e;text-transform:uppercase;">Kernbegriffe</div>
+              <ul style="padding-left:1rem;margin-top:0.4rem;font-size:0.82rem;line-height:1.6;">
+                <li>Ableitung</li><li>Tangente</li><li>Potenzregel</li>
+              </ul>
+            </div>
+            <button style="margin-top:0.8rem;width:100%;padding:0.85rem;border:none;border-radius:14px;background:#073b4c;color:#fff;font-weight:700;">▶ Quiz starten</button>
+          </div>
+        </div>
+        <div class="mockup-label">📱 iPhone-Ansicht</div>
+      </div>
+      <div>
+        <div class="mockup-card" style="background:#fff7ed;">
+          <div style="min-height:420px;display:flex;flex-direction:column;">
+            <div style="padding:0.8rem 1.2rem;background:linear-gradient(90deg,#ef476f,#f78c6b,#ffd166);color:#073b4c;font-weight:800;display:flex;justify-content:space-between;">
+              <span>🌴 Lernportal Surf</span><span style="font-size:0.8rem;">Lernen · Fächer · Fortschritt</span>
+            </div>
+            <div style="display:flex;flex:1;">
+              <aside style="width:220px;background:#118ab2;color:#fff;padding:1rem;">
+                <div style="font-size:0.7rem;opacity:.8;text-transform:uppercase;">Fächer</div>
+                <div style="margin-top:0.5rem;background:#ffffff2b;border-radius:8px;padding:0.45rem;">📐 Mathematik</div>
+                <div style="margin-top:0.3rem;padding:0.45rem;">🧬 Biologie</div>
+              </aside>
+              <main style="flex:1;padding:1.2rem;">
+                <h3 style="font-size:1.35rem;color:#073b4c;">Ableitungsregeln</h3>
+                <div style="margin-top:0.8rem;display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+                  <div style="background:#fff;border-radius:12px;padding:0.8rem;border:1px solid #fed7aa;"><strong style="font-size:0.72rem;">Kernbegriffe</strong></div>
+                  <div style="background:#fff;border-radius:12px;padding:0.8rem;border:1px solid #fed7aa;"><strong style="font-size:0.72rem;">Formeln</strong></div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">💻 Desktop-Ansicht</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VARIANTE 5 ══════════════════════ -->
+<div id="v5" class="variant active">
+  <div class="variant-wrapper">
+    <div class="section-title">Farbpalette</div>
+    <div class="palette" style="margin-bottom:0.4rem">
+      <div class="swatch light" style="background:#ffffff">Base<br>#ffffff</div>
+      <div class="swatch light" style="background:#f8fafc">Panel<br>#f8fafc</div>
+      <div class="swatch light" style="background:#eef2f7">Card<br>#eef2f7</div>
+      <div class="swatch light" style="background:#cbd5e1">Border<br>#cbd5e1</div>
+      <div class="swatch" style="background:#1d4ed8">Accent<br>#1d4ed8</div>
+      <div class="swatch" style="background:#0f172a">Text<br>#0f172a</div>
+    </div>
+    <div class="info-box" style="border-color:#1d4ed8;background:#ffffff;color:#0f172a;">
+      <h4 style="color:#1d4ed8;">⑤ Nüchtern / Copilot-Stil (Light)</h4>
+      <p style="color:#475569;">Reduziert, funktional, sehr ruhig. Fokus auf Inhalt statt Dekoration: klare Kanten, wenig Farbe, konsistente Abstände. Die helle Invertierung wirkt sachlich und maximal lesbar.</p>
+      <ul style="color:#475569;">
+        <li>Ziel: Effizienz und Konzentration</li>
+        <li>Stärke: langlebig, wartbar, minimalistisch</li>
+        <li>Einsatz: sehr stark auf Laptop, sauber auf iPhone</li>
+      </ul>
+    </div>
+
+    <div class="mockup-grid">
+      <div>
+        <div class="mockup-card" style="background:#ffffff;">
+          <div style="min-height:580px;padding:1rem;color:#0f172a;font-family:system-ui,sans-serif;">
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #cbd5e1;border-radius:10px;padding:0.8rem;background:#f8fafc;">
+              <strong style="font-size:0.9rem;">Lernportal</strong><span style="font-size:0.75rem;color:#1d4ed8;">Session</span>
+            </div>
+            <div style="margin-top:0.9rem;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:0.9rem;">
+              <div style="font-size:0.72rem;text-transform:uppercase;color:#1d4ed8;font-weight:700;">Mathematik</div>
+              <h3 style="font-size:1.1rem;margin-top:0.5rem;">Ableitungsregeln</h3>
+              <p style="font-size:0.8rem;color:#475569;margin-top:0.3rem;">Nüchterne Informationsarchitektur mit hoher Lesbarkeit.</p>
+            </div>
+            <div style="margin-top:0.7rem;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:0.8rem;">
+              <div style="font-size:0.72rem;color:#1d4ed8;font-weight:700;">Kernbegriffe</div>
+              <ul style="margin-top:0.35rem;padding-left:1rem;font-size:0.82rem;line-height:1.6;color:#334155;">
+                <li>Ableitung</li><li>Tangente</li><li>Potenzregel</li>
+              </ul>
+            </div>
+            <button style="margin-top:0.8rem;width:100%;padding:0.8rem;border-radius:10px;border:1px solid #cbd5e1;background:#eef2f7;color:#0f172a;font-weight:700;">Quiz starten</button>
+          </div>
+        </div>
+        <div class="mockup-label">📱 iPhone-Ansicht</div>
+      </div>
+      <div>
+        <div class="mockup-card" style="background:#ffffff;">
+          <div style="min-height:420px;display:flex;flex-direction:column;color:#0f172a;">
+            <div style="padding:0.75rem 1.2rem;background:#f8fafc;border-bottom:1px solid #cbd5e1;display:flex;justify-content:space-between;">
+              <strong>Lernportal</strong><span style="font-size:0.8rem;color:#1d4ed8;">Lernen · Fächer · Fortschritt</span>
+            </div>
+            <div style="display:flex;flex:1;">
+              <aside style="width:220px;background:#f8fafc;border-right:1px solid #cbd5e1;padding:1rem;color:#475569;">
+                <div style="font-size:0.7rem;text-transform:uppercase;">Fächer</div>
+                <div style="margin-top:.5rem;background:#eef2f7;border-radius:8px;padding:.45rem;color:#0f172a;">Mathematik</div>
+              </aside>
+              <main style="flex:1;padding:1.2rem;">
+                <h3 style="font-size:1.3rem;">Ableitungsregeln</h3>
+                <div style="margin-top:.8rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+                  <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:.8rem;">Kernbegriffe</div>
+                  <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:.8rem;">Formeln</div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">💻 Desktop-Ansicht</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VARIANTE 6 ══════════════════════ -->
+<div id="v6" class="variant">
+  <div class="variant-wrapper">
+    <div class="section-title">Farbpalette</div>
+    <div class="palette" style="margin-bottom:0.4rem">
+      <div class="swatch" style="background:#0f1020">Midnight<br>#0f1020</div>
+      <div class="swatch" style="background:#2d1b69">Purple<br>#2d1b69</div>
+      <div class="swatch" style="background:#ff4ecd">Magenta<br>#ff4ecd</div>
+      <div class="swatch light" style="background:#ffd700">Gold<br>#ffd700</div>
+      <div class="swatch" style="background:#00e5ff">Cyan<br>#00e5ff</div>
+      <div class="swatch" style="background:#f8fafc">Text<br>#f8fafc</div>
+    </div>
+    <div class="info-box" style="border-color:#ff4ecd;background:linear-gradient(135deg,#0f1020,#1a1442);color:#f8fafc;">
+      <h4 style="color:#ffd700;">⑥ Disco Glam</h4>
+      <p style="color:#cbd5e1;">Glamour-Look mit sattem Lila, Neon-Magenta und Gold-Akzenten. Auffällig, mutig und emotional. Perfekt als Signature-Theme oder saisonales Event-Theme.</p>
+      <ul style="color:#cbd5e1;">
+        <li>Ziel: Wow-Effekt und starke Markenidentität</li>
+        <li>Stärke: Premium-Feeling, sehr einprägsam</li>
+        <li>Einsatz: limitiert oder optionales Theme</li>
+      </ul>
+    </div>
+
+    <div class="mockup-grid">
+      <div>
+        <div class="mockup-card" style="background:radial-gradient(circle at top,#2d1b69,#0f1020 60%);">
+          <div style="min-height:580px;padding:1rem;color:#f8fafc;font-family:system-ui,sans-serif;">
+            <div style="border:1px solid #ffffff2a;border-radius:14px;padding:0.8rem;background:#ffffff12;display:flex;justify-content:space-between;align-items:center;">
+              <strong>✨ Lernportal Glam</strong><span style="font-size:0.7rem;color:#ffd700;">VIP Mode</span>
+            </div>
+            <div style="margin-top:0.9rem;border-radius:14px;padding:1rem;background:linear-gradient(135deg,#ff4ecd33,#00e5ff22);border:1px solid #ffffff24;">
+              <div style="display:inline-block;background:#ffd70022;color:#ffd700;font-weight:700;font-size:0.72rem;padding:.2rem .6rem;border-radius:999px;">Mathematik</div>
+              <h3 style="margin-top:.5rem;font-size:1.15rem;">Ableitungsregeln</h3>
+              <p style="font-size:.8rem;color:#e2e8f0;">Disco-Gradienten, Lichtakzente, starke Buttons.</p>
+            </div>
+            <div style="margin-top:.7rem;border-radius:12px;padding:.85rem;background:#ffffff10;border:1px solid #ffffff20;">
+              <div style="font-size:.72rem;color:#ffd700;font-weight:700;text-transform:uppercase;">Kernbegriffe</div>
+              <ul style="padding-left:1rem;margin-top:.35rem;font-size:.82rem;line-height:1.6;">
+                <li>Ableitung</li><li>Tangente</li><li>Potenzregel</li>
+              </ul>
+            </div>
+            <button style="margin-top:.8rem;width:100%;padding:.85rem;border:none;border-radius:12px;background:linear-gradient(90deg,#ff4ecd,#ffd700);color:#1f2937;font-weight:800;">🎉 Quiz starten</button>
+          </div>
+        </div>
+        <div class="mockup-label">📱 iPhone-Ansicht</div>
+      </div>
+      <div>
+        <div class="mockup-card" style="background:#0f1020;">
+          <div style="min-height:420px;display:flex;flex-direction:column;color:#f8fafc;">
+            <div style="padding:.75rem 1.2rem;background:linear-gradient(90deg,#2d1b69,#ff4ecd);display:flex;justify-content:space-between;align-items:center;">
+              <strong>✨ Lernportal Glam</strong><span style="font-size:.8rem;">Lernen · Fächer · Fortschritt</span>
+            </div>
+            <div style="display:flex;flex:1;">
+              <aside style="width:220px;background:#1a1442;padding:1rem;border-right:1px solid #ffffff22;">
+                <div style="font-size:.7rem;text-transform:uppercase;color:#ffd700;">Fächer</div>
+                <div style="margin-top:.5rem;background:#ffffff1f;border-radius:8px;padding:.45rem;">📐 Mathematik</div>
+              </aside>
+              <main style="flex:1;padding:1.2rem;">
+                <h3 style="font-size:1.3rem;color:#ffd700;">Ableitungsregeln</h3>
+                <div style="margin-top:.8rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+                  <div style="background:#ffffff12;border:1px solid #ffffff24;border-radius:10px;padding:.8rem;">Kernbegriffe</div>
+                  <div style="background:#ffffff12;border:1px solid #ffffff24;border-radius:10px;padding:.8rem;">Formeln</div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-label">💻 Desktop-Ansicht</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Nur Designstudie · Kein funktionaler Code</footer>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

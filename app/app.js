@@ -13,6 +13,19 @@ function toStringArray(value) {
     .filter(Boolean);
 }
 
+function normalizeSources(rawSources) {
+  if (!Array.isArray(rawSources)) return [];
+  return rawSources
+    .map((source) => {
+      const label = String(source?.label ?? "").trim();
+      const url = String(source?.url ?? "").trim();
+      const section = String(source?.section ?? "").trim();
+      if (!label) return null;
+      return { label, ...(url ? { url } : {}), ...(section ? { section } : {}) };
+    })
+    .filter(Boolean);
+}
+
 function normalizeQuiz(rawQuiz) {
   if (!Array.isArray(rawQuiz)) return [];
 
@@ -56,6 +69,8 @@ function normalizeTopic(topic, index) {
     keyTerms: toStringArray(topic?.keyTerms),
     formulas: toStringArray(topic?.formulas),
     examples: toStringArray(topic?.examples),
+    outline: toStringArray(topic?.outline),
+    sources: normalizeSources(topic?.sources),
     quiz: normalizeQuiz(topic?.quiz)
   };
 }
@@ -65,8 +80,33 @@ function normalizeTopics(input) {
   return input.map((topic, idx) => normalizeTopic(topic, idx));
 }
 
-const customTopics = _earlyReadJson("lernportal.customTopics", []);
-const topics = normalizeTopics([...basTopics, ...customTopics]);
+function mergeTopics(primary, secondary) {
+  const byId = new Map();
+  normalizeTopics(primary).forEach((topic) => {
+    byId.set(topic.id, topic);
+  });
+  normalizeTopics(secondary).forEach((topic) => {
+    byId.set(topic.id, topic);
+  });
+  return Array.from(byId.values());
+}
+
+function resolveApiBaseUrl() {
+  const configured = String(localStorage.getItem("lernportal.apiBaseUrl") ?? "").trim();
+  if (configured) {
+    return configured.replace(/\/+$/, "");
+  }
+  const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+  if (isLocalhost && window.location.port !== "3000") {
+    return `${window.location.protocol}//${window.location.hostname}:3000`;
+  }
+  return "";
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+const customTopics = normalizeTopics(_earlyReadJson("lernportal.customTopics", []));
+let allTopics = mergeTopics(basTopics, customTopics);
+let topics = allTopics.slice();
 
 const storeKeys = {
   learned: "lernportal.learnedTopics",
@@ -78,7 +118,10 @@ const storeKeys = {
   earnedBadges: "lernportal.earnedBadges",
   weeklyGoal: "lernportal.weeklyGoal",
   weekStart: "lernportal.weekStart",
-  weekTopics: "lernportal.weekTopics"
+  weekTopics: "lernportal.weekTopics",
+  rankingToken: "lernportal.rankingToken",
+  rankingClassId: "lernportal.rankingClassId",
+  rankingDisplayName: "lernportal.rankingDisplayName"
 };
 
 const tabLearn = document.getElementById("tab-learn");
@@ -95,6 +138,10 @@ const topicSubject = document.getElementById("topic-subject");
 const keyTermsEl = document.getElementById("topic-keyterms");
 const formulasEl = document.getElementById("topic-formulas");
 const examplesEl = document.getElementById("topic-examples");
+const sourcesDetailsEl = document.getElementById("topic-sources");
+const sourcesListEl = document.getElementById("topic-sources-list");
+const outlineDetailsEl = document.getElementById("topic-outline");
+const outlineListEl = document.getElementById("topic-outline-list");
 const learnedToggle = document.getElementById("learned-toggle");
 const quizPanel = document.getElementById("quiz-panel");
 const quizContext = document.getElementById("quiz-context");
@@ -113,7 +160,12 @@ const goalInput = document.getElementById("goal-input");
 const goalBar = document.getElementById("goal-bar");
 const goalStatus = document.getElementById("goal-status");
 const badgeList = document.getElementById("badge-list");
-const MAX_POINTS = topics.reduce((sum, t) => sum + t.quiz.length * 10, 0);
+const rankingJoinCodeInput = document.getElementById("ranking-join-code");
+const rankingDisplayNameInput = document.getElementById("ranking-display-name");
+const rankingJoinBtn = document.getElementById("ranking-join-btn");
+const rankingSyncBtn = document.getElementById("ranking-sync-btn");
+const rankingStatusEl = document.getElementById("ranking-status");
+const rankingListEl = document.getElementById("ranking-list");
 
 let activeTopic = null;
 let activeQuiz = [];
@@ -129,6 +181,11 @@ const earnedBadges = new Set(readJson(storeKeys.earnedBadges, []));
 let filteredTopics = topics.slice();
 let repeatWrongMode = false;
 let wrongQueue = [];
+let subjectScopedTopics = null;
+let maxPoints = allTopics.reduce((sum, topic) => sum + topic.quiz.length * 10, 0);
+let rankingToken = readText(storeKeys.rankingToken, "");
+let rankingClassId = readText(storeKeys.rankingClassId, "");
+let rankingDisplayName = readText(storeKeys.rankingDisplayName, "");
 
 // Wöchentliches Lernziel – Woche zurücksetzen wenn nötig
 (function initWeek() {
@@ -144,14 +201,127 @@ let wrongQueue = [];
   }
 })();
 
-initializeFilters();
-applyFilters();
-restoreLastTopic();
 bindEvents();
 setViewMode("learn");
 updateOfflineHint();
 updateScoreDisplay();
 registerServiceWorker();
+void initializeApp();
+
+async function initializeApp() {
+  try {
+    const apiTopics = await fetchTopics();
+    allTopics = mergeTopics(apiTopics, customTopics);
+    topics = allTopics.slice();
+    maxPoints = allTopics.reduce((sum, topic) => sum + topic.quiz.length * 10, 0);
+  } catch (error) {
+    console.error("Topics konnten nicht über die API geladen werden:", error);
+    offlineStateEl.textContent = "API derzeit nicht erreichbar – lokale Daten werden genutzt.";
+  }
+
+  await initializeFilters();
+  applyFilters();
+  await restoreLastTopic();
+  updateScoreDisplay();
+  rankingDisplayNameInput.value = rankingDisplayName;
+  rankingStatusEl.textContent = rankingToken
+    ? `Verbunden mit Klasse ${rankingClassId} als ${rankingDisplayName}.`
+    : "Optional: Mit Klassencode und Pseudonym dem Ranking beitreten (Demo-Code: DEMO11).";
+  if (rankingToken && rankingClassId) {
+    void syncRankingScore();
+  }
+}
+
+function buildApiUrl(path, params = {}) {
+  const base = API_BASE_URL || window.location.origin;
+  const url = new URL(path, base);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    url.searchParams.set(key, String(value));
+  });
+  return url;
+}
+
+async function fetchTopics(subject = "") {
+  const url = buildApiUrl("/api/topics", subject ? { subject } : {});
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`GET /api/topics fehlgeschlagen (${response.status})`);
+  }
+  const payload = await response.json();
+  if (!Array.isArray(payload?.data)) {
+    throw new Error("Ungültiges Datenformat von GET /api/topics");
+  }
+  return normalizeTopics(payload.data);
+}
+
+async function fetchSubjects() {
+  const response = await fetch(buildApiUrl("/api/subjects"));
+  if (!response.ok) {
+    throw new Error(`GET /api/subjects fehlgeschlagen (${response.status})`);
+  }
+  const payload = await response.json();
+  if (!Array.isArray(payload)) {
+    throw new Error("Ungültiges Datenformat von GET /api/subjects");
+  }
+  return payload.map((entry) => ({
+    id: String(entry.id ?? ""),
+    name: String(entry.name ?? ""),
+    topicCount: Number(entry.topicCount ?? 0)
+  })).filter((entry) => entry.name);
+}
+
+async function fetchTopicDetail(topicId) {
+  const response = await fetch(buildApiUrl(`/api/topics/${encodeURIComponent(topicId)}`));
+  if (!response.ok) {
+    throw new Error(`GET /api/topics/${topicId} fehlgeschlagen (${response.status})`);
+  }
+  const payload = await response.json();
+  return normalizeTopic(payload, 0);
+}
+
+async function joinRankingClass(joinCode, displayName) {
+  const response = await fetch(buildApiUrl("/api/classes/join"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ joinCode, displayName })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(String(payload?.error ?? `POST /api/classes/join fehlgeschlagen (${response.status})`));
+  }
+  return payload;
+}
+
+async function pushRankingScore(token, pointsValue, topicsDoneValue) {
+  const response = await fetch(buildApiUrl("/api/ranking/score"), {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ points: pointsValue, topicsDone: topicsDoneValue })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(String(payload?.error ?? `PUT /api/ranking/score fehlgeschlagen (${response.status})`));
+  }
+  return payload;
+}
+
+async function fetchClassRanking(classId, token) {
+  const response = await fetch(buildApiUrl(`/api/classes/${encodeURIComponent(classId)}/ranking`), {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const payload = await response.json().catch(() => ([]));
+  if (!response.ok) {
+    throw new Error(String(payload?.error ?? `GET /api/classes/${classId}/ranking fehlgeschlagen (${response.status})`));
+  }
+  if (!Array.isArray(payload)) {
+    throw new Error("Ungültiges Ranking-Format");
+  }
+  return payload;
+}
 
 function bindEvents() {
   searchInput.addEventListener("input", () => {
@@ -161,15 +331,14 @@ function bindEvents() {
   subjectFilter.addEventListener("change", () => {
     selectedSubject = subjectFilter.value;
     selectedTopicId = "";
-    populateTopicFilter();
-    applyFilters();
+    void loadSubjectTopicsAndRender();
   });
 
   topicFilter.addEventListener("change", () => {
     selectedTopicId = topicFilter.value;
     applyFilters();
     if (selectedTopicId) {
-      openTopic(selectedTopicId);
+      void openTopic(selectedTopicId);
     }
   });
 
@@ -200,6 +369,7 @@ function bindEvents() {
     updateProgress();
     renderTopicPickerList();
     checkAndAwardBadges();
+    void syncRankingScore();
   });
 
   nextQuestionBtn.addEventListener("click", () => {
@@ -225,26 +395,68 @@ function bindEvents() {
     }
   });
 
+  rankingJoinBtn.addEventListener("click", () => {
+    void handleRankingJoin();
+  });
+
+  rankingSyncBtn.addEventListener("click", () => {
+    void syncRankingScore();
+  });
+
   window.addEventListener("online", updateOfflineHint);
   window.addEventListener("offline", updateOfflineHint);
 }
 
-function initializeFilters() {
-  const subjects = Array.from(new Set(topics.map((topic) => topic.subject))).sort((a, b) =>
-    a.localeCompare(b, "de")
-  );
+async function initializeFilters() {
+  let subjectNames = [];
+
+  try {
+    const subjects = await fetchSubjects();
+    subjectNames = subjects.map((s) => s.name).sort((a, b) => a.localeCompare(b, "de"));
+  } catch (error) {
+    console.error("Fächer konnten nicht über die API geladen werden – Fallback auf Topics:", error);
+    subjectNames = Array.from(new Set(allTopics.map((topic) => topic.subject))).sort((a, b) =>
+      a.localeCompare(b, "de")
+    );
+  }
+
   subjectFilter.innerHTML = "";
   subjectFilter.append(makeOption("", "Alle Fächer"));
-  subjects.forEach((subject) => {
-    subjectFilter.append(makeOption(subject, subject));
+  subjectNames.forEach((name) => {
+    subjectFilter.append(makeOption(name, name));
   });
   populateTopicFilter();
+}
+
+async function loadSubjectTopicsAndRender() {
+  if (!selectedSubject) {
+    subjectScopedTopics = null;
+    topics = allTopics.slice();
+    populateTopicFilter();
+    applyFilters();
+    return;
+  }
+
+  try {
+    const apiTopics = await fetchTopics(selectedSubject);
+    const scopedCustomTopics = customTopics.filter((topic) => topic.subject === selectedSubject);
+    subjectScopedTopics = mergeTopics(apiTopics, scopedCustomTopics);
+    topics = subjectScopedTopics;
+  } catch (error) {
+    console.error("Fachfilter konnte nicht über API geladen werden:", error);
+    subjectScopedTopics = null;
+    topics = allTopics.slice();
+    offlineStateEl.textContent = "API-Filter derzeit nicht erreichbar – lokale Daten werden genutzt.";
+  }
+
+  populateTopicFilter();
+  applyFilters();
 }
 
 function populateTopicFilter() {
   const scopedTopics = selectedSubject
     ? topics.filter((topic) => topic.subject === selectedSubject)
-    : topics;
+    : allTopics;
   topicFilter.innerHTML = "";
   topicFilter.append(makeOption("", "Alle Themen"));
   scopedTopics.forEach((topic) => {
@@ -322,7 +534,7 @@ function renderTopicPickerList() {
         item.addEventListener("click", () => {
           selectedTopicId = topic.id;
           topicFilter.value = topic.id;
-          openTopic(topic.id);
+          void openTopic(topic.id);
         });
 
         const title = document.createElement("h4");
@@ -339,30 +551,47 @@ function renderTopicPickerList() {
     });
 
   if (!activeTopic && filteredTopics.length > 0) {
-    openTopic(filteredTopics[0].id);
+    void openTopic(filteredTopics[0].id);
   }
 
   updateProgress();
 }
 
-function openTopic(topicId) {
-  const topic = topics.find((item) => item.id === topicId);
+async function openTopic(topicId) {
+  const topic = allTopics.find((item) => item.id === topicId) ?? topics.find((item) => item.id === topicId);
   if (!topic) {
     return;
   }
-  activeTopic = topic;
+  let resolvedTopic = topic;
+  try {
+    const detailedTopic = await fetchTopicDetail(topicId);
+    const replaceTopic = (entry) => (entry.id === detailedTopic.id ? detailedTopic : entry);
+    allTopics = allTopics.map(replaceTopic);
+    topics = topics.map(replaceTopic);
+    if (Array.isArray(subjectScopedTopics)) {
+      subjectScopedTopics = subjectScopedTopics.map(replaceTopic);
+    }
+    resolvedTopic = detailedTopic;
+  } catch (error) {
+    console.error(`Topic-Detail konnte nicht geladen werden (${topicId}):`, error);
+    offlineStateEl.textContent = "Topic-Detail derzeit nicht erreichbar – lokale Daten werden genutzt.";
+  }
+
+  activeTopic = resolvedTopic;
   selectedTopicId = topic.id;
   topicFilter.value = topic.id;
   writeText(storeKeys.lastTopic, topic.id);
-  topicTitle.textContent = topic.title;
-  topicSubject.textContent = topic.subject;
-  quizContext.textContent = topic.subject;
-  fillList(keyTermsEl, topic.keyTerms);
-  fillList(formulasEl, topic.formulas);
-  fillList(examplesEl, topic.examples);
-  setLearnedButton(topic.id);
+  topicTitle.textContent = resolvedTopic.title;
+  topicSubject.textContent = resolvedTopic.subject;
+  quizContext.textContent = resolvedTopic.subject;
+  fillList(keyTermsEl, resolvedTopic.keyTerms);
+  fillList(formulasEl, resolvedTopic.formulas);
+  fillList(examplesEl, resolvedTopic.examples);
+  renderOutline(resolvedTopic.outline);
+  renderSources(resolvedTopic.sources);
+  setLearnedButton(resolvedTopic.id);
 
-  activeQuiz = topic.quiz;
+  activeQuiz = resolvedTopic.quiz;
   const savedQuestionIdx = Number(readText(storeKeys.quizIdx, "0"));
   activeQuestionIdx =
     Number.isFinite(savedQuestionIdx) && activeQuiz.length > 0
@@ -386,7 +615,7 @@ function renderQuestion() {
       return;
     }
     const entry = wrongQueue[activeQuestionIdx % wrongQueue.length];
-    const t = topics.find((x) => x.id === entry.topicId);
+    const t = allTopics.find((x) => x.id === entry.topicId);
     question = t ? t.quiz[entry.idx] : null;
     questionKey = `${entry.topicId}::${entry.idx}`;
   } else {
@@ -456,7 +685,7 @@ function startRepeatWrongMode() {
     const [topicId, idxStr] = key.split("::");
     return { topicId, idx: parseInt(idxStr, 10) };
   }).filter(({ topicId, idx }) => {
-    const t = topics.find((x) => x.id === topicId);
+    const t = allTopics.find((x) => x.id === topicId);
     return t && t.quiz[idx];
   });
   if (wrongQueue.length === 0) return;
@@ -470,6 +699,7 @@ function awardPoints(amount, label) {
   points += amount;
   writeJson(storeKeys.points, points);
   updateScoreDisplay();
+  void syncRankingScore();
   scoreToast.textContent = label;
   scoreToast.hidden = false;
   scoreBoxEl.classList.remove("bump");
@@ -479,7 +709,7 @@ function awardPoints(amount, label) {
 
 function updateScoreDisplay() {
   scorePointsEl.textContent = points;
-  scoreMaxEl.textContent = ` / ${MAX_POINTS}`;
+  scoreMaxEl.textContent = ` / ${maxPoints}`;
 }
 
 function setLearnedButton(topicId) {
@@ -488,7 +718,7 @@ function setLearnedButton(topicId) {
 }
 
 function updateProgress() {
-  progressEl.textContent = `${learnedTopics.size}/${topics.length} gelernt`;
+  progressEl.textContent = `${learnedTopics.size}/${allTopics.length} gelernt`;
 }
 
 function fillList(el, values) {
@@ -500,10 +730,53 @@ function fillList(el, values) {
   });
 }
 
-function restoreLastTopic() {
+function renderSources(sources) {
+  sourcesListEl.innerHTML = "";
+  if (!Array.isArray(sources) || sources.length === 0) {
+    sourcesDetailsEl.hidden = true;
+    return;
+  }
+  sources.forEach((src) => {
+    const li = document.createElement("li");
+    if (src.url) {
+      const a = document.createElement("a");
+      a.href = src.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = src.label;
+      if (src.section) {
+        a.textContent += ` – ${src.section}`;
+      }
+      li.append(a);
+    } else {
+      li.textContent = src.section ? `${src.label} – ${src.section}` : src.label;
+    }
+    sourcesListEl.append(li);
+  });
+  sourcesDetailsEl.hidden = false;
+}
+
+function renderOutline(outline) {
+  outlineListEl.innerHTML = "";
+  if (!Array.isArray(outline) || outline.length === 0) {
+    outlineDetailsEl.hidden = true;
+    return;
+  }
+  outline.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    // Einrückung nach Hierarchie-Tiefe (1.1 tiefer als 1.)
+    const depth = (item.match(/^\d+(\.\d+)+/) ? item.match(/\./g)?.length ?? 0 : 0);
+    if (depth > 0) li.style.marginLeft = `${depth * 1}rem`;
+    outlineListEl.append(li);
+  });
+  outlineDetailsEl.hidden = false;
+}
+
+async function restoreLastTopic() {
   const lastTopicId = readText(storeKeys.lastTopic, "");
   if (lastTopicId) {
-    openTopic(lastTopicId);
+    await openTopic(lastTopicId);
   }
 }
 
@@ -538,7 +811,7 @@ function setViewMode(mode) {
 
 function ensureActiveTopicForQuiz() {
   if (!activeTopic && filteredTopics.length > 0) {
-    openTopic(filteredTopics[0].id);
+    void openTopic(filteredTopics[0].id);
   }
 }
 
@@ -561,6 +834,66 @@ function updateOfflineHint() {
   offlineStateEl.textContent = navigator.onLine
     ? "Online: alle Inhalte verfügbar."
     : "Offline: zuletzt geladene Inhalte sind weiter nutzbar.";
+}
+
+async function handleRankingJoin() {
+  const joinCode = rankingJoinCodeInput.value.trim().toUpperCase();
+  const displayName = rankingDisplayNameInput.value.trim();
+  if (!joinCode) {
+    rankingStatusEl.textContent = "Bitte Klassencode eingeben.";
+    return;
+  }
+  if (displayName.length < 2) {
+    rankingStatusEl.textContent = "Bitte Anzeigename mit mindestens 2 Zeichen eingeben.";
+    return;
+  }
+  rankingStatusEl.textContent = "Verbinde mit Klassen-Ranking …";
+  try {
+    const joined = await joinRankingClass(joinCode, displayName);
+    rankingToken = String(joined.token ?? "");
+    rankingClassId = String(joined.classId ?? "");
+    rankingDisplayName = displayName;
+    writeText(storeKeys.rankingToken, rankingToken);
+    writeText(storeKeys.rankingClassId, rankingClassId);
+    writeText(storeKeys.rankingDisplayName, rankingDisplayName);
+    rankingStatusEl.textContent = `Beitritt erfolgreich: ${joined.className} (${rankingDisplayName})`;
+    await syncRankingScore();
+  } catch (error) {
+    rankingStatusEl.textContent = `Beitritt fehlgeschlagen: ${error.message}`;
+  }
+}
+
+function renderRankingList(entries) {
+  rankingListEl.innerHTML = "";
+  if (!Array.isArray(entries) || entries.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "hint";
+    empty.textContent = "Noch keine Ranking-Daten vorhanden.";
+    rankingListEl.append(empty);
+    return;
+  }
+  entries.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = `ranking-row${entry.isSelf ? " self" : ""}`;
+    row.innerHTML = `
+      <span class="ranking-rank">#${entry.rank}</span>
+      <span>${entry.displayName}</span>
+      <span class="ranking-points">${entry.points} P · ${entry.topicsDone} Themen</span>
+    `;
+    rankingListEl.append(row);
+  });
+}
+
+async function syncRankingScore() {
+  if (!rankingToken || !rankingClassId) return;
+  try {
+    const rankInfo = await pushRankingScore(rankingToken, points, learnedTopics.size);
+    const entries = await fetchClassRanking(rankingClassId, rankingToken);
+    rankingStatusEl.textContent = `Rang ${rankInfo.rank}/${rankInfo.total} in Klasse ${rankingClassId}`;
+    renderRankingList(entries);
+  } catch (error) {
+    rankingStatusEl.textContent = `Ranking-Sync fehlgeschlagen: ${error.message}`;
+  }
 }
 
 function registerServiceWorker() {
@@ -647,7 +980,7 @@ const BADGE_DEFS = [
     icon: "🏆",
     name: "Halbzeit",
     desc: "50% der Gesamtpunkte erreicht",
-    check: () => MAX_POINTS > 0 && points >= MAX_POINTS * 0.5
+    check: () => maxPoints > 0 && points >= maxPoints * 0.5
   },
   {
     id: "all-questions",
@@ -655,7 +988,7 @@ const BADGE_DEFS = [
     name: "Meister",
     desc: "Alle Quizfragen mindestens einmal richtig",
     check: () => {
-      const total = topics.reduce((s, t) => s + t.quiz.length, 0);
+      const total = allTopics.reduce((s, t) => s + t.quiz.length, 0);
       return total > 0 && answeredQuestions.size >= total;
     }
   },
@@ -672,9 +1005,9 @@ const BADGE_DEFS = [
     name: "Fachexperte",
     desc: "Alle Themen eines Fachs als gelernt markiert",
     check: () => {
-      const subjects = [...new Set(topics.map((t) => t.subject))];
+      const subjects = [...new Set(allTopics.map((t) => t.subject))];
       return subjects.some((subj) => {
-        const subTopics = topics.filter((t) => t.subject === subj);
+        const subTopics = allTopics.filter((t) => t.subject === subj);
         return subTopics.length > 0 && subTopics.every((t) => learnedTopics.has(t.id));
       });
     }
