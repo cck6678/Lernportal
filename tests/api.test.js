@@ -128,6 +128,30 @@ function mockQuery(sql, params = []) {
     return Promise.resolve({ rows: rankingRows.slice(0, 20) });
   }
 
+  if (normalized.includes("INSERT INTO TOPICS") && normalized.includes("ON CONFLICT")) {
+    const id = String(params[0]);
+    const existing = MOCK_TOPICS.findIndex((t) => t.id === id);
+    const newTopic = {
+      id,
+      subject: String(params[1]),
+      title: String(params[2]),
+      key_terms: JSON.parse(String(params[3])),
+      formulas: JSON.parse(String(params[4])),
+      examples: JSON.parse(String(params[5])),
+      sources: JSON.parse(String(params[6])),
+      quiz: JSON.parse(String(params[7]))
+    };
+    if (existing >= 0) MOCK_TOPICS[existing] = newTopic;
+    else MOCK_TOPICS.push(newTopic);
+    return Promise.resolve({ rows: [] });
+  }
+
+  if (normalized.includes("DELETE FROM TOPICS WHERE ID = $1")) {
+    const idx = MOCK_TOPICS.findIndex((t) => t.id === params[0]);
+    if (idx >= 0) MOCK_TOPICS.splice(idx, 1);
+    return Promise.resolve({ rows: [] });
+  }
+
   if (normalized.includes("COUNT(*)::INT AS TOTAL FROM TOPICS")) {
     return Promise.resolve({ rows: [{ total: MOCK_TOPICS.length }] });
   }
@@ -337,8 +361,8 @@ describe("Klassen-Ranking (optional)", () => {
 });
 
 describe("Fehlerbehandlung", () => {
-  it("liefert 405 für DELETE-Anfragen", async () => {
-    const response = await fetch(`${baseUrl}/api/topics`, { method: "DELETE" });
+  it("liefert 405 für PATCH-Anfragen", async () => {
+    const response = await fetch(`${baseUrl}/api/topics`, { method: "PATCH" });
     const body = await response.json();
     assert.equal(response.status, 405);
     assert.equal(body.code, "METHOD_NOT_ALLOWED");
@@ -348,5 +372,64 @@ describe("Fehlerbehandlung", () => {
     const { status, body } = await get("/api/unbekannt");
     assert.equal(status, 404);
     assert.equal(body.code, "ROUTE_NOT_FOUND");
+  });
+});
+
+describe("Admin-Endpunkte", () => {
+  const adminHeaders = { "Authorization": "Bearer dev-admin", "Content-Type": "application/json" };
+
+  it("POST /api/topics legt neues Topic an", async () => {
+    const res = await fetch(`${baseUrl}/api/topics`, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({
+        id: "test-admin-topic",
+        subject: "Testfach",
+        title: "Admin-Testthema",
+        keyTerms: ["Begriff A"],
+        quiz: [{ question: "Frage?", options: ["A", "B"], answer: 0 }]
+      })
+    });
+    const body = await res.json();
+    assert.equal(res.status, 201);
+    assert.equal(body.id, "test-admin-topic");
+    assert.equal(body.subject, "Testfach");
+  });
+
+  it("PUT /api/topics/:id aktualisiert ein Topic", async () => {
+    const res = await fetch(`${baseUrl}/api/topics/test-admin-topic`, {
+      method: "PUT",
+      headers: adminHeaders,
+      body: JSON.stringify({
+        subject: "Testfach",
+        title: "Aktualisiertes Thema",
+        keyTerms: ["Begriff B"],
+        quiz: [{ question: "Neue Frage?", options: ["X", "Y"], answer: 1 }]
+      })
+    });
+    const body = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(body.title, "Aktualisiertes Thema");
+  });
+
+  it("DELETE /api/topics/:id löscht ein Topic", async () => {
+    const res = await fetch(`${baseUrl}/api/topics/test-admin-topic`, {
+      method: "DELETE",
+      headers: adminHeaders
+    });
+    const body = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(body.deleted, "test-admin-topic");
+  });
+
+  it("POST /api/topics ohne Token liefert 401", async () => {
+    const res = await fetch(`${baseUrl}/api/topics`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject: "X", title: "Y" })
+    });
+    const body = await res.json();
+    assert.equal(res.status, 401);
+    assert.equal(body.code, "UNAUTHORIZED");
   });
 });

@@ -83,7 +83,7 @@ function createError(message, code) {
 function setCommonHeaders(response) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Access-Control-Allow-Origin", "*");
-  response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+  response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.setHeader("Cache-Control", "no-store");
 }
@@ -426,6 +426,51 @@ export function createApp(queryFn) {
     }));
   }
 
+  function requireAdminToken(request) {
+    const adminToken = process.env.ADMIN_TOKEN ?? "dev-admin";
+    const auth = request.headers["authorization"] ?? "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+    if (token !== adminToken) {
+      const err = new Error("Unauthorized");
+      err.statusCode = 401;
+      err.code = "UNAUTHORIZED";
+      throw err;
+    }
+  }
+
+  async function upsertTopic(body) {
+    const id = String(body?.id ?? "").trim() || `topic-${Date.now()}`;
+    const subject = String(body?.subject ?? "").trim();
+    const title = String(body?.title ?? "").trim();
+    if (!subject || !title) {
+      const err = new Error("subject and title are required");
+      err.statusCode = 400;
+      err.code = "VALIDATION_ERROR";
+      throw err;
+    }
+    const keyTerms = Array.isArray(body.keyTerms) ? body.keyTerms.map(String) : [];
+    const formulas = Array.isArray(body.formulas) ? body.formulas.map(String) : [];
+    const examples = Array.isArray(body.examples) ? body.examples.map(String) : [];
+    const sources = Array.isArray(body.sources) ? body.sources : [];
+    const quiz = normalizeQuiz(body.quiz ?? []);
+    await queryFn(
+      `INSERT INTO topics (id, subject, title, key_terms, formulas, examples, sources, quiz)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (id) DO UPDATE SET
+         subject   = EXCLUDED.subject,
+         title     = EXCLUDED.title,
+         key_terms = EXCLUDED.key_terms,
+         formulas  = EXCLUDED.formulas,
+         examples  = EXCLUDED.examples,
+         sources   = EXCLUDED.sources,
+         quiz      = EXCLUDED.quiz`,
+      [id, subject, title,
+        JSON.stringify(keyTerms), JSON.stringify(formulas), JSON.stringify(examples),
+        JSON.stringify(sources), JSON.stringify(quiz)]
+    );
+    return { id, subject, title, keyTerms, formulas, examples, sources, quiz };
+  }
+
   async function handleRequest(request, response) {
     if (request.method === "OPTIONS") {
       response.statusCode = 204;
@@ -474,6 +519,32 @@ export function createApp(queryFn) {
       return;
     }
 
+    // POST /api/topics — Admin
+    if (url.pathname === "/api/topics" && method === "POST") {
+      requireAdminToken(request);
+      const body = await parseJsonBody(request);
+      const created = await upsertTopic(body);
+      sendJson(response, 201, created);
+      return;
+    }
+
+    // PUT /api/topics/:id — Admin
+    // DELETE /api/topics/:id — Admin
+    const adminTopicMatch = url.pathname.match(/^\/api\/topics\/([^/]+)$/);
+    if (adminTopicMatch && (method === "PUT" || method === "DELETE")) {
+      const topicId = decodeURIComponent(adminTopicMatch[1]);
+      requireAdminToken(request);
+      if (method === "PUT") {
+        const body = await parseJsonBody(request);
+        const updated = await upsertTopic({ ...body, id: topicId });
+        sendJson(response, 200, updated);
+      } else {
+        await queryFn("DELETE FROM topics WHERE id = $1", [topicId]);
+        sendJson(response, 200, { deleted: topicId });
+      }
+      return;
+    }
+
     if (method !== "GET") {
       sendJson(response, 405, createError("Method not allowed", "METHOD_NOT_ALLOWED"));
       return;
@@ -501,6 +572,7 @@ export function createApp(queryFn) {
       return;
     }
 
+    // GET /api/topics (list)
     if (url.pathname === "/api/topics") {
       const subjectQuery = (url.searchParams.get("subject") ?? url.searchParams.get("subjectId") ?? "").trim();
       const topics = await fetchTopics(subjectQuery);
