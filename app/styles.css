@@ -394,6 +394,43 @@ ul {
   margin-top: 1rem;
 }
 
+.ranking-list {
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.ranking-row:last-child {
+  border-bottom: 0;
+}
+
+.ranking-row.self {
+  background: #dff7f4;
+  font-weight: 700;
+}
+
+.ranking-rank {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.ranking-points {
+  color: var(--muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
 /* Badge-Toast */
 .badge-toast {
   position: fixed;
