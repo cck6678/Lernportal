@@ -71,6 +71,7 @@ function normalizeTopicRow(row) {
     keyTerms: toStringArray(row.key_terms),
     formulas: toStringArray(row.formulas),
     examples: toStringArray(row.examples),
+    outline: toStringArray(row.outline),
     sources: row.sources ? (Array.isArray(row.sources) ? row.sources : []) : [],
     quiz: normalizeQuiz(row.quiz)
   };
@@ -148,6 +149,7 @@ export function createApp(queryFn) {
           t.key_terms,
           t.formulas,
           t.examples,
+          t.outline,
           t.sources,
           COALESCE(
             json_agg(
@@ -164,7 +166,7 @@ export function createApp(queryFn) {
         INNER JOIN subjects s ON s.id = t.subject_id
         LEFT JOIN quiz_items qi ON qi.topic_id = t.id
         ${whereClause}
-        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.sources
+        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.outline, t.sources
         ORDER BY s.name ASC, t.title ASC
       `,
       params
@@ -182,6 +184,7 @@ export function createApp(queryFn) {
           t.key_terms,
           t.formulas,
           t.examples,
+          t.outline,
           t.sources,
           COALESCE(
             json_agg(
@@ -198,7 +201,7 @@ export function createApp(queryFn) {
         INNER JOIN subjects s ON s.id = t.subject_id
         LEFT JOIN quiz_items qi ON qi.topic_id = t.id
         WHERE t.id = $1
-        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.sources
+        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.outline, t.sources
         LIMIT 1
       `,
       [topicId]
@@ -460,9 +463,10 @@ Das JSON muss exakt dieses Schema erfüllen:
 {
   "subject": "Fachname (z.B. Mathematik, Biologie, Geschichte)",
   "title": "Titel des Themas (max. 60 Zeichen)",
+  "outline": ["1. Hauptabschnitt", "1.1 Unterabschnitt", "2. Nächster Abschnitt", ...],
   "keyTerms": ["Begriff 1", "Begriff 2", ...],
   "formulas": ["Formel/Merksatz 1", ...],
-  "examples": ["Beispiel 1", ...],
+  "examples": ["Beispiel 1 mit kurzer Erklärung", ...],
   "sources": [{"label": "Quellname", "url": "https://...", "section": "Abschnitt"}],
   "quiz": [
     {
@@ -474,9 +478,10 @@ Das JSON muss exakt dieses Schema erfüllen:
 }
 Regeln:
 - subject und title sind Pflicht
-- keyTerms: 3–8 wichtigste Fachbegriffe
-- formulas: Formeln, Merksätze oder Strukturen (leer wenn nicht relevant)
-- examples: 2–4 konkrete Beispiele
+- outline: Gliederung aus der Quelle als flache Liste mit Hierarchie durch Nummerierung (z.B. "1.", "1.1", "2."); 5–15 Einträge
+- keyTerms: 5–10 wichtigste Fachbegriffe mit kurzer Erklärung wenn möglich (Format: "Begriff – Erklärung")
+- formulas: Formeln, Merksätze oder Strukturen; so viele wie relevant
+- examples: 3–6 konkrete Beispiele mit Kontext
 - quiz: exakt 5 Fragen mit je 4 Optionen; answer ist der 0-basierte Index der richtigen Option
 - Antworte ausschließlich mit dem JSON, kein weiterer Text`;
 
@@ -493,7 +498,7 @@ Regeln:
           { role: "system", content: systemPrompt },
           { role: "user", content: `Extrahiere Lerninhalt aus folgendem Text:\n\n${content}` }
         ],
-        max_tokens: 2000,
+        max_tokens: 3000,
         temperature: 0.3
       }),
       signal: AbortSignal.timeout(30_000)
@@ -538,6 +543,7 @@ Regeln:
     const keyTerms = Array.isArray(body.keyTerms) ? body.keyTerms.map(String) : [];
     const formulas = Array.isArray(body.formulas) ? body.formulas.map(String) : [];
     const examples = Array.isArray(body.examples) ? body.examples.map(String) : [];
+    const outline = Array.isArray(body.outline) ? body.outline.map(String) : [];
     const sources = Array.isArray(body.sources) ? body.sources : [];
     const quiz = normalizeQuiz(body.quiz ?? []);
 
@@ -550,20 +556,22 @@ Regeln:
 
     // Topic upsert
     await queryFn(
-      `INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples, sources)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples, outline, sources)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (id) DO UPDATE SET
          subject_id = EXCLUDED.subject_id,
          title      = EXCLUDED.title,
          key_terms  = EXCLUDED.key_terms,
          formulas   = EXCLUDED.formulas,
          examples   = EXCLUDED.examples,
+         outline    = EXCLUDED.outline,
          sources    = EXCLUDED.sources,
          updated_at = NOW()`,
       [id, subjectId, title,
         `{${keyTerms.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
         `{${formulas.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
         `{${examples.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
+        `{${outline.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
         JSON.stringify(sources)]
     );
 
@@ -581,7 +589,7 @@ Regeln:
       );
     }
 
-    return { id, subject: subjectName, title, keyTerms, formulas, examples, sources, quiz };
+    return { id, subject: subjectName, title, keyTerms, formulas, examples, outline, sources, quiz };
   }
 
   async function handleRequest(request, response) {

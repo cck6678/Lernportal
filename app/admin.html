@@ -177,6 +177,11 @@
           <input id="f-title" type="text" placeholder="z.B. Quadratische Gleichungen" required />
         </div>
         <div class="form-row">
+          <label for="f-outline">Gliederung</label>
+          <textarea id="f-outline" placeholder="Ein Gliederungspunkt pro Zeile, z.B.:&#10;1. Einführung&#10;1.1 Definition&#10;2. Hauptteil" rows="6"></textarea>
+          <span class="hint">Strukturierte Gliederung aus der Quelle, ein Punkt pro Zeile</span>
+        </div>
+        <div class="form-row">
           <label for="f-keyterms">Kernbegriffe</label>
           <textarea id="f-keyterms" placeholder="Ein Begriff pro Zeile"></textarea>
           <span class="hint">Ein Begriff pro Zeile</span>
@@ -368,6 +373,7 @@
       const fKeyterms = document.getElementById("f-keyterms");
       const fFormulas = document.getElementById("f-formulas");
       const fExamples = document.getElementById("f-examples");
+      const fOutline = document.getElementById("f-outline");
 
       fToken.value = localStorage.getItem("lernportal.adminToken") ?? "dev-admin";
 
@@ -378,6 +384,7 @@
         fKeyterms.value = "";
         fFormulas.value = "";
         fExamples.value = "";
+        fOutline.value = "";
         quizItems = [];
         sourceItems = [];
         renderQuizBuilder();
@@ -393,6 +400,7 @@
         fKeyterms.value = (topic.keyTerms ?? []).join("\n");
         fFormulas.value = (topic.formulas ?? []).join("\n");
         fExamples.value = (topic.examples ?? []).join("\n");
+        fOutline.value = (topic.outline ?? []).join("\n");
         sourceItems = (topic.sources ?? []).map((s) => ({ label: s.label ?? "", url: s.url ?? "", section: s.section ?? "" }));
         quizItems = (topic.quiz ?? []).map((q) => ({ question: q.question, options: [...q.options], answer: q.answer }));
         renderSourcesBuilder();
@@ -417,6 +425,7 @@
           keyTerms: fKeyterms.value.split("\n").map((s) => s.trim()).filter(Boolean),
           formulas: fFormulas.value.split("\n").map((s) => s.trim()).filter(Boolean),
           examples: fExamples.value.split("\n").map((s) => s.trim()).filter(Boolean),
+          outline: fOutline.value.split("\n").map((s) => s.trim()).filter(Boolean),
           sources: sourceItems.filter((s) => s.label.trim()).map((s) => ({
             label: s.label.trim(),
             ...(s.url.trim() ? { url: s.url.trim() } : {}),
@@ -515,6 +524,7 @@
           fKeyterms.value = (draft.keyTerms ?? []).join("\n");
           fFormulas.value = (draft.formulas ?? []).join("\n");
           fExamples.value = (draft.examples ?? []).join("\n");
+          fOutline.value = (draft.outline ?? []).join("\n");
           sourceItems = (draft.sources ?? []).map((s) => ({ label: s.label ?? "", url: s.url ?? "", section: s.section ?? "" }));
           quizItems = (draft.quiz ?? []).map((q) => ({ question: q.question ?? "", options: Array.isArray(q.options) ? [...q.options] : ["","","",""], answer: q.answer ?? 0 }));
           renderSourcesBuilder();
