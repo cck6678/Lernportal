@@ -13,6 +13,19 @@ function toStringArray(value) {
     .filter(Boolean);
 }
 
+function normalizeSources(rawSources) {
+  if (!Array.isArray(rawSources)) return [];
+  return rawSources
+    .map((source) => {
+      const label = String(source?.label ?? "").trim();
+      const url = String(source?.url ?? "").trim();
+      const section = String(source?.section ?? "").trim();
+      if (!label) return null;
+      return { label, ...(url ? { url } : {}), ...(section ? { section } : {}) };
+    })
+    .filter(Boolean);
+}
+
 function normalizeQuiz(rawQuiz) {
   if (!Array.isArray(rawQuiz)) return [];
 
@@ -26,19 +39,6 @@ function normalizeQuiz(rawQuiz) {
         if (options.length < 2) return null;
         const answer = Number.isInteger(q.answer) && q.answer >= 0 && q.answer < options.length ? q.answer : 0;
         return { question, options, answer };
-      }
-
-      function normalizeSources(rawSources) {
-        if (!Array.isArray(rawSources)) return [];
-        return rawSources
-          .map((source) => {
-            const label = String(source?.label ?? "").trim();
-            const url = String(source?.url ?? "").trim();
-            const section = String(source?.section ?? "").trim();
-            if (!label) return null;
-            return { label, ...(url ? { url } : {}), ...(section ? { section } : {}) };
-          })
-          .filter(Boolean);
       }
 
       // Legacy-Format: { question, answers: [...] }
