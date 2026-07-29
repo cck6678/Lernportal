@@ -40,8 +40,93 @@ const MOCK_TOPICS = [
 ];
 
 // ── Mock-Datenbank ────────────────────────────────────────────────
+const MOCK_CLASSES = [{ id: "klasse-demo-11a", name: "Demo Klasse 11A", join_code: "DEMO11" }];
+const MOCK_MEMBERS = [];
+const MOCK_SCORES = [];
+let memberSeq = 1;
+
 function mockQuery(sql, params = []) {
   const normalized = sql.replace(/\s+/g, " ").trim().toUpperCase();
+
+  if (normalized.includes("SELECT ID, NAME FROM CLASSES WHERE JOIN_CODE = $1")) {
+    const match = MOCK_CLASSES.find((c) => c.join_code === String(params[0]).toUpperCase());
+    return Promise.resolve({ rows: match ? [{ id: match.id, name: match.name }] : [] });
+  }
+
+  if (normalized.includes("INSERT INTO CLASS_MEMBERS")) {
+    const member = {
+      id: memberSeq++,
+      class_id: params[0],
+      display_name: params[1],
+      token: params[2]
+    };
+    MOCK_MEMBERS.push(member);
+    return Promise.resolve({ rows: [{ id: member.id }] });
+  }
+
+  if (normalized.includes("INSERT INTO RANKING_SCORES") && normalized.includes("DO NOTHING")) {
+    const memberId = Number(params[0]);
+    if (!MOCK_SCORES.some((row) => row.member_id === memberId)) {
+      MOCK_SCORES.push({ member_id: memberId, points: 0, topics_done: 0, updated_at: Date.now() });
+    }
+    return Promise.resolve({ rows: [] });
+  }
+
+  if (normalized.includes("SELECT ID, CLASS_ID FROM CLASS_MEMBERS WHERE TOKEN = $1")) {
+    const member = MOCK_MEMBERS.find((m) => m.token === params[0]);
+    return Promise.resolve({ rows: member ? [{ id: member.id, class_id: member.class_id }] : [] });
+  }
+
+  if (normalized.includes("INSERT INTO RANKING_SCORES") && normalized.includes("DO UPDATE SET POINTS")) {
+    const memberId = Number(params[0]);
+    const points = Number(params[1]);
+    const topicsDone = Number(params[2]);
+    const existing = MOCK_SCORES.find((row) => row.member_id === memberId);
+    if (existing) {
+      existing.points = points;
+      existing.topics_done = topicsDone;
+      existing.updated_at = Date.now();
+    } else {
+      MOCK_SCORES.push({ member_id: memberId, points, topics_done: topicsDone, updated_at: Date.now() });
+    }
+    return Promise.resolve({ rows: [] });
+  }
+
+  if (normalized.includes("SELECT RANKED.RANK, RANKED.TOTAL")) {
+    const classId = String(params[0]);
+    const memberId = Number(params[1]);
+    const classMemberIds = MOCK_MEMBERS.filter((m) => m.class_id === classId).map((m) => m.id);
+    const rankingRows = MOCK_SCORES
+      .filter((row) => classMemberIds.includes(row.member_id))
+      .sort((a, b) => b.points - a.points || b.topics_done - a.topics_done || a.updated_at - b.updated_at);
+    const index = rankingRows.findIndex((row) => row.member_id === memberId);
+    if (index < 0) return Promise.resolve({ rows: [] });
+    return Promise.resolve({ rows: [{ rank: index + 1, total: rankingRows.length }] });
+  }
+
+  if (normalized.includes("CM.DISPLAY_NAME") && normalized.includes("RANK() OVER")) {
+    const classId = String(params[0]);
+    const classMembers = MOCK_MEMBERS.filter((m) => m.class_id === classId);
+    const rankingRows = classMembers
+      .map((member) => {
+        const score = MOCK_SCORES.find((row) => row.member_id === member.id) ?? {
+          member_id: member.id,
+          points: 0,
+          topics_done: 0,
+          updated_at: Date.now()
+        };
+        return {
+          member_id: member.id,
+          display_name: member.display_name,
+          points: score.points,
+          topics_done: score.topics_done,
+          updated_at: score.updated_at
+        };
+      })
+      .sort((a, b) => b.points - a.points || b.topics_done - a.topics_done || a.updated_at - b.updated_at)
+      .map((row, index) => ({ ...row, rank: index + 1 }));
+    return Promise.resolve({ rows: rankingRows.slice(0, 20) });
+  }
 
   if (normalized.includes("COUNT(*)::INT AS TOTAL FROM TOPICS")) {
     return Promise.resolve({ rows: [{ total: MOCK_TOPICS.length }] });
@@ -93,8 +178,36 @@ after(() => new Promise((resolve) => {
   server.close(resolve);
 }));
 
-async function get(path) {
-  const response = await fetch(`${baseUrl}${path}`);
+async function get(path, token = "") {
+  const response = await fetch(`${baseUrl}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  const body = await response.json();
+  return { status: response.status, body };
+}
+
+async function post(path, payload, token = "") {
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(payload)
+  });
+  const body = await response.json();
+  return { status: response.status, body };
+}
+
+async function put(path, payload, token = "") {
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(payload)
+  });
   const body = await response.json();
   return { status: response.status, body };
 }
@@ -183,6 +296,43 @@ describe("GET /api/topics/:id", () => {
     assert.equal(status, 404);
     assert.equal(body.code, "TOPIC_NOT_FOUND");
     assert.ok(typeof body.timestamp === "string");
+  });
+});
+
+describe("Klassen-Ranking (optional)", () => {
+  it("lässt Beitritt per joinCode zu und gibt Token zurück", async () => {
+    const { status, body } = await post("/api/classes/join", {
+      joinCode: "DEMO11",
+      displayName: "Lernfuchs42"
+    });
+    assert.equal(status, 201);
+    assert.equal(body.classId, "klasse-demo-11a");
+    assert.ok(typeof body.token === "string" && body.token.length > 10);
+  });
+
+  it("liefert 401 beim Score-Update ohne Token", async () => {
+    const { status, body } = await put("/api/ranking/score", { points: 50, topicsDone: 2 });
+    assert.equal(status, 401);
+    assert.equal(body.code, "UNAUTHORIZED");
+  });
+
+  it("aktualisiert Score und liefert Ranking für beigetretenes Mitglied", async () => {
+    const joined = await post("/api/classes/join", {
+      joinCode: "DEMO11",
+      displayName: "QuizPilot"
+    });
+    assert.equal(joined.status, 201);
+    const token = joined.body.token;
+
+    const score = await put("/api/ranking/score", { points: 130, topicsDone: 4 }, token);
+    assert.equal(score.status, 200);
+    assert.ok(score.body.rank >= 1);
+    assert.ok(score.body.total >= 1);
+
+    const ranking = await get("/api/classes/klasse-demo-11a/ranking", token);
+    assert.equal(ranking.status, 200);
+    assert.ok(Array.isArray(ranking.body));
+    assert.ok(ranking.body.some((entry) => entry.displayName === "QuizPilot"));
   });
 });
 

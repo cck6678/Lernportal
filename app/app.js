@@ -28,6 +28,19 @@ function normalizeQuiz(rawQuiz) {
         return { question, options, answer };
       }
 
+      function normalizeSources(rawSources) {
+        if (!Array.isArray(rawSources)) return [];
+        return rawSources
+          .map((source) => {
+            const label = String(source?.label ?? "").trim();
+            const url = String(source?.url ?? "").trim();
+            const section = String(source?.section ?? "").trim();
+            if (!label) return null;
+            return { label, ...(url ? { url } : {}), ...(section ? { section } : {}) };
+          })
+          .filter(Boolean);
+      }
+
       // Legacy-Format: { question, answers: [...] }
       if (Array.isArray(q?.answers) && q.answers.length > 0) {
         const correct = String(q.answers[0] ?? "").trim();
@@ -56,6 +69,7 @@ function normalizeTopic(topic, index) {
     keyTerms: toStringArray(topic?.keyTerms),
     formulas: toStringArray(topic?.formulas),
     examples: toStringArray(topic?.examples),
+    sources: normalizeSources(topic?.sources),
     quiz: normalizeQuiz(topic?.quiz)
   };
 }
@@ -103,7 +117,10 @@ const storeKeys = {
   earnedBadges: "lernportal.earnedBadges",
   weeklyGoal: "lernportal.weeklyGoal",
   weekStart: "lernportal.weekStart",
-  weekTopics: "lernportal.weekTopics"
+  weekTopics: "lernportal.weekTopics",
+  rankingToken: "lernportal.rankingToken",
+  rankingClassId: "lernportal.rankingClassId",
+  rankingDisplayName: "lernportal.rankingDisplayName"
 };
 
 const tabLearn = document.getElementById("tab-learn");
@@ -138,6 +155,12 @@ const goalInput = document.getElementById("goal-input");
 const goalBar = document.getElementById("goal-bar");
 const goalStatus = document.getElementById("goal-status");
 const badgeList = document.getElementById("badge-list");
+const rankingJoinCodeInput = document.getElementById("ranking-join-code");
+const rankingDisplayNameInput = document.getElementById("ranking-display-name");
+const rankingJoinBtn = document.getElementById("ranking-join-btn");
+const rankingSyncBtn = document.getElementById("ranking-sync-btn");
+const rankingStatusEl = document.getElementById("ranking-status");
+const rankingListEl = document.getElementById("ranking-list");
 
 let activeTopic = null;
 let activeQuiz = [];
@@ -155,6 +178,9 @@ let repeatWrongMode = false;
 let wrongQueue = [];
 let subjectScopedTopics = null;
 let maxPoints = allTopics.reduce((sum, topic) => sum + topic.quiz.length * 10, 0);
+let rankingToken = readText(storeKeys.rankingToken, "");
+let rankingClassId = readText(storeKeys.rankingClassId, "");
+let rankingDisplayName = readText(storeKeys.rankingDisplayName, "");
 
 // Wöchentliches Lernziel – Woche zurücksetzen wenn nötig
 (function initWeek() {
@@ -192,6 +218,13 @@ async function initializeApp() {
   applyFilters();
   await restoreLastTopic();
   updateScoreDisplay();
+  rankingDisplayNameInput.value = rankingDisplayName;
+  rankingStatusEl.textContent = rankingToken
+    ? `Verbunden mit Klasse ${rankingClassId} als ${rankingDisplayName}.`
+    : "Optional: Mit Klassencode und Pseudonym dem Ranking beitreten (Demo-Code: DEMO11).";
+  if (rankingToken && rankingClassId) {
+    void syncRankingScore();
+  }
 }
 
 function buildApiUrl(path, params = {}) {
@@ -242,6 +275,49 @@ async function fetchTopicDetail(topicId) {
   return normalizeTopic(payload, 0);
 }
 
+async function joinRankingClass(joinCode, displayName) {
+  const response = await fetch(buildApiUrl("/api/classes/join"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ joinCode, displayName })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(String(payload?.error ?? `POST /api/classes/join fehlgeschlagen (${response.status})`));
+  }
+  return payload;
+}
+
+async function pushRankingScore(token, pointsValue, topicsDoneValue) {
+  const response = await fetch(buildApiUrl("/api/ranking/score"), {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ points: pointsValue, topicsDone: topicsDoneValue })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(String(payload?.error ?? `PUT /api/ranking/score fehlgeschlagen (${response.status})`));
+  }
+  return payload;
+}
+
+async function fetchClassRanking(classId, token) {
+  const response = await fetch(buildApiUrl(`/api/classes/${encodeURIComponent(classId)}/ranking`), {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const payload = await response.json().catch(() => ([]));
+  if (!response.ok) {
+    throw new Error(String(payload?.error ?? `GET /api/classes/${classId}/ranking fehlgeschlagen (${response.status})`));
+  }
+  if (!Array.isArray(payload)) {
+    throw new Error("Ungültiges Ranking-Format");
+  }
+  return payload;
+}
+
 function bindEvents() {
   searchInput.addEventListener("input", () => {
     applyFilters();
@@ -288,6 +364,7 @@ function bindEvents() {
     updateProgress();
     renderTopicPickerList();
     checkAndAwardBadges();
+    void syncRankingScore();
   });
 
   nextQuestionBtn.addEventListener("click", () => {
@@ -311,6 +388,14 @@ function bindEvents() {
       writeJson(storeKeys.weeklyGoal, val);
       renderGoal();
     }
+  });
+
+  rankingJoinBtn.addEventListener("click", () => {
+    void handleRankingJoin();
+  });
+
+  rankingSyncBtn.addEventListener("click", () => {
+    void syncRankingScore();
   });
 
   window.addEventListener("online", updateOfflineHint);
@@ -607,6 +692,7 @@ function awardPoints(amount, label) {
   points += amount;
   writeJson(storeKeys.points, points);
   updateScoreDisplay();
+  void syncRankingScore();
   scoreToast.textContent = label;
   scoreToast.hidden = false;
   scoreBoxEl.classList.remove("bump");
@@ -698,6 +784,66 @@ function updateOfflineHint() {
   offlineStateEl.textContent = navigator.onLine
     ? "Online: alle Inhalte verfügbar."
     : "Offline: zuletzt geladene Inhalte sind weiter nutzbar.";
+}
+
+async function handleRankingJoin() {
+  const joinCode = rankingJoinCodeInput.value.trim().toUpperCase();
+  const displayName = rankingDisplayNameInput.value.trim();
+  if (!joinCode) {
+    rankingStatusEl.textContent = "Bitte Klassencode eingeben.";
+    return;
+  }
+  if (displayName.length < 2) {
+    rankingStatusEl.textContent = "Bitte Anzeigename mit mindestens 2 Zeichen eingeben.";
+    return;
+  }
+  rankingStatusEl.textContent = "Verbinde mit Klassen-Ranking …";
+  try {
+    const joined = await joinRankingClass(joinCode, displayName);
+    rankingToken = String(joined.token ?? "");
+    rankingClassId = String(joined.classId ?? "");
+    rankingDisplayName = displayName;
+    writeText(storeKeys.rankingToken, rankingToken);
+    writeText(storeKeys.rankingClassId, rankingClassId);
+    writeText(storeKeys.rankingDisplayName, rankingDisplayName);
+    rankingStatusEl.textContent = `Beitritt erfolgreich: ${joined.className} (${rankingDisplayName})`;
+    await syncRankingScore();
+  } catch (error) {
+    rankingStatusEl.textContent = `Beitritt fehlgeschlagen: ${error.message}`;
+  }
+}
+
+function renderRankingList(entries) {
+  rankingListEl.innerHTML = "";
+  if (!Array.isArray(entries) || entries.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "hint";
+    empty.textContent = "Noch keine Ranking-Daten vorhanden.";
+    rankingListEl.append(empty);
+    return;
+  }
+  entries.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = `ranking-row${entry.isSelf ? " self" : ""}`;
+    row.innerHTML = `
+      <span class="ranking-rank">#${entry.rank}</span>
+      <span>${entry.displayName}</span>
+      <span class="ranking-points">${entry.points} P · ${entry.topicsDone} Themen</span>
+    `;
+    rankingListEl.append(row);
+  });
+}
+
+async function syncRankingScore() {
+  if (!rankingToken || !rankingClassId) return;
+  try {
+    const rankInfo = await pushRankingScore(rankingToken, points, learnedTopics.size);
+    const entries = await fetchClassRanking(rankingClassId, rankingToken);
+    rankingStatusEl.textContent = `Rang ${rankInfo.rank}/${rankInfo.total} in Klasse ${rankingClassId}`;
+    renderRankingList(entries);
+  } catch (error) {
+    rankingStatusEl.textContent = `Ranking-Sync fehlgeschlagen: ${error.message}`;
+  }
 }
 
 function registerServiceWorker() {

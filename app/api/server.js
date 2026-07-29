@@ -1,4 +1,5 @@
 import http from "node:http";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -83,7 +84,7 @@ function setCommonHeaders(response) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
-  response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.setHeader("Cache-Control", "no-store");
 }
 
@@ -91,6 +92,43 @@ function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
   setCommonHeaders(response);
   response.end(JSON.stringify(payload));
+}
+
+function getBearerToken(request) {
+  const raw = String(request.headers.authorization ?? "");
+  const match = raw.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : "";
+}
+
+async function readRequestBody(request) {
+  return new Promise((resolve, reject) => {
+    let raw = "";
+    request.on("data", (chunk) => {
+      raw += chunk;
+      if (raw.length > 1024 * 1024) {
+        const error = new Error("Request body too large");
+        error.statusCode = 413;
+        error.code = "PAYLOAD_TOO_LARGE";
+        reject(error);
+        request.destroy();
+      }
+    });
+    request.on("error", reject);
+    request.on("end", () => resolve(raw));
+  });
+}
+
+async function parseJsonBody(request) {
+  const raw = await readRequestBody(request);
+  if (!raw.trim()) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const error = new Error("Invalid JSON body");
+    error.statusCode = 400;
+    error.code = "INVALID_JSON";
+    throw error;
+  }
 }
 
 export function createApp(queryFn) {
@@ -209,6 +247,185 @@ export function createApp(queryFn) {
     };
   }
 
+  async function joinClass(joinCode, displayName) {
+    const normalizedCode = String(joinCode ?? "").trim().toUpperCase();
+    const normalizedName = String(displayName ?? "").trim();
+    if (!normalizedCode) {
+      const error = new Error("joinCode ist erforderlich");
+      error.statusCode = 400;
+      error.code = "JOIN_CODE_REQUIRED";
+      throw error;
+    }
+    if (!normalizedName || normalizedName.length < 2) {
+      const error = new Error("displayName muss mindestens 2 Zeichen haben");
+      error.statusCode = 400;
+      error.code = "DISPLAY_NAME_INVALID";
+      throw error;
+    }
+
+    const classResult = await queryFn(
+      `
+        SELECT id, name
+        FROM classes
+        WHERE join_code = $1
+        LIMIT 1
+      `,
+      [normalizedCode]
+    );
+    if (classResult.rows.length === 0) {
+      const error = new Error("Klasse mit joinCode nicht gefunden");
+      error.statusCode = 404;
+      error.code = "CLASS_NOT_FOUND";
+      throw error;
+    }
+
+    const classRow = classResult.rows[0];
+    const token = crypto.randomUUID();
+    const memberResult = await queryFn(
+      `
+        INSERT INTO class_members (class_id, display_name, token)
+        VALUES ($1, $2, $3)
+        RETURNING id
+      `,
+      [classRow.id, normalizedName, token]
+    );
+
+    await queryFn(
+      `
+        INSERT INTO ranking_scores (member_id, points, topics_done)
+        VALUES ($1, 0, 0)
+        ON CONFLICT (member_id)
+        DO NOTHING
+      `,
+      [memberResult.rows[0].id]
+    );
+
+    return {
+      memberId: memberResult.rows[0].id,
+      token,
+      classId: classRow.id,
+      className: classRow.name
+    };
+  }
+
+  async function updateRankingScore(token, points, topicsDone) {
+    if (!token) {
+      const error = new Error("Authorization Bearer token fehlt");
+      error.statusCode = 401;
+      error.code = "UNAUTHORIZED";
+      throw error;
+    }
+    const memberResult = await queryFn(
+      `
+        SELECT id, class_id
+        FROM class_members
+        WHERE token = $1
+        LIMIT 1
+      `,
+      [token]
+    );
+    if (memberResult.rows.length === 0) {
+      const error = new Error("Ungültiger Token");
+      error.statusCode = 401;
+      error.code = "UNAUTHORIZED";
+      throw error;
+    }
+    const member = memberResult.rows[0];
+    const safePoints = Math.max(0, Number.parseInt(String(points ?? 0), 10) || 0);
+    const safeTopicsDone = Math.max(0, Number.parseInt(String(topicsDone ?? 0), 10) || 0);
+
+    await queryFn(
+      `
+        INSERT INTO ranking_scores (member_id, points, topics_done, updated_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (member_id)
+        DO UPDATE SET points = EXCLUDED.points, topics_done = EXCLUDED.topics_done, updated_at = NOW()
+      `,
+      [member.id, safePoints, safeTopicsDone]
+    );
+
+    const rankResult = await queryFn(
+      `
+        SELECT ranked.rank, ranked.total
+        FROM (
+          SELECT
+            rs.member_id,
+            RANK() OVER (ORDER BY rs.points DESC, rs.topics_done DESC, rs.updated_at ASC) AS rank,
+            COUNT(*) OVER () AS total
+          FROM ranking_scores rs
+          INNER JOIN class_members cm ON cm.id = rs.member_id
+          WHERE cm.class_id = $1
+        ) ranked
+        WHERE ranked.member_id = $2
+        LIMIT 1
+      `,
+      [member.class_id, member.id]
+    );
+
+    const rankRow = rankResult.rows[0] ?? { rank: 1, total: 1 };
+    return {
+      classId: member.class_id,
+      rank: Number(rankRow.rank),
+      total: Number(rankRow.total)
+    };
+  }
+
+  async function fetchClassRanking(token, classId) {
+    if (!token) {
+      const error = new Error("Authorization Bearer token fehlt");
+      error.statusCode = 401;
+      error.code = "UNAUTHORIZED";
+      throw error;
+    }
+    const memberResult = await queryFn(
+      `
+        SELECT id, class_id
+        FROM class_members
+        WHERE token = $1
+        LIMIT 1
+      `,
+      [token]
+    );
+    if (memberResult.rows.length === 0) {
+      const error = new Error("Ungültiger Token");
+      error.statusCode = 401;
+      error.code = "UNAUTHORIZED";
+      throw error;
+    }
+    const member = memberResult.rows[0];
+    if (String(member.class_id) !== String(classId)) {
+      const error = new Error("Kein Zugriff auf diese Klasse");
+      error.statusCode = 403;
+      error.code = "FORBIDDEN";
+      throw error;
+    }
+
+    const result = await queryFn(
+      `
+        SELECT
+          cm.id AS member_id,
+          cm.display_name,
+          rs.points,
+          rs.topics_done,
+          RANK() OVER (ORDER BY rs.points DESC, rs.topics_done DESC, rs.updated_at ASC) AS rank
+        FROM ranking_scores rs
+        INNER JOIN class_members cm ON cm.id = rs.member_id
+        WHERE cm.class_id = $1
+        ORDER BY rank ASC, cm.display_name ASC
+        LIMIT 20
+      `,
+      [classId]
+    );
+
+    return result.rows.map((row) => ({
+      rank: Number(row.rank),
+      displayName: String(row.display_name),
+      points: Number(row.points),
+      topicsDone: Number(row.topics_done),
+      isSelf: Number(row.member_id) === Number(member.id)
+    }));
+  }
+
   async function handleRequest(request, response) {
     if (request.method === "OPTIONS") {
       response.statusCode = 204;
@@ -217,12 +434,50 @@ export function createApp(queryFn) {
       return;
     }
 
-    if (request.method !== "GET" && request.method !== "POST" && request.method !== "PUT") {
-      sendJson(response, 405, createError("Method not allowed", "METHOD_NOT_ALLOWED"));
+    const method = request.method ?? "GET";
+    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+    const rankingMatch = url.pathname.match(/^\/api\/classes\/([^/]+)\/ranking$/);
+
+    if (url.pathname === "/api/classes/join") {
+      if (method !== "POST") {
+        sendJson(response, 405, createError("Method not allowed", "METHOD_NOT_ALLOWED"));
+        return;
+      }
+      const payload = await parseJsonBody(request);
+      const joined = await joinClass(payload.joinCode, payload.displayName);
+      sendJson(response, 201, joined);
       return;
     }
 
-    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
+    if (url.pathname === "/api/ranking/score") {
+      if (method !== "PUT") {
+        sendJson(response, 405, createError("Method not allowed", "METHOD_NOT_ALLOWED"));
+        return;
+      }
+      const payload = await parseJsonBody(request);
+      const ranking = await updateRankingScore(
+        getBearerToken(request),
+        payload.points,
+        payload.topicsDone
+      );
+      sendJson(response, 200, ranking);
+      return;
+    }
+
+    if (rankingMatch) {
+      if (method !== "GET") {
+        sendJson(response, 405, createError("Method not allowed", "METHOD_NOT_ALLOWED"));
+        return;
+      }
+      const ranking = await fetchClassRanking(getBearerToken(request), decodeURIComponent(rankingMatch[1]));
+      sendJson(response, 200, ranking);
+      return;
+    }
+
+    if (method !== "GET") {
+      sendJson(response, 405, createError("Method not allowed", "METHOD_NOT_ALLOWED"));
+      return;
+    }
 
     if (url.pathname === "/api/health") {
       const result = await queryFn("SELECT COUNT(*)::int AS total FROM topics");
@@ -275,6 +530,10 @@ export function createApp(queryFn) {
 
   const server = http.createServer((request, response) => {
     handleRequest(request, response).catch((error) => {
+      if (error?.statusCode && error?.code) {
+        sendJson(response, Number(error.statusCode), createError(error.message, error.code));
+        return;
+      }
       console.error("API request failed:", error);
       sendJson(response, 500, createError("Internal server error", "INTERNAL_SERVER_ERROR"));
     });
@@ -293,14 +552,10 @@ if (process.argv[1] === new URL(import.meta.url).pathname) {
     console.log(`Lernportal API listening on http://${host}:${port}`);
   });
 
-  process.on("SIGINT", async () => {
+  const shutdown = async () => {
     await closeDb();
     server.close(() => process.exit(0));
-  });
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
-
-process.on("SIGTERM", async () => {
-  await closeDb();
-  server.close(() => process.exit(0));
-});
-
