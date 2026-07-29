@@ -1,8 +1,17 @@
-import themes from "../data/themes.json";
-
 const STORAGE_KEY = "lernportal:theme";
 const PLATFORM_KEY = "lernportal:platform_mac_ios";
 const DEFAULT_THEME = "clean-mono-1";
+let themes = [];
+
+async function loadThemes() {
+  try {
+    const res = await fetch('/data/themes.json');
+    themes = await res.json();
+  } catch (e) {
+    console.error('Failed to load themes.json', e);
+    themes = [];
+  }
+}
 
 function applyThemeById(id) {
   const t = themes.find((x) => x.id === id);
@@ -164,7 +173,8 @@ function togglePopover() { if (open) return closePopover(); openPopover(); }
 function openPopover() { if (!popover) buildPopover(); popover.style.display = "block"; open = true; const saved = loadSavedTheme(); if (saved) markSelected(saved); }
 function closePopover() { if (!popover) return; popover.style.display = "none"; open = false; }
 
-function init() {
+async function init() {
+  await loadThemes();
   const btn = createButton();
   document.body.appendChild(btn);
   buildPopover();
@@ -181,5 +191,5 @@ function init() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else init();
+  document.addEventListener("DOMContentLoaded", () => { init().catch(console.error); });
+} else init().catch(console.error);
