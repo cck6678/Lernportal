@@ -51,8 +51,10 @@ function createButton() {
   btn.className = "theme-corner-button";
   btn.setAttribute("aria-label", "Design wechseln");
   btn.setAttribute("title", "Design wechseln");
+  // ensure icon contrasts with theme primary color
+  btn.style.color = 'var(--primary)';
   btn.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
     </svg>`;
   btn.addEventListener("click", togglePopover);
@@ -64,10 +66,25 @@ let popover = null;
 let open = false;
 
 function buildPopover() {
+  // remove previous popover if present
+  if (popover && popover.parentElement) popover.parentElement.removeChild(popover);
   popover = document.createElement("div");
   popover.className = "theme-popover";
   popover.setAttribute("role", "dialog");
   popover.setAttribute("aria-label", "Theme Auswahl");
+
+  // header
+  const header = document.createElement('div');
+  header.className = 'popover-header';
+  const title = document.createElement('h4');
+  title.textContent = 'Design wählen';
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'close-btn';
+  closeBtn.setAttribute('aria-label','Schließen');
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => closePopover());
+  header.appendChild(title);
+  header.appendChild(closeBtn);
 
   const grid = document.createElement("div");
   grid.className = "theme-grid";
@@ -81,9 +98,7 @@ function buildPopover() {
 
     const sw = document.createElement("div");
     sw.className = "swatch";
-    sw.style.display = "grid";
-    sw.style.gridTemplateColumns = "25% 25% 25% 25%";
-    sw.style.height = "100%";
+
     t.palette.forEach((c) => {
       const s = document.createElement("div");
       s.style.background = c;
@@ -155,6 +170,7 @@ function buildPopover() {
   controls.appendChild(left);
   controls.appendChild(rightBtn);
 
+  popover.appendChild(header);
   popover.appendChild(grid);
   popover.appendChild(controls);
 
