@@ -71,6 +71,7 @@ function normalizeTopicRow(row) {
     keyTerms: toStringArray(row.key_terms),
     formulas: toStringArray(row.formulas),
     examples: toStringArray(row.examples),
+    outline: toStringArray(row.outline),
     sources: row.sources ? (Array.isArray(row.sources) ? row.sources : []) : [],
     quiz: normalizeQuiz(row.quiz)
   };
@@ -148,6 +149,7 @@ export function createApp(queryFn) {
           t.key_terms,
           t.formulas,
           t.examples,
+          t.outline,
           t.sources,
           COALESCE(
             json_agg(
@@ -164,7 +166,7 @@ export function createApp(queryFn) {
         INNER JOIN subjects s ON s.id = t.subject_id
         LEFT JOIN quiz_items qi ON qi.topic_id = t.id
         ${whereClause}
-        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.sources
+        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.outline, t.sources
         ORDER BY s.name ASC, t.title ASC
       `,
       params
@@ -182,6 +184,7 @@ export function createApp(queryFn) {
           t.key_terms,
           t.formulas,
           t.examples,
+          t.outline,
           t.sources,
           COALESCE(
             json_agg(
@@ -198,7 +201,7 @@ export function createApp(queryFn) {
         INNER JOIN subjects s ON s.id = t.subject_id
         LEFT JOIN quiz_items qi ON qi.topic_id = t.id
         WHERE t.id = $1
-        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.sources
+        GROUP BY t.id, s.name, t.title, t.key_terms, t.formulas, t.examples, t.outline, t.sources
         LIMIT 1
       `,
       [topicId]
@@ -426,7 +429,96 @@ export function createApp(queryFn) {
     }));
   }
 
-  function requireAdminToken(request) {
+  async function generateAiDraft(source) {
+    const apiKey = process.env.OPENAI_API_KEY ?? "";
+    if (!apiKey) {
+      const err = new Error("OPENAI_API_KEY nicht konfiguriert");
+      err.statusCode = 503;
+      err.code = "AI_NOT_CONFIGURED";
+      throw err;
+    }
+    if (!source.trim()) {
+      const err = new Error("source darf nicht leer sein");
+      err.statusCode = 400;
+      err.code = "VALIDATION_ERROR";
+      throw err;
+    }
+
+    // URL: Inhalt abrufen
+    let content = source.trim();
+    if (/^https?:\/\//i.test(content)) {
+      const res = await fetch(content, {
+        headers: { "User-Agent": "Lernportal-CMS/1.0" },
+        signal: AbortSignal.timeout(10_000)
+      });
+      if (!res.ok) throw Object.assign(new Error(`URL nicht abrufbar (${res.status})`), { statusCode: 422, code: "URL_FETCH_FAILED" });
+      const html = await res.text();
+      // HTML-Tags entfernen, auf 6000 Zeichen kürzen
+      content = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 6000);
+    }
+
+    const systemPrompt = `Du bist ein Lehrinhalt-Extraktor für das Hessische Abitur-Lernportal.
+Extrahiere aus dem gegebenen Text einen strukturierten Lerninhalt und antworte NUR mit einem JSON-Objekt.
+Das JSON muss exakt dieses Schema erfüllen:
+{
+  "subject": "Fachname (z.B. Mathematik, Biologie, Geschichte)",
+  "title": "Titel des Themas (max. 60 Zeichen)",
+  "outline": ["1. Hauptabschnitt", "1.1 Unterabschnitt", "2. Nächster Abschnitt", ...],
+  "keyTerms": ["Begriff 1", "Begriff 2", ...],
+  "formulas": ["Formel/Merksatz 1", ...],
+  "examples": ["Beispiel 1 mit kurzer Erklärung", ...],
+  "sources": [{"label": "Quellname", "url": "https://...", "section": "Abschnitt"}],
+  "quiz": [
+    {
+      "question": "Fragentext?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "answer": 0
+    }
+  ]
+}
+Regeln:
+- subject und title sind Pflicht
+- outline: Gliederung aus der Quelle als flache Liste mit Hierarchie durch Nummerierung (z.B. "1.", "1.1", "2."); 5–15 Einträge
+- keyTerms: 5–10 wichtigste Fachbegriffe mit kurzer Erklärung wenn möglich (Format: "Begriff – Erklärung")
+- formulas: Formeln, Merksätze oder Strukturen; so viele wie relevant
+- examples: 3–6 konkrete Beispiele mit Kontext
+- quiz: exakt 5 Fragen mit je 4 Optionen; answer ist der 0-basierte Index der richtigen Option
+- Antworte ausschließlich mit dem JSON, kein weiterer Text`;
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Extrahiere Lerninhalt aus folgendem Text:\n\n${content}` }
+        ],
+        max_tokens: 3000,
+        temperature: 0.3
+      }),
+      signal: AbortSignal.timeout(30_000)
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw Object.assign(new Error(`OpenAI-Fehler (${response.status}): ${errBody.slice(0, 200)}`), { statusCode: 502, code: "AI_ERROR" });
+    }
+
+    const data = await response.json();
+    const raw = data.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return JSON.parse(raw);
+    } catch {
+      throw Object.assign(new Error("KI-Antwort konnte nicht geparst werden"), { statusCode: 502, code: "AI_PARSE_ERROR" });
+    }
+  }
+
+    function requireAdminToken(request) {
     const adminToken = process.env.ADMIN_TOKEN ?? "dev-admin";
     const auth = request.headers["authorization"] ?? "";
     const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
@@ -451,6 +543,7 @@ export function createApp(queryFn) {
     const keyTerms = Array.isArray(body.keyTerms) ? body.keyTerms.map(String) : [];
     const formulas = Array.isArray(body.formulas) ? body.formulas.map(String) : [];
     const examples = Array.isArray(body.examples) ? body.examples.map(String) : [];
+    const outline = Array.isArray(body.outline) ? body.outline.map(String) : [];
     const sources = Array.isArray(body.sources) ? body.sources : [];
     const quiz = normalizeQuiz(body.quiz ?? []);
 
@@ -463,20 +556,22 @@ export function createApp(queryFn) {
 
     // Topic upsert
     await queryFn(
-      `INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples, sources)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples, outline, sources)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (id) DO UPDATE SET
          subject_id = EXCLUDED.subject_id,
          title      = EXCLUDED.title,
          key_terms  = EXCLUDED.key_terms,
          formulas   = EXCLUDED.formulas,
          examples   = EXCLUDED.examples,
+         outline    = EXCLUDED.outline,
          sources    = EXCLUDED.sources,
          updated_at = NOW()`,
       [id, subjectId, title,
         `{${keyTerms.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
         `{${formulas.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
         `{${examples.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
+        `{${outline.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
         JSON.stringify(sources)]
     );
 
@@ -494,7 +589,7 @@ export function createApp(queryFn) {
       );
     }
 
-    return { id, subject: subjectName, title, keyTerms, formulas, examples, sources, quiz };
+    return { id, subject: subjectName, title, keyTerms, formulas, examples, outline, sources, quiz };
   }
 
   async function handleRequest(request, response) {
@@ -542,6 +637,15 @@ export function createApp(queryFn) {
       }
       const ranking = await fetchClassRanking(getBearerToken(request), decodeURIComponent(rankingMatch[1]));
       sendJson(response, 200, ranking);
+      return;
+    }
+
+    // POST /api/topics/ai-draft — KI-Vorschlag generieren (Admin)
+    if (url.pathname === "/api/topics/ai-draft" && method === "POST") {
+      requireAdminToken(request);
+      const body = await parseJsonBody(request);
+      const draft = await generateAiDraft(body.source ?? "");
+      sendJson(response, 200, draft);
       return;
     }
 

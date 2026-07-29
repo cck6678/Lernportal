@@ -69,6 +69,7 @@ function normalizeTopic(topic, index) {
     keyTerms: toStringArray(topic?.keyTerms),
     formulas: toStringArray(topic?.formulas),
     examples: toStringArray(topic?.examples),
+    outline: toStringArray(topic?.outline),
     sources: normalizeSources(topic?.sources),
     quiz: normalizeQuiz(topic?.quiz)
   };
@@ -139,6 +140,8 @@ const formulasEl = document.getElementById("topic-formulas");
 const examplesEl = document.getElementById("topic-examples");
 const sourcesDetailsEl = document.getElementById("topic-sources");
 const sourcesListEl = document.getElementById("topic-sources-list");
+const outlineDetailsEl = document.getElementById("topic-outline");
+const outlineListEl = document.getElementById("topic-outline-list");
 const learnedToggle = document.getElementById("learned-toggle");
 const quizPanel = document.getElementById("quiz-panel");
 const quizContext = document.getElementById("quiz-context");
@@ -584,6 +587,7 @@ async function openTopic(topicId) {
   fillList(keyTermsEl, resolvedTopic.keyTerms);
   fillList(formulasEl, resolvedTopic.formulas);
   fillList(examplesEl, resolvedTopic.examples);
+  renderOutline(resolvedTopic.outline);
   renderSources(resolvedTopic.sources);
   setLearnedButton(resolvedTopic.id);
 
@@ -750,6 +754,23 @@ function renderSources(sources) {
     sourcesListEl.append(li);
   });
   sourcesDetailsEl.hidden = false;
+}
+
+function renderOutline(outline) {
+  outlineListEl.innerHTML = "";
+  if (!Array.isArray(outline) || outline.length === 0) {
+    outlineDetailsEl.hidden = true;
+    return;
+  }
+  outline.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    // Einrückung nach Hierarchie-Tiefe (1.1 tiefer als 1.)
+    const depth = (item.match(/^\d+(\.\d+)+/) ? item.match(/\./g)?.length ?? 0 : 0);
+    if (depth > 0) li.style.marginLeft = `${depth * 1}rem`;
+    outlineListEl.append(li);
+  });
+  outlineDetailsEl.hidden = false;
 }
 
 async function restoreLastTopic() {

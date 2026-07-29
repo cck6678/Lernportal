@@ -456,6 +456,37 @@ ul {
   transform: translateX(-50%) translateY(0);
 }
 
+/* Gliederungs-Sektion */
+#topic-outline {
+  margin-top: 1rem;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+#topic-outline summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--muted, #64748b);
+  list-style: none;
+  user-select: none;
+}
+
+#topic-outline summary::-webkit-details-marker { display: none; }
+
+#topic-outline[open] summary {
+  margin-bottom: 0.5rem;
+}
+
+#topic-outline-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  list-style: none;
+}
+
 /* Quellen-Sektion */
 #topic-sources {
   margin-top: 1rem;

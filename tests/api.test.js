@@ -16,6 +16,7 @@ const MOCK_TOPICS = [
     key_terms: ["Ableitung", "Tangente"],
     formulas: ["f'(x)=nx^(n-1)"],
     examples: ["f(x)=x^2 → f'(x)=2x"],
+    outline: ["1. Grundlagen", "1.1 Definition", "2. Rechenregeln"],
     sources: [{ label: "Kerncurriculum Mathematik", url: "https://example.com", section: "Analysis" }],
     quiz: [
       { question: "Was ist die Ableitung von x^2?", options: ["2x", "x^2", "2", "x"], answer: 0 }
@@ -28,6 +29,7 @@ const MOCK_TOPICS = [
     key_terms: ["Verfassung", "Inflation"],
     formulas: [],
     examples: [],
+    outline: [],
     sources: [],
     quiz: [
       {
@@ -143,7 +145,7 @@ function mockQuery(sql, params = []) {
   if (normalized.includes("INSERT INTO TOPICS") && normalized.includes("ON CONFLICT")) {
     const id = String(params[0]);
     const existing = MOCK_TOPICS.findIndex((t) => t.id === id);
-    // params: id, subject_id, title, key_terms(pg-array), formulas(pg-array), examples(pg-array), sources(json)
+    // params: id, subject_id, title, key_terms(pg-array), formulas(pg-array), examples(pg-array), outline(pg-array), sources(json)
     const parsePgArr = (v) => {
       try {
         const s = String(v ?? "{}");
@@ -160,7 +162,8 @@ function mockQuery(sql, params = []) {
       key_terms: parsePgArr(params[3]),
       formulas: parsePgArr(params[4]),
       examples: parsePgArr(params[5]),
-      sources: (() => { try { return JSON.parse(String(params[6] ?? "[]")); } catch { return []; } })()
+      outline: parsePgArr(params[6]),
+      sources: (() => { try { return JSON.parse(String(params[7] ?? "[]")); } catch { return []; } })()
     };
     if (existing >= 0) MOCK_TOPICS[existing] = newTopic;
     else MOCK_TOPICS.push(newTopic);
@@ -448,6 +451,29 @@ describe("Admin-Endpunkte", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subject: "X", title: "Y" })
+    });
+    const body = await res.json();
+    assert.equal(res.status, 401);
+    assert.equal(body.code, "UNAUTHORIZED");
+  });
+
+  it("POST /api/topics/ai-draft ohne API-Key liefert 503", async () => {
+    const res = await fetch(`${baseUrl}/api/topics/ai-draft`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer dev-admin" },
+      body: JSON.stringify({ source: "Testinhalt über Photosynthese" })
+    });
+    const body = await res.json();
+    // Kein OPENAI_API_KEY gesetzt → 503
+    assert.equal(res.status, 503);
+    assert.equal(body.code, "AI_NOT_CONFIGURED");
+  });
+
+  it("POST /api/topics/ai-draft ohne Token liefert 401", async () => {
+    const res = await fetch(`${baseUrl}/api/topics/ai-draft`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "Test" })
     });
     const body = await res.json();
     assert.equal(res.status, 401);
