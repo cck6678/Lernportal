@@ -337,8 +337,8 @@ describe("Klassen-Ranking (optional)", () => {
 });
 
 describe("Fehlerbehandlung", () => {
-  it("liefert 405 für POST-Anfragen", async () => {
-    const response = await fetch(`${baseUrl}/api/topics`, { method: "POST" });
+  it("liefert 405 für DELETE-Anfragen", async () => {
+    const response = await fetch(`${baseUrl}/api/topics`, { method: "DELETE" });
     const body = await response.json();
     assert.equal(response.status, 405);
     assert.equal(body.code, "METHOD_NOT_ALLOWED");

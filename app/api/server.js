@@ -1,6 +1,46 @@
 import http from "node:http";
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { closeDb, query as realQuery } from "./db.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const STATIC_ROOT = path.resolve(__dirname, "..");
+
+const MIME_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".js":   "application/javascript; charset=utf-8",
+  ".css":  "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
+  ".png":  "image/png",
+  ".jpg":  "image/jpeg",
+  ".svg":  "image/svg+xml",
+  ".ico":  "image/x-icon",
+};
+
+async function serveStatic(request, response) {
+  let urlPath = new URL(request.url, "http://localhost").pathname;
+  if (urlPath === "/" || urlPath === "") urlPath = "/index.html";
+  const filePath = path.join(STATIC_ROOT, urlPath);
+  if (!filePath.startsWith(STATIC_ROOT)) {
+    response.statusCode = 403;
+    response.end("Forbidden");
+    return;
+  }
+  try {
+    const data = await fs.promises.readFile(filePath);
+    const ext = path.extname(filePath).toLowerCase();
+    response.statusCode = 200;
+    response.setHeader("Content-Type", MIME_TYPES[ext] ?? "application/octet-stream");
+    response.end(data);
+  } catch {
+    response.statusCode = 404;
+    response.setHeader("Content-Type", "text/plain");
+    response.end("Not found");
+  }
+}
 
 const DEFAULT_PORT = 3000;
 const startedAt = new Date().toISOString();
@@ -476,6 +516,12 @@ export function createApp(queryFn) {
       } else {
         sendJson(response, 200, topic);
       }
+      return;
+    }
+
+    // Kein API-Endpunkt gefunden → statische Dateien servieren
+    if (!url.pathname.startsWith("/api/")) {
+      await serveStatic(request, response);
       return;
     }
 
