@@ -204,6 +204,13 @@ async function init() {
 
   const platform = loadPlatformPref();
   if (platform) document.body.classList.add("platform-mac-ios");
+
+  // For quick preview during development: append ?themes=1 to URL to auto-open
+  try {
+    if (typeof location !== 'undefined' && location.search && location.search.indexOf('themes=1') !== -1) {
+      openPopover();
+    }
+  } catch (e) { /* ignore */ }
 }
 
 if (document.readyState === "loading") {
