@@ -440,9 +440,9 @@ export function createApp(queryFn) {
 
   async function upsertTopic(body) {
     const id = String(body?.id ?? "").trim() || `topic-${Date.now()}`;
-    const subject = String(body?.subject ?? "").trim();
+    const subjectName = String(body?.subject ?? "").trim();
     const title = String(body?.title ?? "").trim();
-    if (!subject || !title) {
+    if (!subjectName || !title) {
       const err = new Error("subject and title are required");
       err.statusCode = 400;
       err.code = "VALIDATION_ERROR";
@@ -453,22 +453,48 @@ export function createApp(queryFn) {
     const examples = Array.isArray(body.examples) ? body.examples.map(String) : [];
     const sources = Array.isArray(body.sources) ? body.sources : [];
     const quiz = normalizeQuiz(body.quiz ?? []);
+
+    // Fach anlegen wenn nicht vorhanden
+    const subjectId = subjectName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     await queryFn(
-      `INSERT INTO topics (id, subject, title, key_terms, formulas, examples, sources, quiz)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       ON CONFLICT (id) DO UPDATE SET
-         subject   = EXCLUDED.subject,
-         title     = EXCLUDED.title,
-         key_terms = EXCLUDED.key_terms,
-         formulas  = EXCLUDED.formulas,
-         examples  = EXCLUDED.examples,
-         sources   = EXCLUDED.sources,
-         quiz      = EXCLUDED.quiz`,
-      [id, subject, title,
-        JSON.stringify(keyTerms), JSON.stringify(formulas), JSON.stringify(examples),
-        JSON.stringify(sources), JSON.stringify(quiz)]
+      `INSERT INTO subjects (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING`,
+      [subjectId, subjectName]
     );
-    return { id, subject, title, keyTerms, formulas, examples, sources, quiz };
+
+    // Topic upsert
+    await queryFn(
+      `INSERT INTO topics (id, subject_id, title, key_terms, formulas, examples, sources)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO UPDATE SET
+         subject_id = EXCLUDED.subject_id,
+         title      = EXCLUDED.title,
+         key_terms  = EXCLUDED.key_terms,
+         formulas   = EXCLUDED.formulas,
+         examples   = EXCLUDED.examples,
+         sources    = EXCLUDED.sources,
+         updated_at = NOW()`,
+      [id, subjectId, title,
+        `{${keyTerms.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
+        `{${formulas.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
+        `{${examples.map((t) => `"${t.replace(/"/g, '\\"')}"`).join(",")}}`,
+        JSON.stringify(sources)]
+    );
+
+    // Quiz-Items ersetzen
+    await queryFn(`DELETE FROM quiz_items WHERE topic_id = $1`, [id]);
+    for (let i = 0; i < quiz.length; i++) {
+      const q = quiz[i];
+      await queryFn(
+        `INSERT INTO quiz_items (topic_id, sort_order, question, options, answer)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [id, i,
+          q.question,
+          `{${q.options.map((o) => `"${o.replace(/"/g, '\\"')}"`).join(",")}}`,
+          q.answer]
+      );
+    }
+
+    return { id, subject: subjectName, title, keyTerms, formulas, examples, sources, quiz };
   }
 
   async function handleRequest(request, response) {
@@ -539,6 +565,7 @@ export function createApp(queryFn) {
         const updated = await upsertTopic({ ...body, id: topicId });
         sendJson(response, 200, updated);
       } else {
+        await queryFn("DELETE FROM quiz_items WHERE topic_id = $1", [topicId]);
         await queryFn("DELETE FROM topics WHERE id = $1", [topicId]);
         sendJson(response, 200, { deleted: topicId });
       }

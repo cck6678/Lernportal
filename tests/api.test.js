@@ -128,18 +128,39 @@ function mockQuery(sql, params = []) {
     return Promise.resolve({ rows: rankingRows.slice(0, 20) });
   }
 
+  if (normalized.includes("INSERT INTO SUBJECTS") && normalized.includes("ON CONFLICT")) {
+    return Promise.resolve({ rows: [] });
+  }
+
+  if (normalized.includes("DELETE FROM QUIZ_ITEMS WHERE TOPIC_ID")) {
+    return Promise.resolve({ rows: [] });
+  }
+
+  if (normalized.includes("INSERT INTO QUIZ_ITEMS")) {
+    return Promise.resolve({ rows: [] });
+  }
+
   if (normalized.includes("INSERT INTO TOPICS") && normalized.includes("ON CONFLICT")) {
     const id = String(params[0]);
     const existing = MOCK_TOPICS.findIndex((t) => t.id === id);
+    // params: id, subject_id, title, key_terms(pg-array), formulas(pg-array), examples(pg-array), sources(json)
+    const parsePgArr = (v) => {
+      try {
+        const s = String(v ?? "{}");
+        if (s.startsWith("[")) return JSON.parse(s);
+        return s.replace(/^\{|\}$/g, "").split(",")
+          .map((x) => x.trim().replace(/^"|"$/g, "").replace(/\\"/g, '"'))
+          .filter(Boolean);
+      } catch { return []; }
+    };
     const newTopic = {
       id,
       subject: String(params[1]),
       title: String(params[2]),
-      key_terms: JSON.parse(String(params[3])),
-      formulas: JSON.parse(String(params[4])),
-      examples: JSON.parse(String(params[5])),
-      sources: JSON.parse(String(params[6])),
-      quiz: JSON.parse(String(params[7]))
+      key_terms: parsePgArr(params[3]),
+      formulas: parsePgArr(params[4]),
+      examples: parsePgArr(params[5]),
+      sources: (() => { try { return JSON.parse(String(params[6] ?? "[]")); } catch { return []; } })()
     };
     if (existing >= 0) MOCK_TOPICS[existing] = newTopic;
     else MOCK_TOPICS.push(newTopic);
