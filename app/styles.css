@@ -456,3 +456,88 @@ ul {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* Theme Selector Corner Menu */
+.theme-corner-button {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  cursor: pointer;
+  z-index: 1100;
+}
+.theme-corner-button:focus {
+  outline: 3px solid rgba(59,130,246,0.25);
+}
+
+.theme-popover {
+  position: fixed;
+  right: 18px;
+  bottom: 80px;
+  width: 320px;
+  max-width: calc(100% - 40px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.6rem;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+  z-index: 1099;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+.theme-tile {
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid #e6edf6;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+.theme-tile .swatch {
+  width: 100%;
+  height: 100%;
+}
+
+.theme-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.theme-controls .left {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.theme-controls button, .theme-controls input[type="checkbox"] {
+  font-size: 0.85rem;
+}
+
+/* Platform override class for iOS/macOS */
+.platform-mac-ios .button {
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+}
+
+/* Small helper for selected tile */
+.theme-tile.selected {
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  border-color: var(--primary);
+}
