@@ -11,11 +11,18 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-.header { background: var(--bg); color: var(--text); padding: 1rem 1rem 0.9rem; border-bottom: 1px solid var(--border); }
+body { margin: 0; font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica", Arial, sans-serif; background: var(--bg); color: var(--text); }
+/* design-studie inspired header */
+.header { background: var(--bg); color: var(--text); padding: 1.25rem 1.25rem 1rem; border-bottom: 1px solid var(--border); }
 .header-row { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; }
-.header h1 { margin: 0; font-size: 1.5rem; }
-.header p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.95rem; }
+.header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+.header p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.95rem; }
+
+/* list/content style to match design-studie */
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1rem; }
+.panel h2, .panel h3 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.panel ul { margin: 0.5rem 0 0 1.1rem; color: var(--muted); }
+.panel ul li { margin-bottom: 0.35rem; line-height: 1.45; }
 .score-box { display: flex; flex-direction: column; align-items: center; background: #eef2f7; border: 1px solid var(--border); border-radius: 12px; padding: 0.4rem 0.7rem; min-width: 80px; flex-shrink: 0; }
 #score-points { font-size: 1.2rem; font-weight: 700; line-height: 1; color: var(--primary); }
 .score-max { font-size: 1.2rem; font-weight: 400; color: var(--muted); }

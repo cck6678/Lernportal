@@ -9,9 +9,9 @@
   { "id": "cyberpunk-neon", "name": "Abgespaced / Cyberpunk neon", "palette": ["#0A0A0F","#B026FF","#00F0FF","#FF2E92"], "meta": {} },
   { "id": "galaxy-dream", "name": "Abgespaced / Galaxy dream", "palette": ["#1A1035","#4B2E83","#8E6FE0","#F4F0FF"], "meta": {} },
   { "id": "clean-mono-1", "name": "Clean mono 1", "palette": ["#0E0E10","#F5F5F0","#8A8A85","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-2", "name": "Clean mono 2", "palette": ["#0E0E10","#F5F5F0","#9A9A97","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-3", "name": "Clean mono 3", "palette": ["#0E0E10","#F5F5F0","#7A7A76","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-4", "name": "Clean mono 4", "palette": ["#0E0E10","#F5F5F0","#6A6A66","#3D7CFA"], "meta": {} },
+  { "id": "clean-mono-2", "name": "Clean mono 2", "palette": ["#0E0E10","#F5F5F0","#A8A8A5","#3D7CFA"], "meta": {} },
+  { "id": "clean-mono-3", "name": "Clean mono 3", "palette": ["#0E0E10","#F5F5F0","#6F6F6C","#3D7CFA"], "meta": {} },
+  { "id": "clean-mono-4", "name": "Clean mono 4", "palette": ["#0E0E10","#F5F5F0","#4E4E4C","#3D7CFA"], "meta": {} },
   { "id": "clean-mono-5", "name": "Clean mono 5", "palette": ["#0E0E10","#F5F5F0","#5A5A56","#3D7CFA"], "meta": {} },
   { "id": "free-theme", "name": "Custom / Free theme", "palette": ["#FFFFFF","#111827","#9CA3AF","#2563EB"], "meta": {}}
 ]
