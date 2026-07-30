@@ -1,17 +1,167 @@
 [
-  { "id": "basic-classic", "name": "Basic / Classic contrast", "palette": ["#1B2340","#FFFFFF","#E4E6EC","#E8443F"], "meta": {} },
-  { "id": "pink-soft-blush", "name": "Pink / Soft blush", "palette": ["#F6E4E4","#D99AA6","#7A4C56","#F5F1E6"], "meta": {} },
-  { "id": "pink-coquette", "name": "Pink / Coquette", "palette": ["#FBEAF0","#E8558C","#5B1F32","#171416"], "meta": {} },
-  { "id": "sunset-chill", "name": "Chillig / Sunset chill", "palette": ["#FDE8D8","#F5A876","#C97BB0","#8C6BC9"], "meta": {} },
-  { "id": "ocean-calm", "name": "Chillig / Ocean calm", "palette": ["#F2F0E6","#A9C3A5","#7FAFC4","#3E5C6B"], "meta": {} },
-  { "id": "tech-minimal", "name": "Schlau / Tech minimal", "palette": ["#0B1220","#1E2A45","#00D9C0","#F2F4F8"], "meta": {} },
-  { "id": "academic-modern", "name": "Schlau / Academic modern", "palette": ["#F5F1E6","#1F3D2B","#C9A24B","#2B2B2B"], "meta": {} },
-  { "id": "cyberpunk-neon", "name": "Abgespaced / Cyberpunk neon", "palette": ["#0A0A0F","#B026FF","#00F0FF","#FF2E92"], "meta": {} },
-  { "id": "galaxy-dream", "name": "Abgespaced / Galaxy dream", "palette": ["#1A1035","#4B2E83","#8E6FE0","#F4F0FF"], "meta": {} },
-  { "id": "clean-mono-1", "name": "Clean mono 1", "palette": ["#0E0E10","#F5F5F0","#8A8A85","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-2", "name": "Clean mono 2", "palette": ["#0E0E10","#F5F5F0","#9A9A97","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-3", "name": "Clean mono 3", "palette": ["#0E0E10","#F5F5F0","#7A7A76","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-4", "name": "Clean mono 4", "palette": ["#0E0E10","#F5F5F0","#6A6A66","#3D7CFA"], "meta": {} },
-  { "id": "clean-mono-5", "name": "Clean mono 5", "palette": ["#0E0E10","#F5F5F0","#5A5A56","#3D7CFA"], "meta": {} },
-  { "id": "free-theme", "name": "Custom / Free theme", "palette": ["#FFFFFF","#111827","#9CA3AF","#2563EB"], "meta": {}}
+  {
+    "id": "basic-classic",
+    "name": "Basic / Classic contrast",
+    "palette": [
+      "#1B2340",
+      "#FFFFFF",
+      "#747578",
+      "#E8443F"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "pink-soft-blush",
+    "name": "Pink / Soft blush",
+    "palette": [
+      "#F6E4E4",
+      "#D99AA6",
+      "#57363e",
+      "#F5F1E6"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "pink-coquette",
+    "name": "Pink / Coquette",
+    "palette": [
+      "#FBEAF0",
+      "#E8558C",
+      "#401623",
+      "#171416"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "sunset-chill",
+    "name": "Chillig / Sunset chill",
+    "palette": [
+      "#FDE8D8",
+      "#F5A876",
+      "#653e58",
+      "#8C6BC9"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "ocean-calm",
+    "name": "Chillig / Ocean calm",
+    "palette": [
+      "#F2F0E6",
+      "#A9C3A5",
+      "#394f58",
+      "#3E5C6B"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "tech-minimal",
+    "name": "Schlau / Tech minimal",
+    "palette": [
+      "#0B1220",
+      "#1E2A45",
+      "#00D9C0",
+      "#F2F4F8"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "academic-modern",
+    "name": "Schlau / Academic modern",
+    "palette": [
+      "#F5F1E6",
+      "#1F3D2B",
+      "#C9A24B",
+      "#2B2B2B"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "cyberpunk-neon",
+    "name": "Abgespaced / Cyberpunk neon",
+    "palette": [
+      "#0A0A0F",
+      "#B026FF",
+      "#f7ffff",
+      "#FF2E92"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "galaxy-dream",
+    "name": "Abgespaced / Galaxy dream",
+    "palette": [
+      "#1A1035",
+      "#4B2E83",
+      "#b49fea",
+      "#F4F0FF"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "clean-mono-1",
+    "name": "Clean mono 1",
+    "palette": [
+      "#0E0E10",
+      "#F5F5F0",
+      "#70706c",
+      "#3D7CFA"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "clean-mono-2",
+    "name": "Clean mono 2",
+    "palette": [
+      "#0E0E10",
+      "#F5F5F0",
+      "#70706e",
+      "#3D7CFA"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "clean-mono-3",
+    "name": "Clean mono 3",
+    "palette": [
+      "#0E0E10",
+      "#F5F5F0",
+      "#6F6F6C",
+      "#3D7CFA"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "clean-mono-4",
+    "name": "Clean mono 4",
+    "palette": [
+      "#0E0E10",
+      "#F5F5F0",
+      "#4E4E4C",
+      "#3D7CFA"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "clean-mono-5",
+    "name": "Clean mono 5",
+    "palette": [
+      "#0E0E10",
+      "#F5F5F0",
+      "#5A5A56",
+      "#3D7CFA"
+    ],
+    "meta": {}
+  },
+  {
+    "id": "free-theme",
+    "name": "Custom / Free theme",
+    "palette": [
+      "#FFFFFF",
+      "#111827",
+      "#9CA3AF",
+      "#2563EB"
+    ],
+    "meta": {}
+  }
 ]
